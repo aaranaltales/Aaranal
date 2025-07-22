@@ -1,7 +1,7 @@
 'use client';
 
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import ContactHero from './ContactHero';
 import ContactForm from './ContactForm';
 

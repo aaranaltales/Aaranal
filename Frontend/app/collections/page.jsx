@@ -1,7 +1,7 @@
 'use client';
 
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import CollectionsHero from './CollectionsHero';
 import CollectionsGrid from './CollectionsGrid';
 import CollectionsFilter from './CollectionsFilter';

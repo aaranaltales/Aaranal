@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 const allProducts = [
-    {
+  {
     id: 1,
     name: "Blue Floral Tote",
     price: "$295",
     originalPrice: "$350",
-    image:"assests/blue_floral_bag.jpg",
+    image: "assests/blue_floral_bag.jpg",
     category: "Tote Bags",
     isNew: true,
     colors: ["#8B4513", "#2F2F2F", "#8B0000"],
@@ -23,7 +23,7 @@ const allProducts = [
     category: "Tote Bags",
     isNew: false,
     colors: ["#2F2F2F", "#654321", "#800020"],
-    rating: 4.8
+    rating: 4.6
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ const allProducts = [
     category: "Tote Bags",
     isNew: false,
     colors: ["#800020", "#2F2F2F", "#8B4513"],
-    rating: 4.8
+    rating: 4.7
   },
   {
     id: 4,
@@ -43,7 +43,7 @@ const allProducts = [
     category: "Tote Bags",
     isNew: true,
     colors: ["#2F2F2F", "#8B4513", "#4B0082"],
-    rating: 4.8
+    rating: 4.9
   },
   {
     id: 5,
@@ -53,7 +53,7 @@ const allProducts = [
     category: "Tote Bags",
     isNew: false,
     colors: ["#D2B48C", "#8B4513", "#2F2F2F"],
-    rating: 4.8
+    rating: 4.5
   },
   {
     id: 6,
@@ -64,36 +64,14 @@ const allProducts = [
     category: "Money Pouches",
     isNew: true,
     colors: ["#191970", "#2F2F2F", "#8B0000"],
-    rating: 4.8
-  },
-  {
-    id: 7,
-    name: "Combo Money Pouch & Small Bag",
-    price: "$85",
-    originalPrice: "$110",
-    image: "assests/combo-money_pouch_small_bag.jpg",
-    category: "Money Pouches",
-    isNew: true,
-    colors: ["#191970", "#2F2F2F", "#8B0000"],
-    rating: 4.8
-  },
-  {
-    id: 8,
-    name: "Hearts Hand-Painted Bag",
-    price: "$85",
-    originalPrice: "$110",
-    image: "assests/hearts_hand_painted_bag.jpg",
-    category: "Money Pouches",
-    isNew: true,
-    colors: ["#191970", "#2F2F2F", "#8B0000"],
-    rating: 4.8
-  },
+    rating: 4.4
+  }
 ];
 
 export default function CollectionsGrid() {
-  const [likedProducts, setLikedProducts] = useState<number[]>([]);
+  const [likedProducts, setLikedProducts] = useState([]);
 
-  const toggleLike = (productId: number) => {
+  const toggleLike = (productId) => {
     setLikedProducts(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)

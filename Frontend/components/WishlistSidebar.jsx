@@ -2,23 +2,8 @@
 
 import Link from 'next/link';
 
-interface WishlistItem {
-  id: string;
-  name: string;
-  price: string;
-  originalPrice?: string;
-  image: string;
-  category: string;
-  colors: string[];
-}
-
-interface WishlistSidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const wishlistItems: WishlistItem[] = [
-    {
+const wishlistItems = [
+  {
     id: '2',
     name: "Paris Tote",
     price: "$395",
@@ -36,12 +21,12 @@ const wishlistItems: WishlistItem[] = [
   },
 ];
 
-export default function WishlistSidebar({ isOpen, onClose }: WishlistSidebarProps) {
-  const removeFromWishlist = (itemId: string) => {
+export default function WishlistSidebar({ isOpen, onClose }) {
+  const removeFromWishlist = (itemId) => {
     console.log('Remove from wishlist:', itemId);
   };
 
-  const addToCart = (item: WishlistItem) => {
+  const addToCart = (item) => {
     console.log('Add to cart:', item);
   };
 

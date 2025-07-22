@@ -1,24 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: string;
-  image: string;
-  quantity: number;
-  color: string;
-}
-
-interface CartSidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const cartItems: CartItem[] = [
-    {
+const cartItems = [
+  {
     id: '3',
     name: "Blue Floral Tote",
     price: "$295",
@@ -44,7 +29,7 @@ const cartItems: CartItem[] = [
   },
 ];
 
-export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
+export default function CartSidebar({ isOpen, onClose }) {
   const subtotal = 805;
   const shipping = 25;
   const total = subtotal + shipping;
