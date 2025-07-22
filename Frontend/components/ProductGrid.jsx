@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -64,9 +63,9 @@ const products = [
 ];
 
 export default function ProductGrid() {
-  const [likedProducts, setLikedProducts] = useState<number[]>([]);
+  const [likedProducts, setLikedProducts] = useState([]);
 
-  const toggleLike = (productId: number) => {
+  const toggleLike = (productId) => {
     setLikedProducts(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)

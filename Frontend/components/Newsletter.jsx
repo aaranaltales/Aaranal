@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +6,7 @@ export default function Newsletter() {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (email) {
       setIsSubscribed(true);
@@ -48,6 +47,7 @@ export default function Newsletter() {
             early access to new collections, and special artisan stories.
           </p>
 
+          {/* Uncomment below to enable newsletter form */}
           {/* {isSubscribed ? (
             <div className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full inline-flex items-center shadow-xl">
               <i className="ri-check-circle-line w-6 h-6 flex items-center justify-center mr-3 text-rose-200"></i>
@@ -68,15 +68,14 @@ export default function Newsletter() {
               </div>
             </form>
           )} */}
-                <a href='/customize' >   
-                <button
-                  type="submit"
-                  className="bg-white text-rose-700 px-8 py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
-                >
-
-                  Customize
-                </button>
-                </a>
+          <a href='/customize' >   
+            <button
+              type="submit"
+              className="bg-white text-rose-700 px-8 py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
+            >
+              Customize
+            </button>
+          </a>
           
           <div className="flex items-center justify-center space-x-8 mt-10 text-rose-200">
             <div className="flex items-center space-x-2">
