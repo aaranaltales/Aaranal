@@ -65,12 +65,22 @@ const products = [
 export default function ProductGrid() {
   const [likedProducts, setLikedProducts] = useState([]);
 
-  const toggleLike = (productId) => {
+  const toggleLike = (e, productId) => {
+    e.preventDefault(); // Prevent navigation when clicking heart
+    e.stopPropagation(); // Stop event bubbling
     setLikedProducts(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
+  };
+
+  const handleAddToCart = (e, productId) => {
+    e.preventDefault(); // Prevent navigation when clicking add to cart
+    e.stopPropagation(); // Stop event bubbling
+    // Add your cart logic here
+    console.log('Added product to cart:', productId);
+    // You could also dispatch to a global state or call an API here
   };
 
   return (
@@ -94,7 +104,7 @@ export default function ProductGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {products.map((product) => (
-            <div key={product.id} className="group cursor-pointer">
+            <Link key={product.id} href={`/product/${product.id}`} className="group cursor-pointer">
               <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
                 {product.isNew && (
                   <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -102,7 +112,7 @@ export default function ProductGrid() {
                   </div>
                 )}
                 <button 
-                  onClick={() => toggleLike(product.id)}
+                  onClick={(e) => toggleLike(e, product.id)}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
                   <i className={`${likedProducts.includes(product.id) ? 'ri-heart-fill text-rose-500' : 'ri-heart-line text-gray-600'} w-5 h-5 flex items-center justify-center transition-colors`}></i>
@@ -145,13 +155,16 @@ export default function ProductGrid() {
                         </span>
                       )}
                     </div>
-                    <button className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg">
+                    <button 
+                      onClick={(e) => handleAddToCart(e, product.id)}
+                      className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
+                    >
                       Add to Cart
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
