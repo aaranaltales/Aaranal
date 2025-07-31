@@ -17,11 +17,16 @@ export default function Header() {
   const profileRef = useRef(null);
   const { user, setUser, loading, cartCount } = useUser();
 
+  useEffect(() => {
+    // This will force a re-render when user changes
+  }, [user]);
+
+  // And modify the logout function:
   const handleLogout = () => {
     Cookies.remove('token');
     setUser(null);
     setIsProfileOpen(false);
-    router.refresh();
+    router.refresh(); // Keep this
     router.push('/');
   };
 

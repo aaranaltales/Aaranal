@@ -8,11 +8,10 @@ import { useState } from 'react';
 
 export default function Login({ onCreateAccount }) {
   const [form, setForm] = useState({ email: '', password: '' });
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { refreshUser } = useUser();
-  const searchParams = useSearchParams(); // App Router
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -27,17 +26,16 @@ export default function Login({ onCreateAccount }) {
     try {
       const response = await signin(form.email, form.password);
       const { token, success } = response;
-      console.log(token, "token", success)
       if (success && token) {
         Cookies.set("token", token, {
           expires: 3,
           secure: process.env.NODE_ENV === "production",
           sameSite: "Lax",
         });
-
-        refreshUser();
-        const redirectTo = searchParams.get("redirect") || "/";
+        
+        await refreshUser();
         router.refresh();
+        const redirectTo = searchParams.get("redirect") || "/";
         router.push(redirectTo);
       } else {
         setError(response.message || "Invalid credentials");
@@ -80,41 +78,36 @@ export default function Login({ onCreateAccount }) {
             Access exclusive features, track your orders, and manage your wishlist.
           </p>
 
-          {isSubmitted ? (
-            <div className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full inline-flex items-center shadow-xl justify-center">
-              <i className="ri-check-circle-line w-6 h-6 flex items-center justify-center mr-3 text-rose-200"></i>
-              <span className="font-medium">Login Successful!</span>
+
+          <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4 sm:space-y-6">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Email address"
+                className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Password"
+                className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
+                required
+              />
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4 sm:space-y-6">
-              <div className="flex flex-col gap-3 sm:gap-4">
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="Email address"
-                  className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
-                  required
-                />
-                <input
-                  type="password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="Password"
-                  className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-white text-rose-700 px-8 py-3 sm:py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-2 sm:mt-4"
-              >
-                Login
-              </button>
-            </form>
-          )}
+            <button
+              type="submit"
+              className="bg-white text-rose-700 px-8 py-3 sm:py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-2 sm:mt-4"
+            >
+              {isLoading ? "Loggin in..." : "Login"}
+            </button>
+          </form>
+
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-8 mt-8 sm:mt-10 text-rose-200">
             <div className="flex items-center space-x-2">

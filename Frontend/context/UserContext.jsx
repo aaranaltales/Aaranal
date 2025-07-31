@@ -155,6 +155,11 @@ export const UserProvider = ({ children }) => {
         setAllProducts(await getProductsData())
     }
 
+    const refreshUser = () => {
+        setToken(Cookies.get("token"))
+        fetchUser();
+    }
+
     // Auto update cart count when cart changes
     useEffect(() => {
         getCartCount();
@@ -203,7 +208,7 @@ export const UserProvider = ({ children }) => {
                 setUser,
                 loading,
                 cartItems,
-                refreshUser: fetchUser,
+                refreshUser,
             }}
         >
             {children}
