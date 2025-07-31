@@ -1,7 +1,10 @@
 'use client';
 
+import { useUser } from '@/context/UserContext';
+import { getProductsData } from '@/services/products';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const products = [
   {
@@ -9,7 +12,7 @@ const products = [
     name: "Blue Floral Tote",
     price: "$295",
     originalPrice: "$350",
-    image:"assests/blue_floral_bag.jpg",
+    image: "assests/blue_floral_bag.jpg",
     category: "Tote Bags",
     isNew: true,
     // colors: ["#8B4513", "#2F2F2F", "#8B0000"]
@@ -64,21 +67,37 @@ const products = [
 
 export default function ProductGrid() {
   const [likedProducts, setLikedProducts] = useState([]);
+  const { refreshUser, token, addToCart } = useUser();
+  const [bestSellers, setBestSellers] = useState([]);
+
+  const fetchProducts = async () => {
+    const allProducts = await getProductsData();
+
+    const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
+
+    setBestSellers(bestSellersOnly);
+  }
+  useEffect(() => {
+    fetchProducts();
+  }, [])
+
 
   const toggleLike = (e, productId) => {
     e.preventDefault(); // Prevent navigation when clicking heart
     e.stopPropagation(); // Stop event bubbling
-    setLikedProducts(prev => 
-      prev.includes(productId) 
+    setLikedProducts(prev =>
+      prev.includes(productId)
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
   };
 
-  const handleAddToCart = (e, productId) => {
+  const handleAddToCart = async (e, productId) => {
     e.preventDefault(); // Prevent navigation when clicking add to cart
     e.stopPropagation(); // Stop event bubbling
     // Add your cart logic here
+
+    addToCart(productId)
     console.log('Added product to cart:', productId);
     // You could also dispatch to a global state or call an API here
   };
@@ -97,35 +116,35 @@ export default function ProductGrid() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-            Each piece in our collection represents the perfect harmony of traditional craftsmanship 
+            Each piece in our collection represents the perfect harmony of traditional craftsmanship
             and contemporary design, created for the discerning individual.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {products.map((product) => (
-            <Link key={product.id} href={`/product/${product.id}`} className="group cursor-pointer">
+          {bestSellers.map((product) => (
+            <Link key={product._id} href={`/product/${product._id}`} className="group cursor-pointer">
               <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
                 {product.isNew && (
                   <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                     New
                   </div>
                 )}
-                <button 
-                  onClick={(e) => toggleLike(e, product.id)}
+                <button
+                  onClick={(e) => toggleLike(e, product._id)}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
-                  <i className={`${likedProducts.includes(product.id) ? 'ri-heart-fill text-rose-500' : 'ri-heart-line text-gray-600'} w-5 h-5 flex items-center justify-center transition-colors`}></i>
+                  <i className={`${likedProducts.includes(product._id) ? 'ri-heart-fill text-rose-500' : 'ri-heart-line text-gray-600'} w-5 h-5 flex items-center justify-center transition-colors`}></i>
                 </button>
-                
+
                 <div className="aspect-[4/5] overflow-hidden rounded-t-3xl">
-                  <img 
-                    src={product.image} 
+                  <img
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
-                
+
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">{product.category}</span>
@@ -139,11 +158,11 @@ export default function ProductGrid() {
                       ))}
                     </div> */}
                   </div>
-                  
+
                   <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
                     {product.name}
                   </h3>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-2xl font-semibold text-gray-900">
@@ -155,8 +174,8 @@ export default function ProductGrid() {
                         </span>
                       )}
                     </div>
-                    <button 
-                      onClick={(e) => handleAddToCart(e, product.id)}
+                    <button
+                      onClick={(e) => handleAddToCart(e, product._id)}
                       className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
                     >
                       Add to Cart
@@ -169,8 +188,8 @@ export default function ProductGrid() {
         </div>
 
         <div className="text-center mt-16">
-          <Link 
-            href="/collections" 
+          <Link
+            href="/collections"
             className="inline-flex items-center justify-center px-10 py-4 border-2 border-rose-300 text-rose-700 rounded-full hover:bg-gradient-to-r hover:from-rose-600 hover:to-pink-500 hover:text-white hover:border-transparent transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg group"
           >
             View Full Collection

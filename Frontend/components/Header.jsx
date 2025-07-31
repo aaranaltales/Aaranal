@@ -15,7 +15,7 @@ export default function Header() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
-  const { user, setUser, loading } = useUser();
+  const { user, setUser, loading, cartCount } = useUser();
 
   const handleLogout = () => {
     Cookies.remove('token');
@@ -77,12 +77,13 @@ export default function Header() {
                 <i className="ri-heart-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">2</span>
               </button>
+
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50 relative group"
               >
                 <i className="ri-shopping-bag-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">{cartCount}</span>
               </button>
 
               {loading ? (

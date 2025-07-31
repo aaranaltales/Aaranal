@@ -27,7 +27,7 @@ export default function Login({ onCreateAccount }) {
     try {
       const response = await signin(form.email, form.password);
       const { token, success } = response;
-
+      console.log(token, "token", success)
       if (success && token) {
         Cookies.set("token", token, {
           expires: 3,
