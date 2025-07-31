@@ -1,42 +1,16 @@
 'use client';
 
 import { useUser } from '@/context/UserContext';
+import { getProductsData } from '@/services/products';
 import Link from 'next/link';
-
-const cartItems = [
-  {
-    id: '3',
-    name: "Blue Floral Tote",
-    price: "$295",
-    image: "assests/blue_floral_bag.jpg",
-    quantity: 1,
-    color: "#800020"
-  },
-  {
-    id: '3',
-    name: "Butterfly Tote",
-    price: "$185",
-    image: "assests/butterfly_bag.jpg",
-    quantity: 1,
-    color: "#800020"
-  },
-  {
-    id: '3',
-    name: "Flowers Tote (Hand-Painted)",
-    price: "$125",
-    image: "assests/flowers_handpainted_bag.jpg",
-    quantity: 1,
-    color: "#800020"
-  },
-];
+import { useEffect, useState } from 'react';
 
 export default function CartSidebar({ isOpen, onClose }) {
-  const { refreshUser, token } = useUser();
-  const subtotal = 805;
-  const shipping = 25;
-  const total = subtotal + shipping;
+  const { updateQuantity, getCartAmount, shipping, cartData } = useUser();
 
-  console.log("incard page")
+  const subtotal = getCartAmount();
+
+  const total = subtotal + shipping;
 
   if (!isOpen) return null;
 
@@ -60,8 +34,8 @@ export default function CartSidebar({ isOpen, onClose }) {
 
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex items-start space-x-4 group">
+            {cartData.map((item) => (
+              <div key={item._id} className="flex items-start space-x-4 group">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden bg-rose-50 flex-shrink-0">
                   <img
                     src={item.image}
@@ -72,18 +46,22 @@ export default function CartSidebar({ isOpen, onClose }) {
 
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 mb-1 text-sm">{item.name}</h3>
-                  <p className="text-sm text-gray-500 mb-2">Color: {item.color}</p>
+                  {/* <p className="text-sm text-gray-500 mb-2">Color: {item.color}</p> */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <button className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors">
+                      <button
+                        onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                        className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors">
                         <i className="ri-subtract-line w-4 h-4 flex items-center justify-center text-rose-600"></i>
                       </button>
                       <span className="text-sm font-medium text-gray-900 w-8 text-center">{item.quantity}</span>
-                      <button className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors">
+                      <button
+                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                        className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors">
                         <i className="ri-add-line w-4 h-4 flex items-center justify-center text-rose-600"></i>
                       </button>
                     </div>
-                    <p className="font-semibold text-gray-900 text-sm">{item.price}</p>
+                    <p className="font-semibold text-gray-900 text-sm">₹{item.price}</p>
                   </div>
                 </div>
 
@@ -99,16 +77,16 @@ export default function CartSidebar({ isOpen, onClose }) {
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium text-gray-900">${subtotal}</span>
+              <span className="font-medium text-gray-900">₹{subtotal}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Shipping</span>
-              <span className="font-medium text-gray-900">${shipping}</span>
+              <span className="font-medium text-gray-900">₹{shipping}</span>
             </div>
             <div className="border-t border-rose-100 pt-3">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-900">Total</span>
-                <span className="font-semibold text-xl bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">${total}</span>
+                <span className="font-semibold text-xl bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">₹{total}</span>
               </div>
             </div>
           </div>

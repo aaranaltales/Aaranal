@@ -35,14 +35,14 @@ const addToCart = async (req, res) => {
 const updateCart = async (req, res) => {
     try {
 
-        const { userId, itemId, size, quantity } = req.body
-
-        const userData = await userModel.findById(userId)
+        const { itemId, quantity } = req.body
+        const { user } = req
+        const userData = await userModel.findById(user._id)
         let cartData = await userData.cartData;
 
-        cartData[itemId][size] = quantity
+        cartData[itemId] = quantity
 
-        await userModel.findByIdAndUpdate(userId, { cartData })
+        await userModel.findByIdAndUpdate(user._id, { cartData })
         res.json({ success: true, message: "Cart Updated" })
 
     } catch (error) {

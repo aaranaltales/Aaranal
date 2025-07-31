@@ -6,6 +6,7 @@ import { userDetails } from "@/services/user";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { getProductsData } from "@/services/products";
 
 const UserContext = createContext();
 
@@ -16,8 +17,10 @@ export const UserProvider = ({ children }) => {
     const [token, setToken] = useState(Cookies.get("token"));
     const [cartCount, setCartCount] = useState(0);
     const [cartItems, setCartItems] = useState({});
+    const [cartData, setCartData] = useState([]);
+    const [allProducts, setAllProducts] = useState([]);
     const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
-
+    const shipping = 25;
     // Get user info & cart
     const fetchUser = async () => {
         try {
@@ -108,6 +111,50 @@ export const UserProvider = ({ children }) => {
         setCartCount(totalCount);
     };
 
+    const updateQuantity = async (itemId, quantity) => {
+
+        let cartData = structuredClone(cartItems);
+
+        cartData[itemId] = quantity;
+
+        setCartItems(cartData)
+
+        if (token) {
+            try {
+
+                await axios.post(dbUri + '/api/cart/update', { itemId, quantity }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+
+            } catch (error) {
+                console.log(error)
+                toast.error(error.message)
+            }
+        }
+
+    }
+
+    const getCartAmount = () => {
+        let totalAmount = 0;
+
+        for (const productId in cartItems) {
+            const itemInfo = allProducts.find((product) => product._id === productId);
+            const quantity = cartItems[productId];
+
+            if (itemInfo && quantity > 0) {
+                totalAmount += itemInfo.price * quantity;
+            }
+        }
+
+        return totalAmount;
+    };
+
+    const fetchProducts = async () => {
+        setAllProducts(await getProductsData())
+    }
+
     // Auto update cart count when cart changes
     useEffect(() => {
         getCartCount();
@@ -116,11 +163,39 @@ export const UserProvider = ({ children }) => {
     // On first load
     useEffect(() => {
         fetchUser();
+        fetchProducts();
     }, []);
+
+    useEffect(() => {
+        fetchUser();
+        fetchProducts();
+    }, [token])
+
+    useEffect(() => {
+        if (allProducts.length > 0) {
+            const tempData = [];
+
+            for (const productId in cartItems) {
+                const product = allProducts.find(p => p._id === productId);
+                if (product && cartItems[productId] > 0) {
+                    tempData.push({
+                        ...product,
+                        quantity: cartItems[productId],
+                    });
+                }
+            }
+
+            setCartData(tempData);
+        }
+    }, [cartItems, allProducts]);
 
     return (
         <UserContext.Provider
             value={{
+                cartData,
+                shipping,
+                getCartAmount,
+                updateQuantity,
                 addToCart,
                 cartCount,
                 token,
