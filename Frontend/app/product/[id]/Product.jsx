@@ -335,7 +335,7 @@ export default function DynamicProductPage() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> 
             )} */}
 
             {/* Size Selection */}
