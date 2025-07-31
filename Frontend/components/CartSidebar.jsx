@@ -1,5 +1,6 @@
 'use client';
 
+import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
 
 const cartItems = [
@@ -7,7 +8,7 @@ const cartItems = [
     id: '3',
     name: "Blue Floral Tote",
     price: "$295",
-    image:"assests/blue_floral_bag.jpg",
+    image: "assests/blue_floral_bag.jpg",
     quantity: 1,
     color: "#800020"
   },
@@ -30,23 +31,26 @@ const cartItems = [
 ];
 
 export default function CartSidebar({ isOpen, onClose }) {
+  const { refreshUser, token } = useUser();
   const subtotal = 805;
   const shipping = 25;
   const total = subtotal + shipping;
+
+  console.log("incard page")
 
   if (!isOpen) return null;
 
   return (
     <>
-      <div 
+      <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
         onClick={onClose}
       ></div>
-      
+
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-rose-100 bg-gradient-to-r from-rose-50 to-pink-50">
           <h2 className="text-2xl font-semibold text-gray-900">Shopping Bag</h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-rose-100 rounded-full transition-colors cursor-pointer"
           >
@@ -59,13 +63,13 @@ export default function CartSidebar({ isOpen, onClose }) {
             {cartItems.map((item) => (
               <div key={item.id} className="flex items-start space-x-4 group">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden bg-rose-50 flex-shrink-0">
-                  <img 
-                    src={item.image} 
+                  <img
+                    src={item.image}
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 mb-1 text-sm">{item.name}</h3>
                   <p className="text-sm text-gray-500 mb-2">Color: {item.color}</p>
@@ -82,7 +86,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                     <p className="font-semibold text-gray-900 text-sm">{item.price}</p>
                   </div>
                 </div>
-                
+
                 <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer">
                   <i className="ri-delete-bin-line w-4 h-4 flex items-center justify-center text-gray-400 hover:text-rose-600"></i>
                 </button>
@@ -110,14 +114,14 @@ export default function CartSidebar({ isOpen, onClose }) {
           </div>
 
           <div className="space-y-3">
-            <Link 
-              href="/checkout" 
+            <Link
+              href="/checkout"
               onClick={onClose}
               className="w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-full font-semibold hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer shadow-lg text-center block"
             >
               Proceed to Checkout
             </Link>
-            <button 
+            <button
               onClick={onClose}
               className="w-full border-2 border-rose-300 text-rose-700 py-3 rounded-full font-medium hover:bg-rose-50 hover:border-rose-400 transition-all duration-300 whitespace-nowrap cursor-pointer"
             >

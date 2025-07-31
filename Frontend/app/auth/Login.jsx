@@ -1,20 +1,52 @@
 'use client';
 
+import { useUser } from '@/context/UserContext';
+import { signin } from '@/services/user';
+import Cookies from 'js-cookie';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Login({ onCreateAccount }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { refreshUser } = useUser();
+  const searchParams = useSearchParams(); // App Router
+  const router = useRouter();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 2000);
-    setForm({ email: '', password: '' });
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const response = await signin(form.email, form.password);
+      const { token, success } = response;
+      console.log(token, "token", success)
+      if (success && token) {
+        Cookies.set("token", token, {
+          expires: 3,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Lax",
+        });
+
+        refreshUser();
+        const redirectTo = searchParams.get("redirect") || "/";
+        router.refresh();
+        router.push(redirectTo);
+      } else {
+        setError(response.message || "Invalid credentials");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

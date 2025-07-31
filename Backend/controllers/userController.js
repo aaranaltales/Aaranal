@@ -5,7 +5,21 @@ import userModel from "../models/userModel.js";
 
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: '3h' // or '1h', '30m', etc.
+    });
+};
+
+const userDetails = async (req, res) => {
+    try {
+        const { _id } = req.user;
+        const user = await userModel.findById(_id).select("-password");
+        if (!user) throw new Error("Cannot find user");
+        return res.json({ success: true, message: "User details fetched successfully", user });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: error.message })
+    }
 }
 
 // Route for user login
@@ -23,7 +37,6 @@ const loginUser = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-
             const token = createToken(user._id)
             res.json({ success: true, token })
 
@@ -41,9 +54,7 @@ const loginUser = async (req, res) => {
 // Route for user register
 const registerUser = async (req, res) => {
     try {
-
         const { name, email, password } = req.body;
-
         // checking user already exists or not
         const exists = await userModel.findOne({ email });
         if (exists) {
@@ -83,14 +94,14 @@ const registerUser = async (req, res) => {
 // Route for admin login
 const adminLogin = async (req, res) => {
     try {
-        
-        const {email,password} = req.body
+
+        const { email, password } = req.body
 
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const token = jwt.sign(email+password,process.env.JWT_SECRET);
-            res.json({success:true,token})
+            const token = jwt.sign(email + password, process.env.JWT_SECRET);
+            res.json({ success: true, token })
         } else {
-            res.json({success:false,message:"Invalid credentials"})
+            res.json({ success: false, message: "Invalid credentials" })
         }
 
     } catch (error) {
@@ -100,4 +111,4 @@ const adminLogin = async (req, res) => {
 }
 
 
-export { loginUser, registerUser, adminLogin }
+export { loginUser, registerUser, adminLogin, userDetails }

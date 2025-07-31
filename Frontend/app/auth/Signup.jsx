@@ -1,20 +1,69 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+import { signup } from '@/services/user';
+import Cookies from 'js-cookie';
+import { useSearchParams } from 'next/navigation'
 
 export default function Signup({ onAlreadyHaveAccount }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const router = useRouter();
+  const { refreshUser } = useUser();
+  const searchParams = useSearchParams(); // App Router
+
+  const [form, setForm] = useState({ name: '', email: '', password: '', cPassword: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 2000);
-    setForm({ name: '', email: '', password: '' });
+    setError('');
+
+    // Validate form
+    if (form.password !== form.cPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError('You must agree to the terms and conditions');
+      return;
+    }
+
+    try {
+      const response = await signup({
+        name: form.name,
+        email: form.email,
+        password: form.password
+      });
+
+      if (response.success) {
+        setIsSubmitted(true);
+        refreshUser();
+        setForm({ name: '', email: '', password: '', cPassword: '' });
+        setAgreeToTerms(false);
+
+        setIsSubmitted(false);
+        Cookies.set("token", response.token, {
+          expires: 3,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Lax",
+        });
+        const redirectTo = searchParams.get("redirect") || "/";
+        router.push(redirectTo);
+      } else {
+        setError(response.message || 'Signup failed. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred during signup. Please try again.');
+      console.error('Signup error:', err);
+    }
   };
 
   return (
@@ -55,6 +104,12 @@ export default function Signup({ onAlreadyHaveAccount }) {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4 sm:space-y-6">
+              {error && (
+                <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="flex flex-col gap-3 sm:gap-4">
                 <input
                   type="text"
@@ -80,15 +135,50 @@ export default function Signup({ onAlreadyHaveAccount }) {
                   value={form.password}
                   onChange={handleChange}
                   placeholder="Password"
+                  minLength="6"
                   className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
                   required
                 />
+                <input
+                  type="password"
+                  name="cPassword"
+                  value={form.cPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm Password"
+                  minLength="6"
+                  className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
+                  required
+                />
+
+                <div className="flex items-start mt-2">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms"
+                      name="terms"
+                      type="checkbox"
+                      checked={agreeToTerms}
+                      onChange={(e) => setAgreeToTerms(e.target.checked)}
+                      className="focus:ring-rose-500 h-4 w-4 text-rose-600 border-white/30 rounded"
+                      required
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="terms" className="font-light text-rose-100">
+                      I agree to the{' '}
+                      <a href="/terms" className="text-rose-200 hover:text-white underline">
+                        Terms and Conditions
+                      </a>
+                    </label>
+                  </div>
+                </div>
               </div>
+
               <button
                 type="submit"
-                className="bg-white text-rose-700 px-8 py-3 sm:py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-2 sm:mt-4"
+                disabled={isSubmitted}
+                className={`bg-white text-rose-700 px-8 py-3 sm:py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-2 sm:mt-4 w-full ${isSubmitted ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Sign Up
+                {isSubmitted ? 'Processing...' : 'Sign Up'}
               </button>
             </form>
           )}

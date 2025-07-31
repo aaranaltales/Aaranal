@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono, Pacifico } from "next/font/google";
+import LayoutWrapper from "./LayoutWrapper";
 import "./globals.css";
 
 const pacifico = Pacifico({
@@ -29,7 +30,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${pacifico.variable} antialiased`}
       >
-        {children}
+        <LayoutWrapper>
+          {children}
+        </LayoutWrapper>
       </body>
     </html>
   );
