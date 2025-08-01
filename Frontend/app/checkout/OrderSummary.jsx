@@ -28,7 +28,7 @@ export default function OrderSummary() {
               <p className="text-sm text-gray-500 mb-2">Color: {item.color}</p>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
-                <span className="font-semibold text-gray-900">${item.price * item.quantity}</span>
+                <span className="font-semibold text-gray-900">₹{item.price * item.quantity}</span>
               </div>
             </div>
           </div>
@@ -38,20 +38,20 @@ export default function OrderSummary() {
       <div className="border-t border-rose-200 pt-6 space-y-4">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium text-gray-900">${subtotal}</span>
+          <span className="font-medium text-gray-900">₹{subtotal}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
-          <span className="font-medium text-gray-900">${shipping}</span>
+          <span className="font-medium text-gray-900">₹{shipping}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Tax (21%)</span>
-          <span className="font-medium text-gray-900">${tax}</span>
+          <span className="font-medium text-gray-900">₹{tax}</span>
         </div>
         <div className="border-t border-rose-200 pt-4">
           <div className="flex justify-between">
             <span className="font-semibold text-gray-900 text-lg">Total</span>
-            <span className="font-semibold text-2xl bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">${total}</span>
+            <span className="font-semibold text-2xl bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">₹{total}</span>
           </div>
         </div>
       </div>
