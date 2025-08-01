@@ -1,13 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState } from "react";
 
-const categories = ['All', 'Tote Bags', 'Pouches', 'Money Pouches'];
+const categories = ['All', 'Tote Bags', 'Pouch', 'Money Pouch'];
 const sortOptions = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest'];
 
-export default function CollectionsFilter() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [sortBy, setSortBy] = useState('Featured');
+export default function CollectionsFilter({ activeCategory, setActiveCategory, sortBy, setSortBy }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
@@ -19,17 +17,16 @@ export default function CollectionsFilter() {
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`px-6 py-3 rounded-full transition-all duration-300 whitespace-nowrap cursor-pointer font-medium ${
-                  activeCategory === category
-                    ? 'bg-gradient-to-r from-rose-600 to-pink-500 text-white shadow-lg'
-                    : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
-                }`}
+                className={`px-6 py-3 rounded-full transition-all duration-300 whitespace-nowrap cursor-pointer font-medium ${activeCategory === category
+                  ? 'bg-gradient-to-r from-rose-600 to-pink-500 text-white shadow-lg'
+                  : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                  }`}
               >
                 {category}
               </button>
             ))}
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <span className="text-gray-600 font-light">Sort by:</span>
             <div className="relative">
@@ -40,7 +37,7 @@ export default function CollectionsFilter() {
                 <span className="text-gray-700">{sortBy}</span>
                 <i className={`ri-arrow-down-s-line w-5 h-5 flex items-center justify-center transition-transform ${isFilterOpen ? 'rotate-180' : ''}`}></i>
               </button>
-              
+
               {isFilterOpen && (
                 <div className="absolute top-full mt-2 w-full bg-white border border-rose-200 rounded-2xl shadow-xl z-10">
                   {sortOptions.map((option) => (

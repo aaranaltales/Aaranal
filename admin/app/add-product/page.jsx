@@ -121,7 +121,7 @@ export default function AddProductPage() {
             >
               <option>Tote Bag</option>
               <option>Pouch</option>
-              <option>Money Purse</option>
+              <option>Money Pouch</option>
             </select>
           </div>
           {/* <div>

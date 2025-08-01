@@ -11,11 +11,13 @@ import CollectionsFilter from './CollectionsFilter';
 export default function CollectionsPage() {
   const [heroVisible, setHeroVisible] = useState(true);
 
-  // Start fading out the hero on initial render
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [sortBy, setSortBy] = useState('Featured');
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setHeroVisible(false);
-    }, 300); // Small delay before fade starts, optional
+    }, 300);
     return () => clearTimeout(timer);
   }, []);
 
@@ -45,10 +47,14 @@ export default function CollectionsPage() {
         )}
       </AnimatePresence>
 
-      {/* Static filter and grid remain unchanged */}
       <div className="relative z-10">
-        <CollectionsFilter />
-        <CollectionsGrid />
+        <CollectionsFilter
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+        />
+        <CollectionsGrid activeCategory={activeCategory} sortBy={sortBy} />
       </div>
 
       <Footer />
