@@ -15,7 +15,7 @@ export default function Header() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
-  const { user, setUser, loading, cartCount } = useUser();
+  const { user, setUser, loading, cartCount, setCartData, setCartCount } = useUser();
 
   useEffect(() => {
     // This will force a re-render when user changes
@@ -26,6 +26,8 @@ export default function Header() {
     Cookies.remove('token');
     setUser(null);
     setIsProfileOpen(false);
+    setCartData([]);
+    setCartCount(0);
     router.refresh(); // Keep this
     router.push('/');
   };

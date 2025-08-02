@@ -9,10 +9,8 @@ export default function AddProductPage() {
     name: '',
     description: '',
     price: '',
-    category: 'Men',
-    subCategory: 'Topwear',
+    category: 'Tote Bag',
     bestseller: false,
-    sizes: [],
   });
 
   const [images, setImages] = useState([null, null, null, null]);
@@ -23,14 +21,6 @@ export default function AddProductPage() {
     setImages(newImages);
   };
 
-  const toggleSize = (size) => {
-    setForm((prev) => ({
-      ...prev,
-      sizes: prev.sizes.includes(size)
-        ? prev.sizes.filter((s) => s !== size)
-        : [...prev.sizes, size],
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,10 +50,8 @@ export default function AddProductPage() {
           name: '',
           description: '',
           price: '',
-          category: 'Men',
-          subCategory: 'Topwear',
+          category: 'Tote Bag',
           bestseller: false,
-          sizes: [],
         });
         setImages([null, null, null, null]);
       } else {
@@ -133,7 +121,7 @@ export default function AddProductPage() {
             >
               <option>Tote Bag</option>
               <option>Pouch</option>
-              <option>Money Purse</option>
+              <option>Money Pouch</option>
             </select>
           </div>
           {/* <div>

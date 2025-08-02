@@ -197,6 +197,8 @@ export const UserProvider = ({ children }) => {
     return (
         <UserContext.Provider
             value={{
+                setCartCount,
+                setCartData,
                 cartData,
                 shipping,
                 getCartAmount,

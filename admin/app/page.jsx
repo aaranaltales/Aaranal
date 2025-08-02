@@ -48,12 +48,12 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl px-4 mx-auto py-6 sm:py-10">
       <ToastContainer />
-      <h1 className="text-4xl font-light mb-10">Admin Dashboard</h1>
+      <h1 className="text-3xl sm:text-4xl font-semibold mb-8 text-gray-800">Admin Dashboard</h1>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
         <Card title="Total Orders" value={summary.totalOrders} icon="🛍" />
         <Card title="Total Revenue" value={`$${summary.totalRevenue}`} icon="💰" />
         <Card title="Total Products" value={summary.totalProducts} icon="📦" />
@@ -61,24 +61,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-        <h2 className="text-2xl font-light mb-4">Recent Orders</h2>
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm overflow-x-auto">
+        <h2 className="text-xl sm:text-2xl font-medium mb-4 text-gray-700">Recent Orders</h2>
+
         {summary.recentOrders.length === 0 ? (
           <p className="text-gray-400 text-sm">No recent orders found.</p>
         ) : (
-          <ul className="space-y-4 text-sm text-gray-700">
+          <ul className="space-y-4 text-sm text-gray-700 min-w-[300px]">
             {summary.recentOrders.map((order) => (
               <li
                 key={order._id}
-                className="flex justify-between items-center border-b border-gray-100 pb-2"
+                className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 items-start sm:items-center border-b border-gray-100 pb-2"
               >
-                <span>
+                <span className="font-medium">
                   {order.items[0].name} × {order.items[0].quantity}
                 </span>
                 <span className="text-gray-500 text-xs">
                   {new Date(order.date).toLocaleDateString()}
                 </span>
-                <span className="font-medium">${order.amount}</span>
+                <span className="font-semibold text-gray-800">${order.amount}</span>
               </li>
             ))}
           </ul>
@@ -90,10 +91,10 @@ export default function DashboardPage() {
 
 function Card({ title, value, icon }) {
   return (
-    <div className="bg-gradient-to-r from-rose-100 to-pink-100 rounded-2xl p-6 shadow-md">
-      <div className="text-3xl mb-3">{icon}</div>
-      <div className="text-sm text-gray-500 mb-1">{title}</div>
-      <div className="text-2xl font-light text-gray-900">{value}</div>
+    <div className="bg-gradient-to-r from-rose-100 to-pink-100 rounded-2xl p-4 sm:p-6 shadow-md hover:shadow-lg transition">
+      <div className="text-3xl mb-2">{icon}</div>
+      <div className="text-sm text-gray-600 mb-1">{title}</div>
+      <div className="text-xl sm:text-2xl font-semibold text-gray-900">{value}</div>
     </div>
   );
 }

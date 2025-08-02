@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -9,6 +9,14 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Redirect if token already exists
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/add-product');
+    }
+  }, [router]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
