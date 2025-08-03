@@ -98,7 +98,6 @@ export default function ProductGrid() {
     // Add your cart logic here
 
     addToCart(productId)
-    console.log('Added product to cart:', productId);
     // You could also dispatch to a global state or call an API here
   };
 

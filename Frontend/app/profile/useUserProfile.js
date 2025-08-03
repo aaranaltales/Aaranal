@@ -19,36 +19,18 @@ export default function useUserProfile() {
     expiry: "",
   });
   const [newAddress, setNewAddress] = useState({
-    type: "Home",
-    name: "Sanket yelugotla",
-    number: "9550572255",
-    pincode: "530018",
-    house: "38-30-208",
-    area: "Green gardens, Marripalem",
-    landmark: "Neat water tank",
-    city: "Visakhapatnam",
-    state: "Andhra Pradesh",
+    type: "",
+    name: "",
+    number: "",
+    pincode: "",
+    house: "",
+    area: "",
+    landmark: "",
+    city: "",
+    state: "",
   });
   const { user, token, setUser } = useUser();
-  const [addresses, setAddresses] = useState([
 
-  ]);
-  const [payments, setPayments] = useState([
-    {
-      id: 1,
-      type: "Visa",
-      last4: "4567",
-      expiry: "12/26",
-      default: true,
-    },
-    {
-      id: 2,
-      type: "Mastercard",
-      last4: "8901",
-      expiry: "08/25",
-      default: false,
-    },
-  ]);
   const [orders] = useState([
     {
       id: "#ORD-2024-001",
@@ -200,7 +182,6 @@ export default function useUserProfile() {
     }
   };
 
-
   const handleSetDefaultPayment = (id) => {
     setPayments((prevPayments) =>
       prevPayments.map((payment) =>
@@ -283,7 +264,6 @@ export default function useUserProfile() {
     mobileMenuOpen,
     setMobileMenuOpen,
     user,
-    addresses,
     payments,
     orders,
     editMode,

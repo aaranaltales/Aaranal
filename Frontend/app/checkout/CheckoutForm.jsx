@@ -34,8 +34,6 @@ export default function CheckoutForm() {
     e.preventDefault();
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
-    } else {
-      console.log('Order submitted:', formData);
     }
   };
 
