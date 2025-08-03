@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -11,6 +12,14 @@ export default function AddProductPage() {
     price: '',
     category: 'Tote Bag',
     bestseller: false,
+    features: [''],
+    specs: {
+      dimensions: '',
+      weight: '',
+      material: '',
+      lining: '',
+      origin: '',
+    },
   });
 
   const [images, setImages] = useState([null, null, null, null]);
@@ -21,7 +30,6 @@ export default function AddProductPage() {
     setImages(newImages);
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,8 +37,8 @@ export default function AddProductPage() {
       const formData = new FormData();
 
       Object.entries(form).forEach(([key, val]) => {
-        if (key === 'sizes') {
-          formData.append('sizes', JSON.stringify(val));
+        if (key === 'features' || key === 'specs') {
+          formData.append(key, JSON.stringify(val));
         } else {
           formData.append(key, val);
         }
@@ -40,9 +48,11 @@ export default function AddProductPage() {
         if (file) formData.append(`image${i + 1}`, file);
       });
 
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product/add`, formData, {
-        headers: { token },
-      });
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product/add`,
+        formData,
+        { headers: { token } }
+      );
 
       if (res.data.success) {
         toast.success(res.data.message);
@@ -52,6 +62,14 @@ export default function AddProductPage() {
           price: '',
           category: 'Tote Bag',
           bestseller: false,
+          features: [''],
+          specs: {
+            dimensions: '',
+            weight: '',
+            material: '',
+            lining: '',
+            origin: '',
+          },
         });
         setImages([null, null, null, null]);
       } else {
@@ -67,6 +85,7 @@ export default function AddProductPage() {
       <ToastContainer />
       <h1 className="text-3xl font-light mb-8">Add New Product</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
+
         {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
@@ -110,7 +129,7 @@ export default function AddProductPage() {
           />
         </div>
 
-        {/* Category + SubCategory + Price */}
+        {/* Category + Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
@@ -124,18 +143,6 @@ export default function AddProductPage() {
               <option>Money Pouch</option>
             </select>
           </div>
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Sub Category</label>
-            <select
-              value={form.subCategory}
-              onChange={(e) => setForm({ ...form, subCategory: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-xl"
-            >
-              <option>Topwear</option>
-              <option>Bottomwear</option>
-              <option>Winterwear</option>
-            </select>
-          </div> */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
             <input
@@ -148,26 +155,49 @@ export default function AddProductPage() {
           </div>
         </div>
 
-        {/* Size Selection */}
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Sizes</label>
-          <div className="flex flex-wrap gap-3">
-            {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-              <button
-                type="button"
-                key={size}
-                onClick={() => toggleSize(size)}
-                className={`px-4 py-2 rounded-full border text-sm ${
-                  form.sizes.includes(size)
-                    ? 'bg-rose-100 border-rose-400 text-rose-700'
-                    : 'border-gray-300 text-gray-600 hover:border-gray-400'
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-        </div> */}
+        {/* Product Features */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Product Features</label>
+          {form.features.map((feature, i) => (
+            <input
+              key={i}
+              type="text"
+              value={feature}
+              onChange={(e) => {
+                const newFeatures = [...form.features];
+                newFeatures[i] = e.target.value;
+                setForm({ ...form, features: newFeatures });
+              }}
+              placeholder={`Feature ${i + 1}`}
+              className="w-full px-4 py-2 mb-2 border border-gray-300 rounded-xl"
+            />
+          ))}
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, features: [...form.features, ''] })}
+            className="text-sm text-rose-600 cursor-pointer"
+          >
+            + Add Feature
+          </button>
+        </div>
+
+        {/* Specifications */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Specifications</label>
+          {['dimensions', 'weight', 'material' , 'lining', 'origin'].map((key) => (
+            <div key={key} className="mb-2">
+              <input
+                type="text"
+                placeholder={key[0].toUpperCase() + key.slice(1)}
+                value={form.specs[key]}
+                onChange={(e) =>
+                  setForm({ ...form, specs: { ...form.specs, [key]: e.target.value } })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl"
+              />
+            </div>
+          ))}
+        </div>
 
         {/* Bestseller */}
         <div className="flex items-center gap-2">
