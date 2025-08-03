@@ -152,15 +152,54 @@ export default function useUserProfile() {
     }
   }
 
-  const handleSetDefaultAddress = (id) => {
-    setAddresses((prevAddresses) =>
-      prevAddresses.map((address) =>
-        address.id === id
-          ? { ...address, default: true }
-          : { ...address, default: false }
-      )
-    );
+  const handleSetDefaultAddress = async (addressId) => {
+    try {
+      const response = await axios.put(
+        `${dbUri}/api/user/address/set-default`,
+        { addressId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          addresses: response.data.addresses
+        }));
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      const response = await axios.delete(`${dbUri}/api/user/address`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          addressId, // include the ID here
+        },
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          addresses: response.data.addresses,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
 
   const handleSetDefaultPayment = (id) => {
     setPayments((prevPayments) =>
@@ -235,7 +274,6 @@ export default function useUserProfile() {
     } catch (error) {
       toast.error(error.message);
     }
-
   };
 
   return {
@@ -280,5 +318,6 @@ export default function useUserProfile() {
     handleNewAddressChange,
     handleSubmitNewAddress,
     handleSubmitEditAddress,
+    handleDeleteAddress,
   };
 }

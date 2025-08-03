@@ -25,13 +25,13 @@ router.post("/admin", adminLogin)
 router.get("/details", protect, userDetails)
 
 router.post("/address", protect, addAddress)
-router.put("/address", protect, updateAddress) // Changed to PUT for update, expects addressId in body
-router.delete("/address", protect, deleteAddress) // Changed to DELETE for delete, expects addressId in body
-router.put("/address/set-default", protect, setDefaultAddress) // Changed to PUT for set default, expects addressId in body
+router.put("/address", protect, updateAddress)
+router.delete("/address", protect, deleteAddress)
+router.put("/address/set-default", protect, setDefaultAddress)
 
 router.post("/payment", protect, addPaymentMethod)
-router.put("/payment", protect, updatePaymentMethod) // Changed to PUT for update, expects paymentMethodId in body
-router.delete("/payment", protect, deletePaymentMethod) // Changed to DELETE for delete, expects paymentMethodId in body
-router.put("/payment/set-default", protect, setDefaultPaymentMethod) // Changed to PUT for set default, expects paymentMethodId in body
+router.put("/payment", protect, updatePaymentMethod)
+router.delete("/payment", protect, deletePaymentMethod)
+router.put("/payment/set-default", protect, setDefaultPaymentMethod)
 
 export default router

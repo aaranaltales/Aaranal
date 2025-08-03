@@ -142,7 +142,7 @@ const updateAddress = async (req, res) => {
         }
 
         addressToUpdate.set({ type, name, number, pincode, house, area, city, state, landmark, latitude, longitude })
-        await user.save()
+        user = await user.save()
 
         res.json({ success: true, message: "Address updated successfully", addresses: user.addresses })
     } catch (error) {
@@ -188,7 +188,7 @@ const setDefaultAddress = async (req, res) => {
     try {
         const { _id } = req.user
         const { addressId } = req.body
-
+        if (!addressId) throw Error("Invalid address");
         const user = await userModel.findById(_id)
         if (!user) {
             return res.json({ success: false, message: "User not found" })

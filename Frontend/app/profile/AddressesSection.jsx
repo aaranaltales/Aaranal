@@ -1,4 +1,5 @@
 import AddressForm from "./AddressForm";
+import { AiOutlineDelete } from "react-icons/ai";
 
 export default function AddressesSection({
   addresses,
@@ -14,6 +15,7 @@ export default function AddressesSection({
   handleSubmitNewAddress,
   handleSubmitEditAddress,
   setShowAddAddressForm,
+  handleDeleteAddress,
 }) {
   return (
     <div className="space-y-6">
@@ -50,8 +52,8 @@ export default function AddressesSection({
             <div
               key={address._id}
               className={`bg-white rounded-lg shadow-sm p-4 border transition-shadow duration-200 ${editAddressId === address._id
-                  ? "bg-rose-50"
-                  : "border-gray-100 hover:shadow-md"
+                ? "bg-rose-50"
+                : "border-gray-100 hover:shadow-md"
                 }`}
             >
               <div className="flex justify-between items-start">
@@ -71,13 +73,13 @@ export default function AddressesSection({
                   ) : (
                     <>
                       {address.default && (
-                        <span className="inline-block bg-rose-100 text-rose-800 text-xs px-2 py-1 rounded mt-1">
+                        <span className="inline-block mb-1 bg-rose-100 text-rose-800 text-xs px-2 py-1 rounded mt-1">
                           Default
                         </span>
                       )}
-                      <h3 className="font-bold text-gray-900 text-sm">{address.name}</h3>
-                      <h3 className="font-medium text-gray-900 text-sm">{address.number}</h3>
-                      <p className="text-gray-600 text-sm">
+                      <h3 className="font-bold ml-1 text-gray-900 text-sm">{address.name}</h3>
+                      <h3 className="font- ml-1 text-gray-900 text-sm">{address.number}</h3>
+                      <p className="text-gray-600 text-sm ml-1">
                         {address.house} {address.area} {address.city} {address.state}{" "}
                         {address.pincode}
                       </p>
@@ -110,6 +112,7 @@ export default function AddressesSection({
                       </svg>
                     )}
                   </button>
+                  <button onClick={() => handleDeleteAddress(address._id)}><AiOutlineDelete className="text-red-600" /></button>
                 </div>
               </div>
 

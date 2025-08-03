@@ -56,6 +56,7 @@ export default function UserProfile() {
     handleNewAddressChange,
     handleSubmitNewAddress,
     handleSubmitEditAddress,
+    handleDeleteAddress,
   } = useUserProfile();
 
   if (!user) {
@@ -132,6 +133,7 @@ export default function UserProfile() {
                   handleSubmitNewAddress={handleSubmitNewAddress}
                   setShowAddAddressForm={setShowAddAddressForm}
                   handleSubmitEditAddress={handleSubmitEditAddress}
+                  handleDeleteAddress={handleDeleteAddress}
                 />
               )}
               {activeSection === "payments" && (
