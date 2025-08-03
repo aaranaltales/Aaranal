@@ -65,7 +65,9 @@ export default function CartSidebar({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer">
+                <button
+                  onClick={() => updateQuantity(item._id, 0)}
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer">
                   <i className="ri-delete-bin-line w-4 h-4 flex items-center justify-center text-gray-400 hover:text-rose-600"></i>
                 </button>
               </div>

@@ -62,7 +62,11 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {sortedProducts.map((product) => (
-            <div key={product._id} className="group cursor-pointer">
+            <Link
+              key={product._id}
+              href={`/product/${product._id}`}
+              className="group cursor-pointer block"
+            >
               <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
                 {product.isNew && (
                   <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -75,10 +79,18 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                   </div>
                 )}
                 <button
-                  onClick={() => toggleLike(product._id)}
+                  onClick={(e) => {
+                    e.preventDefault(); // prevent Link navigation
+                    toggleLike(product._id);
+                  }}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
-                  <i className={`${likedProducts.includes(product._id) ? 'ri-heart-fill text-rose-500' : 'ri-heart-line text-gray-600'} w-5 h-5`}></i>
+                  <i
+                    className={`${likedProducts.includes(product._id)
+                        ? 'ri-heart-fill text-rose-500'
+                        : 'ri-heart-line text-gray-600'
+                      } w-5 h-5`}
+                  ></i>
                 </button>
 
                 <div className="aspect-[4/5] overflow-hidden rounded-t-3xl">
@@ -91,10 +103,18 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
 
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">{product.category}</span>
+                    <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">
+                      {product.category}
+                    </span>
                     <div className="flex items-center space-x-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <i key={star} className={`w-4 h-4 ${star <= Math.floor(product.rating) ? 'ri-star-fill text-yellow-400' : 'ri-star-line text-gray-300'}`}></i>
+                        <i
+                          key={star}
+                          className={`w-4 h-4 ${star <= Math.floor(product.rating)
+                              ? 'ri-star-fill text-yellow-400'
+                              : 'ri-star-line text-gray-300'
+                            }`}
+                        ></i>
                       ))}
                       <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
                     </div>
@@ -120,8 +140,9 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
+
         </div>
 
         <div className="text-center mt-16">
