@@ -1,20 +1,26 @@
 import mongoose from "mongoose"
 
 const addressSchema = new mongoose.Schema({
-    type: { type: String, required: true, default: "Home" }, // e.g., Home, Office
-    doorNo: { type: String },
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    type: { type: String, required: true, default: "Home" },
+    name: { type: String },
+    number: { type: String },
     pincode: { type: String },
-    addressLine1: { type: String },
-    address: { type: String, required: true }, // Full address string
+    house: { type: String },
+    area: { type: String },
+    city: { type: String },
+    state: { type: String },
+    landmark: { type: String, required: true },
     latitude: { type: Number },
     longitude: { type: Number },
     default: { type: Boolean, default: false },
 })
 
 const paymentMethodSchema = new mongoose.Schema({
-    type: { type: String, required: true }, // e.g., Visa, Mastercard
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+    type: { type: String, required: true },
     last4: { type: String, required: true },
-    expiry: { type: String, required: true }, // MM/YY format
+    expiry: { type: String, required: true },
     default: { type: Boolean, default: false },
 })
 

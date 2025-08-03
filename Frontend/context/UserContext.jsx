@@ -19,8 +19,10 @@ export const UserProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState({});
     const [cartData, setCartData] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
+    const [addresses, setAddresses] = useState([]);
     const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
     const shipping = 25;
+
     // Get user info & cart
     const fetchUser = async () => {
         try {
@@ -32,7 +34,7 @@ export const UserProvider = ({ children }) => {
             const res = await userDetails(token);
             if (res.success === true) {
                 setUser(res.user);
-                await getUserCart(); // ✅ Call after setting user
+                await getUserCart();
             } else {
                 setUser(null);
                 Cookies.remove("token");
@@ -158,6 +160,15 @@ export const UserProvider = ({ children }) => {
     const refreshUser = () => {
         setToken(Cookies.get("token"))
         fetchUser();
+    }
+
+    const getUserAddresses = async () => {
+        const response = await axios.get(`${dbUri}/api/user/addresses`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        setAddresses(response.data.addresses);
     }
 
     // Auto update cart count when cart changes

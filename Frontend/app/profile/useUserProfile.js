@@ -1,4 +1,7 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
+import { useUser } from "@/context/UserContext";
+import { toast } from "react-toastify";
 
 export default function useUserProfile() {
   const [activeSection, setActiveSection] = useState("profile");
@@ -9,43 +12,26 @@ export default function useUserProfile() {
   const [editAddressId, setEditAddressId] = useState(null);
   const [showAddCardForm, setShowAddCardForm] = useState(false);
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+  const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [newCard, setNewCard] = useState({
     type: "",
     last4: "",
     expiry: "",
   });
   const [newAddress, setNewAddress] = useState({
-    type: "",
-    doorNo: "",
-    pincode: "",
-    addressLine1: "",
-    address: "",
+    type: "Home",
+    name: "Sanket yelugotla",
+    number: "9550572255",
+    pincode: "530018",
+    house: "38-30-208",
+    area: "Green gardens, Marripalem",
+    landmark: "Neat water tank",
+    city: "Visakhapatnam",
+    state: "Andhra Pradesh",
   });
-  const [user, setUser] = useState({
-    name: "Sophia Williams",
-    email: "sophia.williams@example.com",
-    phone: "+1 (555) 123-4567",
-    joinDate: "March 2023",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108755-2616b60cb18d?w=200&h=200&fit=crop&crop=faces",
-    membership: "Gold",
-    orders: 24,
-    spent: 3280,
-    satisfaction: 4.9,
-  });
+  const { user, token, setUser } = useUser();
   const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      type: "Home",
-      address: "123 Elegance Street, Beverly Hills, CA 90210",
-      default: true,
-    },
-    {
-      id: 2,
-      type: "Office",
-      address: "456 Business Avenue, Los Angeles, CA 90028",
-      default: false,
-    },
+
   ]);
   const [payments, setPayments] = useState([
     {
@@ -130,12 +116,41 @@ export default function useUserProfile() {
   };
 
   const handleChangeAddress = (id, field, value) => {
-    setAddresses((prevAddresses) =>
-      prevAddresses.map((address) =>
-        address.id === id ? { ...address, [field]: value } : address
-      )
-    );
+    setUser((prevUser) => ({
+      ...prevUser,
+      addresses: prevUser.addresses.map((address) =>
+        address._id === id ? { ...address, [field]: value } : address
+      ),
+    }));
   };
+
+  const handleSubmitEditAddress = async (address) => {
+    try {
+      const addressId = address._id;
+      const response = await axios.put(
+        `${dbUri}/api/user/address`,
+        {
+          addressId,
+          address,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success("Address changed successfullly");
+        setUser((prevUser) => ({
+          ...prevUser,
+          addresses: response.data.addresses
+        }));
+      }
+      handleSaveAddress();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
 
   const handleSetDefaultAddress = (id) => {
     setAddresses((prevAddresses) =>
@@ -190,21 +205,37 @@ export default function useUserProfile() {
     }));
   };
 
-  const handleSubmitNewAddress = () => {
-    const id =
-      addresses.length > 0 ? Math.max(...addresses.map((a) => a.id)) + 1 : 1;
-    setAddresses((prevAddresses) => [
-      ...prevAddresses,
-      { ...newAddress, id, default: false },
-    ]);
-    setShowAddAddressForm(false);
-    setNewAddress({
-      type: "",
-      doorNo: "",
-      pincode: "",
-      addressLine1: "",
-      address: "",
-    });
+  const handleSubmitNewAddress = async () => {
+    try {
+      const response = await axios.post(
+        `${dbUri}/api/user/address`,
+        newAddress,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          addresses: response.data.addresses
+        }));
+      }
+
+      setShowAddAddressForm(false);
+      setNewAddress({
+        type: "",
+        doorNo: "",
+        pincode: "",
+        addressLine1: "",
+        address: "",
+      });
+    } catch (error) {
+      toast.error(error.message);
+    }
+
   };
 
   return {
@@ -248,5 +279,6 @@ export default function useUserProfile() {
     handleAddAddress,
     handleNewAddressChange,
     handleSubmitNewAddress,
+    handleSubmitEditAddress,
   };
 }

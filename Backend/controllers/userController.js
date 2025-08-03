@@ -106,7 +106,7 @@ const adminLogin = async (req, res) => {
 const addAddress = async (req, res) => {
     try {
         const { _id } = req.user
-        const { type, doorNo, pincode, addressLine1, address, latitude, longitude } = req.body
+        const { type, name, number, pincode, house, area, city, state, landmark, latitude, longitude } = req.body
 
         const user = await userModel.findById(_id)
         if (!user) {
@@ -116,7 +116,7 @@ const addAddress = async (req, res) => {
         // If this is the first address, make it default
         const isDefault = user.addresses.length === 0
 
-        user.addresses.push({ type, doorNo, pincode, addressLine1, address, latitude, longitude, default: isDefault })
+        user.addresses.push({ type, name, number, pincode, house, area, city, state, landmark, latitude, longitude, default: isDefault })
         await user.save()
 
         res.json({ success: true, message: "Address added successfully", addresses: user.addresses })
@@ -129,8 +129,8 @@ const addAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
     try {
         const { _id } = req.user
-        const { addressId, type, doorNo, pincode, addressLine1, address, latitude, longitude } = req.body
-
+        const { addressId, address } = req.body
+        const { type, name, number, pincode, house, area, city, state, landmark, latitude, longitude } = address;
         const user = await userModel.findById(_id)
         if (!user) {
             return res.json({ success: false, message: "User not found" })
@@ -141,7 +141,7 @@ const updateAddress = async (req, res) => {
             return res.json({ success: false, message: "Address not found" })
         }
 
-        addressToUpdate.set({ type, doorNo, pincode, addressLine1, address, latitude, longitude })
+        addressToUpdate.set({ type, name, number, pincode, house, area, city, state, landmark, latitude, longitude })
         await user.save()
 
         res.json({ success: true, message: "Address updated successfully", addresses: user.addresses })
