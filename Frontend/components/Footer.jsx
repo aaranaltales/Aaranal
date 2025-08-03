@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -9,8 +10,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           <div className="lg:col-span-2 space-y-6">
-            <Link href="/" className="text-4xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent hover:from-rose-700 hover:to-pink-600 transition-all duration-300">
-              Aaranal
+            <Link href="/" className=" flex items-center text-3xl sm:text-4xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent hover:from-rose-700 hover:to-pink-600 transition-all duration-300">
+              <Image src="/assests/logo.png"  width={50} height={50} className="h-12 mr-2 w-12" />
+              <p >Aaranal</p>
             </Link>
             <p className="text-gray-600 text-lg max-w-md font-light leading-relaxed">
               Where traditional craftsmanship meets contemporary elegance. Each piece tells a story 

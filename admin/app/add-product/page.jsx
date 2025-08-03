@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -35,7 +34,6 @@ export default function AddProductPage() {
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-
       Object.entries(form).forEach(([key, val]) => {
         if (key === 'features' || key === 'specs') {
           formData.append(key, JSON.stringify(val));
@@ -43,7 +41,6 @@ export default function AddProductPage() {
           formData.append(key, val);
         }
       });
-
       images.forEach((file, i) => {
         if (file) formData.append(`image${i + 1}`, file);
       });
@@ -80,12 +77,21 @@ export default function AddProductPage() {
     }
   };
 
+  const handleAddFeature = () => {
+    setForm({ ...form, features: [...form.features, ''] });
+  };
+
+  const handleRemoveFeature = (index) => {
+    const newFeatures = [...form.features];
+    newFeatures.splice(index, 1);
+    setForm({ ...form, features: newFeatures });
+  };
+
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 border border-gray-200">
       <ToastContainer />
       <h1 className="text-3xl font-light mb-8">Add New Product</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-
         {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
@@ -102,7 +108,6 @@ export default function AddProductPage() {
             ))}
           </div>
         </div>
-
         {/* Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
@@ -115,7 +120,6 @@ export default function AddProductPage() {
             className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
           />
         </div>
-
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -128,7 +132,6 @@ export default function AddProductPage() {
             className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
           />
         </div>
-
         {/* Category + Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -154,37 +157,43 @@ export default function AddProductPage() {
             />
           </div>
         </div>
-
         {/* Product Features */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Product Features</label>
           {form.features.map((feature, i) => (
-            <input
-              key={i}
-              type="text"
-              value={feature}
-              onChange={(e) => {
-                const newFeatures = [...form.features];
-                newFeatures[i] = e.target.value;
-                setForm({ ...form, features: newFeatures });
-              }}
-              placeholder={`Feature ${i + 1}`}
-              className="w-full px-4 py-2 mb-2 border border-gray-300 rounded-xl"
-            />
+            <div key={i} className="flex items-center mb-2">
+              <input
+                type="text"
+                value={feature}
+                onChange={(e) => {
+                  const newFeatures = [...form.features];
+                  newFeatures[i] = e.target.value;
+                  setForm({ ...form, features: newFeatures });
+                }}
+                placeholder={`Feature ${i + 1}`}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveFeature(i)}
+                className="ml-2 text-sm text-red-600 cursor-pointer"
+              >
+                Remove
+              </button>
+            </div>
           ))}
           <button
             type="button"
-            onClick={() => setForm({ ...form, features: [...form.features, ''] })}
+            onClick={handleAddFeature}
             className="text-sm text-rose-600 cursor-pointer"
           >
             + Add Feature
           </button>
         </div>
-
         {/* Specifications */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Specifications</label>
-          {['dimensions', 'weight', 'material' , 'lining', 'origin'].map((key) => (
+          {['dimensions', 'weight', 'material', 'lining', 'origin'].map((key) => (
             <div key={key} className="mb-2">
               <input
                 type="text"
@@ -198,7 +207,6 @@ export default function AddProductPage() {
             </div>
           ))}
         </div>
-
         {/* Bestseller */}
         <div className="flex items-center gap-2">
           <input
@@ -212,7 +220,6 @@ export default function AddProductPage() {
             Add to Bestseller
           </label>
         </div>
-
         {/* Submit */}
         <button
           type="submit"
