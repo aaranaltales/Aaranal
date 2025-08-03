@@ -12,12 +12,15 @@ export default function useUserProfile() {
   const [editAddressId, setEditAddressId] = useState(null);
   const [showAddCardForm, setShowAddCardForm] = useState(false);
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
+
   const [newCard, setNewCard] = useState({
     type: "",
     last4: "",
     expiry: "",
   });
+
   const [newAddress, setNewAddress] = useState({
     type: "",
     name: "",
@@ -29,7 +32,25 @@ export default function useUserProfile() {
     city: "",
     state: "",
   });
+  
   const { user, token, setUser } = useUser();
+
+  const [payments, setPayments] = useState([
+    {
+      id: 1,
+      type: "Visa",
+      last4: "4567",
+      expiry: "12/26",
+      default: true,
+    },
+    {
+      id: 2,
+      type: "Mastercard",
+      last4: "8901",
+      expiry: "08/25",
+      default: false,
+    },
+  ]);
 
   const [orders] = useState([
     {
