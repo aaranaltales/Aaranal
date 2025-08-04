@@ -16,9 +16,9 @@ export default function useUserProfile() {
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const [newCard, setNewCard] = useState({
-    type: "",
-    last4: "",
-    expiry: "",
+    type: "Visa",
+    last4: "1234",
+    expiry: "02/29",
   });
 
   const [newAddress, setNewAddress] = useState({
@@ -32,25 +32,10 @@ export default function useUserProfile() {
     city: "",
     state: "",
   });
-  
+
   const { user, token, setUser } = useUser();
 
-  const [payments, setPayments] = useState([
-    {
-      id: 1,
-      type: "Visa",
-      last4: "4567",
-      expiry: "12/26",
-      default: true,
-    },
-    {
-      id: 2,
-      type: "Mastercard",
-      last4: "8901",
-      expiry: "08/25",
-      default: false,
-    },
-  ]);
+  const [payments, setPayments] = useState([]);
 
   const [orders] = useState([
     {
@@ -103,12 +88,17 @@ export default function useUserProfile() {
   };
 
   const handleChangePayment = (id, field, value) => {
-    setPayments((prevPayments) =>
-      prevPayments.map((payment) =>
+    setUser((prevUser) => ({
+      ...prevUser,
+      paymentMethods: prevUser.paymentMethods.map((payment) =>
         payment.id === id ? { ...payment, [field]: value } : payment
-      )
-    );
+      ),
+    }));
   };
+
+  const handleSubmitChangeCard = async (paymentMethodId) => {
+    
+  }
 
   const handleEditAddress = (id) => {
     setEditAddressId(id);
@@ -224,15 +214,29 @@ export default function useUserProfile() {
     }));
   };
 
-  const handleSubmitNewCard = () => {
-    const id =
-      payments.length > 0 ? Math.max(...payments.map((p) => p.id)) + 1 : 1;
-    setPayments((prevPayments) => [
-      ...prevPayments,
-      { ...newCard, id, default: false },
-    ]);
-    setShowAddCardForm(false);
-    setNewCard({ type: "", last4: "", expiry: "" });
+  const handleSubmitNewCard = async () => {
+    try {
+      const response = await axios.post(
+        `${dbUri}/api/user/payment`,
+        newCard,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          paymentMethods: response.data.paymentMethods
+        }));
+      }
+      setShowAddCardForm(false);
+      setNewCard({ type: "", last4: "", expiry: "" });
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const handleAddAddress = () => {
@@ -320,5 +324,6 @@ export default function useUserProfile() {
     handleSubmitNewAddress,
     handleSubmitEditAddress,
     handleDeleteAddress,
+    handleSubmitChangeCard,
   };
 }

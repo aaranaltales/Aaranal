@@ -129,7 +129,7 @@ export default function AddressesSection({
             </div>
           ))
         ) : (
-          <div className="text-gray-600 text-sm">No saved addresses found</div>
+          <p className="text-gray-600 ml-4">No saved addresses found</p>
         )}
       </div>
     </div>

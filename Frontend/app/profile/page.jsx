@@ -138,7 +138,7 @@ export default function UserProfile() {
               )}
               {activeSection === "payments" && (
                 <PaymentsSection
-                  payments={payments}
+                  payments={user.paymentMethods}
                   editPaymentId={editPaymentId}
                   showAddCardForm={showAddCardForm}
                   newCard={newCard}
