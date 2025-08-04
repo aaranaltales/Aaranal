@@ -276,69 +276,7 @@ export const UserProvider = ({ children }) => {
 
 
 
-    const getUserWishlist = async () => {
-        if (!token) return;
-
-        try {
-            const response = await axios.post(
-                `${dbUri}/api/wishlist/get`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (response.data.success) {
-                setWishlistCount(response.data.wishlist.length)
-                setWishlist(response.data.wishlist);
-            }
-        } catch (error) {
-            console.error("Error fetching wishlist:", error);
-            toast.error("Failed to load wishlist");
-        }
-    };
-
-    const toggleWishlist = async (itemId) => {
-        if (!token) {
-            router.push("/auth");
-            return;
-        }
-
-        try {
-            const response = await axios.post(
-                `${dbUri}/api/wishlist/update`,
-                { itemId },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (response.data.success) {
-                setWishlistCount(response.data.wishList.length)
-                setWishlist(response.data.wishList || []);
-                // toast.success(`Item ${response.data.message}`);
-            }
-        } catch (error) {
-            console.error("Error updating wishlist:", error);
-            toast.error("Could not update wishlist");
-        }
-    };
-
-    useEffect(() => {
-        if (allProducts.length > 0 && wishlist.length > 0) {
-            const tempData = wishlist
-                .map((productId) => allProducts.find((p) => p._id === productId))
-                .filter((p) => p); // Remove undefined in case product not found
-
-            setWishlistData(tempData);
-        } else {
-            setWishlistData([]);
-        }
-    }, [wishlist, allProducts]);
+    
 
 
 
