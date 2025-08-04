@@ -67,7 +67,7 @@ const products = [
 
 export default function ProductGrid() {
   const [likedProducts, setLikedProducts] = useState([]);
-  const { refreshUser, token, addToCart } = useUser();
+  const { refreshUser, token, addToCart, toggleWishlist, wishlist } = useUser();
   const [bestSellers, setBestSellers] = useState([]);
 
   const fetchProducts = async () => {
@@ -122,20 +122,24 @@ export default function ProductGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {bestSellers.map((product) => (
-            <Link key={product._id} href={`/product/${product._id}`} className="group cursor-pointer">
-              <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
-                {product.isNew && (
-                  <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    New
-                  </div>
-                )}
-                <button
-                  onClick={(e) => toggleLike(e, product._id)}
-                  className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
-                >
-                  <i className={`${likedProducts.includes(product._id) ? 'ri-heart-fill text-rose-500' : 'ri-heart-line text-gray-600'} w-5 h-5 flex items-center justify-center transition-colors`}></i>
-                </button>
+            <div key={product._id} className="group cursor-pointer relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
 
+              {product.isNew && (
+                <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  New
+                </div>
+              )}
+
+              {/* ❤️ Wishlist Button */}
+              <button
+                onClick={() => toggleWishlist(product._id)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
+              >
+                <i className={`${wishlist.includes(product._id) ? 'ri-heart-fill text-rose-500' : 'ri-heart-line text-gray-600'} w-5 h-5 flex items-center justify-center transition-colors`}></i>
+              </button>
+
+              {/* 🖼️ Link wrapping only image and text */}
+              <Link href={`/product/${product._id}`} className="block">
                 <div className="aspect-[4/5] overflow-hidden rounded-t-3xl">
                   <img
                     src={product.image}
@@ -147,43 +151,32 @@ export default function ProductGrid() {
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">{product.category}</span>
-                    {/* <div className="flex space-x-2">
-                      {product.colors.map((color, index) => (
-                        <div 
-                          key={index}
-                          className="w-4 h-4 rounded-full border-2 border-gray-200 cursor-pointer hover:scale-125 transition-transform"
-                          style={{ backgroundColor: color }}
-                        ></div>
-                      ))}
-                    </div> */}
                   </div>
 
                   <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
                     {product.name}
                   </h3>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-semibold text-gray-900">
-                        {product.price}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-lg text-gray-500 line-through">
-                          {product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={(e) => handleAddToCart(e, product._id)}
-                      className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
-                    >
-                      Add to Cart
-                    </button>
-                  </div>
                 </div>
+              </Link>
+
+              {/* 🛒 Add to Cart (outside Link) */}
+              <div className="px-6 pb-6 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-semibold text-gray-900">{product.price}</span>
+                  {product.originalPrice && (
+                    <span className="text-lg text-gray-500 line-through">{product.originalPrice}</span>
+                  )}
+                </div>
+                <button
+                  onClick={(e) => handleAddToCart(e, product._id)}
+                  className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
+                >
+                  Add to Cart
+                </button>
               </div>
-            </Link>
+            </div>
           ))}
+
         </div>
 
         <div className="text-center mt-16">
