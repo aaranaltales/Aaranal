@@ -30,7 +30,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-20">
           {/* AARANAL Brand */}
           <div className="flex justify-center items-center text-3xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent hover:from-rose-700 hover:to-pink-600 transition-all duration-300">
-            <Image src="/assets/logo.png" width={50} height={50} className="h-12 mr-2 w-auto" />
+            <Image src="/assets/logo.png" alt='Aaranal logo' width={50} height={50} className="h-12 mr-2 w-auto" />
             <p>Aaranal</p>
           </div>
 

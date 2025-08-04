@@ -57,6 +57,8 @@ export default function UserProfile() {
     handleSubmitNewAddress,
     handleSubmitEditAddress,
     handleDeleteAddress,
+    handleSubmitChangeCard,
+    handleDeleteCard,
   } = useUserProfile();
 
   if (!user) {
@@ -150,6 +152,8 @@ export default function UserProfile() {
                   handleNewCardChange={handleNewCardChange}
                   handleSubmitNewCard={handleSubmitNewCard}
                   setShowAddCardForm={setShowAddCardForm}
+                  handleSubmitChangeCard={handleSubmitChangeCard}
+                  handleDeleteCard={handleDeleteCard}
                 />
               )}
               {activeSection === "orders" && <OrdersSection orders={orders} />}
