@@ -4,10 +4,16 @@ import { useState } from "react";
 const categories = ['All', 'Tote Bags', 'Pouch', 'Money Pouch'];
 const sortOptions = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest'];
 
-export default function CollectionsFilter({ activeCategory, setActiveCategory, sortBy, setSortBy }) {
+export default function CollectionsFilter({
+  activeCategory,
+  setActiveCategory,
+  sortBy,
+  setSortBy,
+  searchQuery,
+  setSearchQuery,
+}) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -23,7 +29,7 @@ export default function CollectionsFilter({ activeCategory, setActiveCategory, s
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className=" w-full px-4 py-2 bg-white border border-rose-300 rounded-full hover:border-rose-300 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -53,11 +59,10 @@ export default function CollectionsFilter({ activeCategory, setActiveCategory, s
                           setActiveCategory(category);
                           setIsCategoryOpen(false);
                         }}
-                        className={`w-full px-4 py-2 text-left text-[10px] sm:text-sm transition-colors cursor-pointer first:rounded-t-2xl last:rounded-b-2xl ${
-                          activeCategory === category
-                            ? 'bg-gradient-to-r from-rose-600 to-pink-500 text-white shadow-lg'
-                            : 'hover:bg-rose-50 hover:text-rose-600'
-                        }`}
+                        className={`w-full px-4 py-2 text-left text-[10px] sm:text-sm transition-colors cursor-pointer first:rounded-t-2xl last:rounded-b-2xl ${activeCategory === category
+                          ? 'bg-gradient-to-r from-rose-600 to-pink-500 text-white shadow-lg'
+                          : 'hover:bg-rose-50 hover:text-rose-600'
+                          }`}
                       >
                         {category}
                       </button>
@@ -85,11 +90,10 @@ export default function CollectionsFilter({ activeCategory, setActiveCategory, s
                           setSortBy(option);
                           setIsFilterOpen(false);
                         }}
-                        className={`w-full px-4 py-2 text-left text-[10px] sm:text-sm transition-colors cursor-pointer first:rounded-t-2xl last:rounded-b-2xl ${
-                          sortBy === option
-                            ? 'bg-gradient-to-r from-rose-600 to-pink-500 text-white shadow-lg'
-                            : 'hover:bg-rose-50 hover:text-rose-600'
-                        }`}
+                        className={`w-full px-4 py-2 text-left text-[10px] sm:text-sm transition-colors cursor-pointer first:rounded-t-2xl last:rounded-b-2xl ${sortBy === option
+                          ? 'bg-gradient-to-r from-rose-600 to-pink-500 text-white shadow-lg'
+                          : 'hover:bg-rose-50 hover:text-rose-600'
+                          }`}
                       >
                         {option}
                       </button>

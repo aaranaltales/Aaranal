@@ -8,7 +8,8 @@ import CollectionsHero from './CollectionsHero';
 
 export default function CollectionsPage() {
   const [heroVisible, setHeroVisible] = useState(true);
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('Featured');
 
@@ -18,6 +19,15 @@ export default function CollectionsPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(handler); // Cleanup
+  }, [searchQuery]);
+
 
   return (
     <div className="min-h-screen overflow-hidden">
@@ -49,8 +59,17 @@ export default function CollectionsPage() {
           setActiveCategory={setActiveCategory}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
         />
-        <CollectionsGrid activeCategory={activeCategory} sortBy={sortBy} />
+
+        <CollectionsGrid
+          activeCategory={activeCategory}
+          sortBy={sortBy}
+          searchQuery={debouncedSearch}
+        />
+
+
       </div>
     </div>
   );

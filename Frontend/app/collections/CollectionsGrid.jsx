@@ -5,7 +5,7 @@ import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-export default function CollectionsGrid({ activeCategory, sortBy }) {
+export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
   const { addToCart, wishlist, toggleWishlist } = useUser(); // ✅ use wishlist from context
 
@@ -30,9 +30,14 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
     return typeof value === 'number' ? value : 0;
   };
 
-  const filteredProducts = allProducts.filter((product) =>
-    activeCategory === 'All' ? true : product.category === activeCategory
-  );
+  const filteredProducts = allProducts
+    .filter(product =>
+      activeCategory === 'All' || product.category === activeCategory
+    )
+    .filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
@@ -82,8 +87,8 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                 >
                   <i
                     className={`${wishlist.includes(product._id)
-                        ? 'ri-heart-fill text-rose-500'
-                        : 'ri-heart-line text-gray-600'
+                      ? 'ri-heart-fill text-rose-500'
+                      : 'ri-heart-line text-gray-600'
                       } w-5 h-5`}
                   ></i>
                 </button>
@@ -108,8 +113,8 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                         <i
                           key={star}
                           className={`w-4 h-4 ${star <= Math.floor(product.rating)
-                              ? 'ri-star-fill text-yellow-400'
-                              : 'ri-star-line text-gray-300'
+                            ? 'ri-star-fill text-yellow-400'
+                            : 'ri-star-line text-gray-300'
                             }`}
                         ></i>
                       ))}
