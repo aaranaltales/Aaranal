@@ -1,4 +1,4 @@
-export default function AddressSelector({ show, addresses, formData, onClose, onSelect, onAddNew }) {
+export default function AddressSelector({ show, addresses, formData, onClose, onSelect }) {
     if (!show) return null;
 
     return (
@@ -38,16 +38,6 @@ export default function AddressSelector({ show, addresses, formData, onClose, on
                             )}
                         </div>
                     ))}
-                </div>
-
-                <div className="mt-6">
-                    <button
-                        type="button"
-                        onClick={onAddNew}
-                        className="w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:from-rose-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                    >
-                        Add New Address
-                    </button>
                 </div>
             </div>
         </div>

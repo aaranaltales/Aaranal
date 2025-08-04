@@ -2,52 +2,22 @@
 
 import { useState } from 'react';
 import AddressSelector from './AddressSelector';
-import AddressForm from './AddressForm';
 
-export default function ShippingStep({ user }) {
-    const [showAddressSelector, setShowAddressSelector] = useState(false);
-    const [showAddAddressForm, setShowAddAddressForm] = useState(false);
-    const [formData, setFormData] = useState({
-        name: user?.addresses?.find(addr => addr.default)?.name || '',
-        phone: user?.addresses?.find(addr => addr.default)?.number || '',
-        house: user?.addresses?.find(addr => addr.default)?.house || '',
-        area: user?.addresses?.find(addr => addr.default)?.area || '',
-        landmark: user?.addresses?.find(addr => addr.default)?.landmark || '',
-        pincode: user?.addresses?.find(addr => addr.default)?.pincode || '',
-        city: user?.addresses?.find(addr => addr.default)?.city || '',
-        state: user?.addresses?.find(addr => addr.default)?.state || '',
-        shippingMethod: 'standard',
-        saveAddress: false
-    });
-
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const selectAddress = (address) => {
-        setFormData(prev => ({
-            ...prev,
-            name: address.name,
-            phone: address.number,
-            house: address.house,
-            area: address.area,
-            landmark: address.landmark,
-            pincode: address.pincode,
-            city: address.city,
-            state: address.state
-        }));
-        setShowAddressSelector(false);
-    };
+export default function ShippingStep({
+    addresses,
+    formData,
+    setFormData,
+    showAddressSelector,
+    setShowAddressSelector,
+    selectAddress,
+    handleChange,
+}) {
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold text-gray-900">Shipping Address</h2>
-                {user.addresses?.length > 0 && (
+                {addresses?.length > 0 && (
                     <button
                         type="button"
                         onClick={() => setShowAddressSelector(true)}
@@ -60,33 +30,10 @@ export default function ShippingStep({ user }) {
 
             <AddressSelector
                 show={showAddressSelector}
-                addresses={user.addresses}
+                addresses={addresses}
                 formData={formData}
                 onClose={() => setShowAddressSelector(false)}
                 onSelect={selectAddress}
-                onAddNew={() => {
-                    setShowAddAddressForm(true);
-                    setShowAddressSelector(false);
-                }}
-            />
-
-            <AddressForm
-                show={showAddAddressForm}
-                onClose={() => setShowAddAddressForm(false)}
-                onSubmit={(newAddress) => {
-                    setFormData(prev => ({
-                        ...prev,
-                        name: newAddress.name,
-                        phone: newAddress.number,
-                        house: newAddress.house,
-                        area: newAddress.area,
-                        landmark: newAddress.landmark,
-                        pincode: newAddress.pincode,
-                        city: newAddress.city,
-                        state: newAddress.state
-                    }));
-                    setShowAddAddressForm(false);
-                }}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -106,7 +53,7 @@ export default function ShippingStep({ user }) {
                     <input
                         type="tel"
                         name="phone"
-                        value={formData.phone}
+                        value={formData.number}
                         onChange={handleChange}
                         className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                         required

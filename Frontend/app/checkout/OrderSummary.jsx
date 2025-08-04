@@ -1,17 +1,16 @@
 'use client';
 
 import { useUser } from "@/context/UserContext";
+import useCheckout from "./useCheckout";
 
 export default function OrderSummary() {
   const { cartData } = useUser();
-  const subtotal = cartData.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 25;
-  const tax = Math.round(subtotal * 0.21);
-  const total = subtotal + shipping + tax;
+  const { subtotal, tax, shipping, total } = useCheckout();
 
   return (
     <div className="bg-gradient-to-br from-white to-rose-50/50 rounded-3xl shadow-xl p-8 border border-rose-100 sticky top-24">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+
       <div className="space-y-6 mb-8">
         {cartData.map((item) => (
           <div key={item._id} className="flex items-start space-x-4">
@@ -22,7 +21,6 @@ export default function OrderSummary() {
                 className="w-full h-full object-cover"
               />
             </div>
-
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 mb-1 text-sm">{item.name}</h3>
               <p className="text-sm text-gray-500 mb-2">Color: {item.color}</p>
