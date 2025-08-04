@@ -1,4 +1,5 @@
 import axios from "axios"
+import { toast } from "react-toastify";
 
 const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 export const getProductsData = async () => {

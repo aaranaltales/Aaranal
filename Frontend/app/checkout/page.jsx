@@ -1,14 +1,11 @@
 'use client';
 
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 import CheckoutForm from './CheckoutForm';
 import OrderSummary from './OrderSummary';
 
 export default function CheckoutPage() {
   return (
     <div className="min-h-screen">
-      <Header />
       <div className="py-12 bg-gradient-to-br from-rose-50 via-white to-pink-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -33,7 +30,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

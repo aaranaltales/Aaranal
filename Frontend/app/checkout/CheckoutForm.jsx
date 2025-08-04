@@ -5,21 +5,20 @@ import { useState } from 'react';
 export default function CheckoutForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    email: '',
-    firstName: '',
-    lastName: '',
-    address: '',
-    apartment: '',
-    city: '',
-    country: 'Spain',
-    postalCode: '',
+    name: '',
     phone: '',
+    house: '',
+    area: '',
+    landmark: '',
+    pincode: '',
+    city: '',
+    state: '',
     cardNumber: '',
     expiryDate: '',
     cvv: '',
     cardName: '',
     shippingMethod: 'standard',
-    newsletter: false
+    saveAddress: false
   });
 
   const handleChange = (e) => {
@@ -32,44 +31,44 @@ export default function CheckoutForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (currentStep < 3) {
+    if (currentStep < 2) {
       setCurrentStep(currentStep + 1);
+    } else {
+      // Submit the form
+      console.log('Form submitted:', formData);
     }
   };
 
   const steps = [
-    { number: 1, title: 'Contact Info', completed: currentStep > 1 },
-    { number: 2, title: 'Shipping', completed: currentStep > 2 },
-    { number: 3, title: 'Payment', completed: false }
+    { number: 1, title: 'Shipping Address', completed: currentStep > 1 },
+    { number: 2, title: 'Payment', completed: false }
   ];
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-8 border border-rose-100">
-      <div className="flex items-center justify-between mb-8">
+    <div className="bg-white rounded-3xl shadow-xl p-8 border border-rose-100 max-w-3xl mx-auto">
+      {/* Progress Stepper */}
+      <div className="flex items-center justify-center mb-8">
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-              currentStep === step.number 
-                ? 'bg-gradient-to-r from-rose-600 to-pink-500 border-rose-600 text-white' 
-                : step.completed 
-                  ? 'bg-green-500 border-green-500 text-white'
-                  : 'border-gray-300 text-gray-400'
-            }`}>
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${currentStep === step.number
+              ? 'bg-gradient-to-r from-rose-600 to-pink-500 border-rose-600 text-white'
+              : step.completed
+                ? 'bg-green-500 border-green-500 text-white'
+                : 'border-gray-300 text-gray-400'
+              }`}>
               {step.completed ? (
                 <i className="ri-check-line w-5 h-5 flex items-center justify-center"></i>
               ) : (
                 step.number
               )}
             </div>
-            <span className={`ml-3 text-sm font-medium ${
-              currentStep === step.number ? 'text-rose-600' : step.completed ? 'text-green-600' : 'text-gray-400'
-            }`}>
+            <span className={`ml-3 text-sm font-medium ${currentStep === step.number ? 'text-rose-600' : step.completed ? 'text-green-600' : 'text-gray-400'
+              }`}>
               {step.title}
             </span>
             {index < steps.length - 1 && (
-              <div className={`w-16 h-0.5 mx-4 ${
-                step.completed ? 'bg-green-500' : 'bg-gray-200'
-              }`}></div>
+              <div className={`w-16 h-0.5 mx-4 ${step.completed ? 'bg-green-500' : 'bg-gray-200'
+                }`}></div>
             )}
           </div>
         ))}
@@ -78,38 +77,26 @@ export default function CheckoutForm() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {currentStep === 1 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Contact Information</h2>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
-                required
-              />
-            </div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Shipping Address</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
                 <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                   required
@@ -118,41 +105,11 @@ export default function CheckoutForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="newsletter"
-                checked={formData.newsletter}
-                onChange={handleChange}
-                className="w-4 h-4 text-rose-600 border-rose-300 rounded focus:ring-rose-300"
-              />
-              <label className="ml-3 text-sm text-gray-600">
-                Subscribe to our newsletter for exclusive offers and updates
-              </label>
-            </div>
-          </div>
-        )}
-
-        {currentStep === 2 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Shipping Address</h2>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Street Address *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Flat, House no., Building, Company, Apartment *</label>
               <input
                 type="text"
-                name="address"
-                value={formData.address}
+                name="house"
+                value={formData.house}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                 required
@@ -160,11 +117,23 @@ export default function CheckoutForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Apartment, suite, etc.</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Area, Street, Sector, Village *</label>
               <input
                 type="text"
-                name="apartment"
-                value={formData.apartment}
+                name="area"
+                value={formData.area}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Landmark (Optional)</label>
+              <input
+                type="text"
+                name="landmark"
+                value={formData.landmark}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
               />
@@ -172,7 +141,18 @@ export default function CheckoutForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Pincode *</label>
+                <input
+                  type="text"
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Town / City *</label>
                 <input
                   type="text"
                   name="city"
@@ -183,27 +163,11 @@ export default function CheckoutForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country *</label>
-                <select
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 pr-8 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300 appearance-none bg-white"
-                  required
-                >
-                  <option value="Spain">Spain</option>
-                  <option value="France">France</option>
-                  <option value="Italy">Italy</option>
-                  <option value="Germany">Germany</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">State *</label>
                 <input
                   type="text"
-                  name="postalCode"
-                  value={formData.postalCode}
+                  name="state"
+                  value={formData.state}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                   required
@@ -250,13 +214,26 @@ export default function CheckoutForm() {
                 </label>
               </div>
             </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="saveAddress"
+                checked={formData.saveAddress}
+                onChange={handleChange}
+                className="w-4 h-4 text-rose-600 border-rose-300 rounded focus:ring-rose-300"
+              />
+              <label className="ml-3 text-sm text-gray-600">
+                Save this address for future purchases
+              </label>
+            </div>
           </div>
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 2 && (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Payment Information</h2>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Card Number *</label>
               <input
@@ -335,7 +312,7 @@ export default function CheckoutForm() {
             type="submit"
             className="ml-auto bg-gradient-to-r from-rose-600 to-pink-500 text-white px-8 py-4 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
           >
-            {currentStep === 3 ? 'Complete Order' : 'Continue'}
+            {currentStep === 2 ? 'Complete Order' : 'Continue to Payment'}
           </button>
         </div>
       </form>

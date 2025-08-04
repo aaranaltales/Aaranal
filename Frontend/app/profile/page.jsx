@@ -1,6 +1,4 @@
 "use client";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import AddressesSection from "./AddressesSection";
 import MobileNavbar from "./MobileNavbar";
@@ -67,7 +65,6 @@ export default function UserProfile() {
 
   return (
     <div>
-      <Header />
       <div className="bg-white pt-10 sm:pt-0">
         <style jsx global>{`
         @media (max-width: 767px) {
@@ -162,7 +159,6 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

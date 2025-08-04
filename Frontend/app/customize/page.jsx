@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import ContactHero from './ContactHero';
+import { useEffect, useState } from 'react';
 import ContactForm from './ContactForm';
+import ContactHero from './ContactHero';
 
 export default function ContactPage() {
   const [heroVisible, setHeroVisible] = useState(true);
@@ -19,8 +17,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <Header />
-
       <AnimatePresence mode="wait">
         {heroVisible && (
           <motion.div
@@ -46,8 +42,6 @@ export default function ContactPage() {
       <div className="relative z-10">
         <ContactForm />
       </div>
-
-      <Footer />
     </div>
   );
 }

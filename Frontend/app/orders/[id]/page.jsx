@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+'use client'
+
+import React, { use, useState } from 'react';
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin, CreditCard, Phone, Mail, Download, RotateCcw, MessageCircle, Star, Shield, Heart, ChevronRight} from 'lucide-react';
 import Link from 'next/link';
 
@@ -177,7 +179,7 @@ const OrderDetailsPage = () => {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-6">
-              <Link href="/userprofile" >
+              <Link href="/profile">
               <button className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300">
                 <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>

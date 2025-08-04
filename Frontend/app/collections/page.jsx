@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import CollectionsHero from './CollectionsHero';
-import CollectionsGrid from './CollectionsGrid';
+import { useEffect, useState } from 'react';
 import CollectionsFilter from './CollectionsFilter';
+import CollectionsGrid from './CollectionsGrid';
+import CollectionsHero from './CollectionsHero';
 
 export default function CollectionsPage() {
   const [heroVisible, setHeroVisible] = useState(true);
@@ -23,8 +21,6 @@ export default function CollectionsPage() {
 
   return (
     <div className="min-h-screen overflow-hidden">
-      <Header />
-
       <AnimatePresence mode="wait">
         {heroVisible && (
           <motion.div
@@ -56,8 +52,6 @@ export default function CollectionsPage() {
         />
         <CollectionsGrid activeCategory={activeCategory} sortBy={sortBy} />
       </div>
-
-      <Footer />
     </div>
   );
 }
