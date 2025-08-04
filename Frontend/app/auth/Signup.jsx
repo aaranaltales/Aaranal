@@ -83,19 +83,19 @@ export default function Signup({ onAlreadyHaveAccount }) {
       </div>
 
       <div className="w-full max-w-md sm:max-w-lg lg:max-w-xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl border border-white/20">
-          <span className="inline-block px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-full tracking-wide mb-6">
+        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-10 lg:px-12 lg:py-8 shadow-2xl border border-white/20">
+          <span className="inline-block px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-full tracking-wide mb-2">
             Join Us
           </span>
 
-          <h2 className="text-3xl sm:text-4xl font-light text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl font-light text-white mb-2">
             Create Your
             <span className="block font-normal text-rose-200">
               Account
             </span>
           </h2>
 
-          <p className="text-base sm:text-lg text-rose-100 mb-8 sm:mb-10 font-light leading-relaxed">
+          <p className="text-base sm:text-lg text-rose-100 mb-8 sm:mb-4 font-light leading-relaxed">
             Sign up to access exclusive features, track your orders, and save your favorites.
           </p>
 
@@ -106,7 +106,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
               </div>
             )}
 
-            <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex flex-col gap-3">
               <input
                 type="text"
                 name="name"
@@ -178,7 +178,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
             </button>
           </form>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-8 mt-8 sm:mt-10 text-rose-200">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-8 mt-8 sm:mt-5 text-rose-200">
             <button
               type="button"
               onClick={onAlreadyHaveAccount}

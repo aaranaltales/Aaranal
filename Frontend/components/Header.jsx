@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import CartSidebar from './CartSidebar';
 import WishlistSidebar from './WishlistSidebar';
@@ -50,11 +51,12 @@ export default function Header() {
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-rose-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <Link href="/" className="text-3xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent hover:from-rose-700 hover:to-pink-600 transition-all duration-300">
-              Aaranal
+            <Link href="/" className=" flex items-center justify-center text-3xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent hover:from-rose-700 hover:to-pink-600 transition-all duration-300">
+              <Image src="/assests/logo.png"  width={50} height={50} className="h-12 mr-2 w-auto" />
+              <p className='hidden sm:block'>Aaranal</p>
             </Link>
 
-            <nav className="hidden lg:flex items-center space-x-12">
+            <nav className="hidden lg:flex items-center space-x-12 lg:ml-20">
               <Link href="/" className="text-gray-800 hover:text-rose-600 whitespace-nowrap cursor-pointer transition-all duration-300 font-medium text-sm tracking-wide uppercase relative group">
                 Home
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-rose-500 to-pink-500 group-hover:w-full transition-all duration-300"></span>
@@ -73,7 +75,7 @@ export default function Header() {
               </Link>
             </nav>
 
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-1 sm:space-x-6">
               <button className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50 group">
                 <i className="ri-search-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
               </button>
