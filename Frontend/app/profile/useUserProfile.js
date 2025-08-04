@@ -35,8 +35,6 @@ export default function useUserProfile() {
 
   const { user, token, setUser } = useUser();
 
-  const [payments, setPayments] = useState([]);
-
   const [orders] = useState([
     {
       id: "#ORD-2024-001",
@@ -91,13 +89,37 @@ export default function useUserProfile() {
     setUser((prevUser) => ({
       ...prevUser,
       paymentMethods: prevUser.paymentMethods.map((payment) =>
-        payment.id === id ? { ...payment, [field]: value } : payment
+        payment._id === id ? { ...payment, [field]: value } : payment
       ),
     }));
   };
 
-  const handleSubmitChangeCard = async (paymentMethodId) => {
-    
+  const handleSubmitChangeCard = async (paymentMethod) => {
+    try {
+      const paymentMethodId = paymentMethod._id;
+      const response = await axios.put(
+        `${dbUri}/api/user/payment`,
+        {
+          paymentMethodId,
+          paymentMethod,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          paymentMethods: response.data.paymentMethods
+        }));
+      }
+      handleSavePayment(paymentMethodId);
+    } catch (error) {
+      toast.error(error.message);
+    }
   }
 
   const handleEditAddress = (id) => {
@@ -133,7 +155,7 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success("Address changed successfullly");
+        toast.success(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           addresses: response.data.addresses
@@ -193,15 +215,51 @@ export default function useUserProfile() {
     }
   };
 
-  const handleSetDefaultPayment = (id) => {
-    setPayments((prevPayments) =>
-      prevPayments.map((payment) =>
-        payment.id === id
-          ? { ...payment, default: true }
-          : { ...payment, default: false }
-      )
-    );
+  const handleSetDefaultPayment = async (paymentMethodId) => {
+    try {
+      const response = await axios.put(
+        `${dbUri}/api/user/payment/set-default`,
+        { paymentMethodId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          paymentMethods: response.data.paymentMethods
+        }));
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
+
+  const handleDeleteCard = async (paymentMethodId) => {
+    try {
+      const response = await axios.delete(`${dbUri}/api/user/payment`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          paymentMethodId,
+        },
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          paymentMethods: response.data.paymentMethods,
+        }));
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  }
 
   const handleAddCard = () => {
     setShowAddCardForm(true);
@@ -289,7 +347,6 @@ export default function useUserProfile() {
     mobileMenuOpen,
     setMobileMenuOpen,
     user,
-    payments,
     orders,
     editMode,
     setEditMode,
@@ -325,5 +382,6 @@ export default function useUserProfile() {
     handleSubmitEditAddress,
     handleDeleteAddress,
     handleSubmitChangeCard,
+    handleDeleteCard
   };
 }
