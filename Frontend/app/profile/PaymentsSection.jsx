@@ -121,7 +121,7 @@ export default function PaymentsSection({
                     </svg>
                   </button>
                   <button
-                    onClick={() => handleDeleteCard(payment._id)}
+                    onClick={() => handleDeleteCard(payment``._id)}
                   >
                     <AiOutlineDelete className="text-red-600" />
                   </button>
