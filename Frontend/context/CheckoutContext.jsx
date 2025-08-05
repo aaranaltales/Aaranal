@@ -15,6 +15,16 @@ export const CheckoutProvider = ({ children }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [showAddressSelector, setShowAddressSelector] = useState(false);
 
+    const [showCardSelector, setShowCardSelector] = useState(false);
+
+    const selectCard = (card) => {
+        setPaymentData(prev => ({
+            ...prev,
+            ...card
+        }));
+        setShowCardSelector(false);
+    };
+
     const [formData, setFormData] = useState({
         name: '',
         number: '',
@@ -28,6 +38,15 @@ export const CheckoutProvider = ({ children }) => {
         saveAddress: false,
     });
 
+    const [paymentData, setPaymentData] = useState({
+        type: "",
+        cardNumber: "",
+        holderName: "",
+        cvv: "",
+        expiry: "",
+        savePayment: false
+    });
+
     useEffect(() => {
         const defaultAddress = user?.addresses?.find(addr => addr.default);
         if (defaultAddress) {
@@ -35,6 +54,15 @@ export const CheckoutProvider = ({ children }) => {
                 ...prev,
                 ...defaultAddress,
                 shippingMethod: 'standard',
+                saveAddress: false,
+            }));
+        }
+
+        const defaultPayment = user?.paymentMethods?.find(payment => payment.default)
+        if (defaultPayment) {
+            setPaymentData(prev => ({
+                ...prev,
+                ...defaultPayment,
                 saveAddress: false,
             }));
         }
@@ -46,6 +74,14 @@ export const CheckoutProvider = ({ children }) => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
+    };
+
+    const handleCardChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setPaymentData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }))
     };
 
     const selectAddress = (address) => {
@@ -118,6 +154,12 @@ export const CheckoutProvider = ({ children }) => {
         shipping,
         tax,
         total,
+        paymentData,
+        setPaymentData,
+        showCardSelector,
+        setShowCardSelector,
+        selectCard,
+        handleCardChange
     };
 
     return (

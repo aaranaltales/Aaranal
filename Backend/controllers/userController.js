@@ -210,7 +210,7 @@ const setDefaultAddress = async (req, res) => {
 const addPaymentMethod = async (req, res) => {
     try {
         const { _id } = req.user
-        const { type, last4, expiry } = req.body
+        const { type, cardNumber, holderName, expiry } = req.body
 
         const user = await userModel.findById(_id)
         if (!user) {
@@ -220,7 +220,7 @@ const addPaymentMethod = async (req, res) => {
         // If this is the first payment method, make it default
         const isDefault = user.paymentMethods.length === 0
 
-        user.paymentMethods.push({ type, last4, expiry, default: isDefault })
+        user.paymentMethods.push({ type, cardNumber, holderName, expiry, default: isDefault })
         await user.save()
 
         res.json({ success: true, message: "Payment method added successfully", paymentMethods: user.paymentMethods })
@@ -233,7 +233,7 @@ const addPaymentMethod = async (req, res) => {
 const updatePaymentMethod = async (req, res) => {
     try {
         const { _id } = req.user
-        const { paymentMethodId, type, last4, expiry } = req.body
+        const { paymentMethodId, type, cardNumber, holderName, expiry } = req.body
 
         const user = await userModel.findById(_id)
         if (!user) {
@@ -245,7 +245,7 @@ const updatePaymentMethod = async (req, res) => {
             return res.json({ success: false, message: "Payment method not found" })
         }
 
-        paymentToUpdate.set({ type, last4, expiry })
+        paymentToUpdate.set({ type, cardNumber, holderNamecardHolder, expiry })
         await user.save()
 
         res.json({ success: true, message: "Payment method updated successfully", paymentMethods: user.paymentMethods })

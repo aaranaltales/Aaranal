@@ -17,7 +17,13 @@ export default function CheckoutForm() {
     handleSubmit,
     user,
     currentStep,
-    setCurrentStep
+    setCurrentStep,
+    paymentData,
+    setPaymentData,
+    showCardSelector,
+    setShowCardSelector,
+    selectCard,
+    handleCardChange
   } = useCheckoutContext();
 
   if (!user) return <Loading />;
@@ -40,7 +46,15 @@ export default function CheckoutForm() {
         )}
 
         {currentStep === 2 && (
-          <PaymentStep />
+          <PaymentStep
+            paymentMethods={user?.paymentMethods || []}
+            paymentData={paymentData}
+            setPaymentData={setPaymentData}
+            showCardSelector={showCardSelector}
+            setShowCardSelector={setShowCardSelector}
+            selectCard={selectCard}
+            handleCardChange={handleCardChange}
+          />
         )}
 
         <div className="flex items-center justify-between pt-6 border-t border-rose-100">
