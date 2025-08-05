@@ -1,0 +1,136 @@
+// context/CheckoutContext.js
+'use client';
+
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useUser } from "@/context/UserContext";
+
+const CheckoutContext = createContext(null);
+
+export const CheckoutProvider = ({ children }) => {
+    const { user, setUser, token, cartData } = useUser();
+    const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    const [currentStep, setCurrentStep] = useState(1);
+    const [showAddressSelector, setShowAddressSelector] = useState(false);
+
+    const [formData, setFormData] = useState({
+        name: '',
+        number: '',
+        house: '',
+        area: '',
+        landmark: '',
+        pincode: '',
+        city: '',
+        state: '',
+        shippingMethod: 'standard',
+        saveAddress: false,
+    });
+
+    useEffect(() => {
+        const defaultAddress = user?.addresses?.find(addr => addr.default);
+        if (defaultAddress) {
+            setFormData(prev => ({
+                ...prev,
+                ...defaultAddress,
+                shippingMethod: 'standard',
+                saveAddress: false,
+            }));
+        }
+    }, [user]);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const selectAddress = (address) => {
+        setFormData(prev => ({
+            ...prev,
+            ...address
+        }));
+        setShowAddressSelector(false);
+    };
+
+    const handleSubmitNewAddress = async (newAddress) => {
+        try {
+            const response = await axios.post(`${dbUri}/api/user/address`, newAddress, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (response.data.success) {
+                setUser(prevUser => ({
+                    ...prevUser,
+                    addresses: response.data.addresses,
+                }));
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (currentStep < 2) {
+            setCurrentStep(currentStep + 1);
+        } else {
+            if (formData.saveAddress) {
+                handleSubmitNewAddress({
+                    name: formData.name,
+                    number: formData.number,
+                    house: formData.house,
+                    area: formData.area,
+                    landmark: formData.landmark,
+                    pincode: formData.pincode,
+                    city: formData.city,
+                    state: formData.state,
+                });
+            }
+            console.log("Form submitted");
+        }
+    };
+
+    const subtotal = useMemo(() => {
+        return cartData?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
+    }, [cartData]);
+
+    const shipping = formData.shippingMethod === "express" ? 45 : 25;
+    const tax = Math.round(subtotal * 0.21);
+    const total = subtotal + shipping + tax;
+
+    const value = {
+        user,
+        formData,
+        setFormData,
+        showAddressSelector,
+        setShowAddressSelector,
+        selectAddress,
+        handleChange,
+        handleSubmit,
+        currentStep,
+        setCurrentStep,
+        subtotal,
+        shipping,
+        tax,
+        total,
+    };
+
+    return (
+        <CheckoutContext.Provider value={value}>
+            {children}
+        </CheckoutContext.Provider>
+    );
+};
+
+export const useCheckoutContext = () => {
+    const context = useContext(CheckoutContext);
+    if (!context) {
+        throw new Error("useCheckoutContext must be used within a CheckoutProvider");
+    }
+    return context;
+};

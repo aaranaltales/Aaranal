@@ -1,11 +1,11 @@
 'use client';
 
 import { useUser } from "@/context/UserContext";
-import useCheckout from "./useCheckout";
+import { useCheckoutContext } from "@/context/CheckoutContext";
 
 export default function OrderSummary() {
   const { cartData } = useUser();
-  const { subtotal, tax, shipping, total } = useCheckout();
+  const { subtotal, tax, shipping, total } = useCheckoutContext();
 
   return (
     <div className="bg-gradient-to-br from-white to-rose-50/50 rounded-3xl shadow-xl p-8 border border-rose-100 sticky top-24">

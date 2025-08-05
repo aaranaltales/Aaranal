@@ -4,7 +4,7 @@ import Loading from '@/components/Loading';
 import CheckoutStepper from './CheckoutStepper';
 import ShippingStep from './ShippingStep';
 import PaymentStep from './PaymentStep';
-import useCheckout from './useCheckout'
+import { useCheckoutContext } from '@/context/CheckoutContext';
 
 export default function CheckoutForm() {
   const {
@@ -18,7 +18,7 @@ export default function CheckoutForm() {
     user,
     currentStep,
     setCurrentStep
-  } = useCheckout();
+  } = useCheckoutContext();
 
   if (!user) return <Loading />;
 
@@ -55,7 +55,7 @@ export default function CheckoutForm() {
           )}
           <button
             type="submit"
-            
+
             className="ml-auto bg-gradient-to-r from-rose-600 to-pink-500 text-white px-8 py-4 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
           >
             {currentStep === 2 ? 'Complete Order' : 'Continue to Payment'}

@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { UserProvider } from '@/context/UserContext';
+import Context from '@/context/Context';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from '@/components/Header';
@@ -14,12 +14,12 @@ export default function LayoutWrapper({ children }) {
 
     return (
         <div className="min-h-screen">
-            <UserProvider>
+            <Context>
                 {!hideLayout && <Header />}
                 {children}
                 <ToastContainer />
                 {!hideLayout && <Footer />}
-            </UserProvider>
+            </Context>
         </div>
     );
 }

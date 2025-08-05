@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import AddressSelector from './AddressSelector';
 
 export default function ShippingStep({
