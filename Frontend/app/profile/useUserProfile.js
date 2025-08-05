@@ -16,9 +16,10 @@ export default function useUserProfile() {
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const [newCard, setNewCard] = useState({
-    type: "Visa",
-    last4: "1234",
-    expiry: "02/29",
+    type: "",
+    cardNumber: "",
+    holderName: "",
+    expiry: "",
   });
 
   const [newAddress, setNewAddress] = useState({

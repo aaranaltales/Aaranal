@@ -19,7 +19,8 @@ const addressSchema = new mongoose.Schema({
 const paymentMethodSchema = new mongoose.Schema({
     _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
     type: { type: String, required: true },
-    last4: { type: String, required: true },
+    cardNumber: { type: String, required: true },
+    holderName: { type: String, required: true },
     expiry: { type: String, required: true },
     default: { type: Boolean, default: false },
 })

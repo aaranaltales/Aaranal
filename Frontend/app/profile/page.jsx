@@ -10,7 +10,6 @@ import SettingsSection from "./SettingsSection";
 import UserProfileHeader from "./UserProfileHeader";
 import useUserProfile from "./useUserProfile";
 
-
 export default function UserProfile() {
   const {
     activeSection,

@@ -78,7 +78,7 @@ export default function PaymentsSection({
                   ) : (
                     <>
                       <h3 className="font-medium text-gray-900 text-sm">
-                        {payment.type} •••• {payment.last4}
+                          {payment.type} •••• {payment.cardNumber?.slice(-4) || "****"}
                       </h3>
                       <p className="text-xs text-gray-500">
                         Expires {payment.expiry}
@@ -121,7 +121,7 @@ export default function PaymentsSection({
                     </svg>
                   </button>
                   <button
-                    onClick={() => handleDeleteCard(payment``._id)}
+                    onClick={() => handleDeleteCard(payment._id)}
                   >
                     <AiOutlineDelete className="text-red-600" />
                   </button>

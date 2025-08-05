@@ -18,12 +18,23 @@ export default function CardForm({ card, onChange, onSubmit, onCancel, submitLab
                 </div>
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Last 4 Digits
+                        Card number (16 digits)
                     </label>
                     <input
                         type="text"
-                        value={card.last4}
-                        onChange={(e) => onChange("last4", e.target.value)}
+                        value={card.cardNumber}
+                        onChange={(e) => onChange("cardNumber", e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Card Holder name
+                    </label>
+                    <input
+                        type="text"
+                        value={card.holderName}
+                        onChange={(e) => onChange("holderName", e.target.value)}
                         className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm"
                     />
                 </div>
