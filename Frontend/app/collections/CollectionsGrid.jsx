@@ -5,24 +5,17 @@ import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-export default function CollectionsGrid({ activeCategory, sortBy }) {
-  const [likedProducts, setLikedProducts] = useState([]);
+export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
-  const { addToCart } = useUser();
+  const { addToCart, wishlist, toggleWishlist } = useUser(); // ✅ use wishlist from context
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const Products = await getProductsData();
-      setAllProducts(Products);
+      const products = await getProductsData();
+      setAllProducts(products);
     };
     fetchProducts();
   }, []);
-
-  const toggleLike = (productId) => {
-    setLikedProducts((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
-    );
-  };
 
   const handleAddToCart = (e, productId) => {
     e.preventDefault();
@@ -30,7 +23,6 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
     addToCart(productId);
   };
 
-  // Parse price safely (handles string with ₹/$ or number)
   const parsePrice = (value) => {
     if (typeof value === 'string') {
       return parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
@@ -38,12 +30,15 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
     return typeof value === 'number' ? value : 0;
   };
 
-  // Apply category filter
-  const filteredProducts = allProducts.filter((product) =>
-    activeCategory === 'All' ? true : product.category === activeCategory
-  );
+  const filteredProducts = allProducts
+    .filter(product =>
+      activeCategory === 'All' || product.category === activeCategory
+    )
+    .filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-  // Apply sorting
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'Price: Low to High':
@@ -68,6 +63,8 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
               className="group cursor-pointer block"
             >
               <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
+
+                {/* NEW & SALE Badges */}
                 {product.isNew && (
                   <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                     New
@@ -78,21 +75,25 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                     Sale
                   </div>
                 )}
+
+                {/* ❤️ Wishlist Button */}
                 <button
                   onClick={(e) => {
                     e.preventDefault(); // prevent Link navigation
-                    toggleLike(product._id);
+                    e.stopPropagation();
+                    toggleWishlist(product._id); // ✅ use context
                   }}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
                   <i
-                    className={`${likedProducts.includes(product._id)
-                        ? 'ri-heart-fill text-rose-500'
-                        : 'ri-heart-line text-gray-600'
+                    className={`${wishlist.includes(product._id)
+                      ? 'ri-heart-fill text-rose-500'
+                      : 'ri-heart-line text-gray-600'
                       } w-5 h-5`}
                   ></i>
                 </button>
 
+                {/* 🖼️ Product Image */}
                 <div className="aspect-[4/5] overflow-hidden rounded-t-3xl">
                   <img
                     src={product.image}
@@ -101,6 +102,7 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                   />
                 </div>
 
+                {/* 📝 Product Info */}
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">
@@ -111,8 +113,8 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
                         <i
                           key={star}
                           className={`w-4 h-4 ${star <= Math.floor(product.rating)
-                              ? 'ri-star-fill text-yellow-400'
-                              : 'ri-star-line text-gray-300'
+                            ? 'ri-star-fill text-yellow-400'
+                            : 'ri-star-line text-gray-300'
                             }`}
                         ></i>
                       ))}
@@ -142,7 +144,6 @@ export default function CollectionsGrid({ activeCategory, sortBy }) {
               </div>
             </Link>
           ))}
-
         </div>
 
         <div className="text-center mt-16">
