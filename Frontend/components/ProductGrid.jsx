@@ -138,7 +138,7 @@ export default function ProductGrid() {
 
                 <div className="aspect-[4/5] overflow-hidden rounded-t-3xl">
                   <img
-                    src={product.image}
+                    src={product.image[0]}
                     alt={product.name}
                     className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                   />
