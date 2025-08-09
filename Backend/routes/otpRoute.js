@@ -8,7 +8,7 @@ otpRouter.get('/', (req, res) => {
     res.json({ success: true, message: 'OTP fetched sucess' });
 })
 
-otpRouter.post('/send-otp', (req, res) => {
+otpRouter.post('/', (req, res) => {
     const { email } = req.body;
     console.log(req.body)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -21,8 +21,9 @@ otpRouter.post('/send-otp', (req, res) => {
         .catch(err => res.status(500).json({ success: false, error: err.message }));
 });
 
-otpRouter.post('/verify-otp', (req, res) => {
+otpRouter.post('/verify', (req, res) => {
     const { email, otp } = req.body;
+    console.log(req.body)
 
     const record = otpStore[email];
     console.log(record)
