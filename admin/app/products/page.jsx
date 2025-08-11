@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
+  const router = useRouter();
 
   const fetchProducts = async () => {
     try {
@@ -39,6 +41,12 @@ export default function ProductsPage() {
     }
   };
 
+  const editProduct = (product) => {
+    // Store the product data in localStorage for the add-product page to use
+    localStorage.setItem('editProduct', JSON.stringify(product));
+    router.push('/add-product');
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -56,7 +64,7 @@ export default function ProductsPage() {
               <th className="px-4">Name</th>
               <th className="px-4">Category</th>
               <th className="px-4">Price</th>
-              <th className="px-4">Action</th>
+              <th className="px-4">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -76,12 +84,20 @@ export default function ProductsPage() {
                 <td className="px-4 py-3">{item.category}</td>
                 <td className="px-4 py-3">${item.price}</td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => deleteProduct(item._id)}
-                    className="text-red-500 hover:text-red-600 transition-colors text-sm font-medium"
-                  >
-                    ✕ Remove
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => editProduct(item)}
+                      className="text-blue-500 hover:text-blue-600 transition-colors text-sm font-medium mr-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteProduct(item._id)}
+                      className="text-red-500 hover:text-red-600 transition-colors text-sm font-medium"
+                    >
+                      ✕ Remove
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
-import { signup } from '@/services/user';
+import { signup, sendOtp, verifyOtp } from '@/services/user';
 import Cookies from 'js-cookie';
 import { useSearchParams } from 'next/navigation'
 
@@ -12,14 +12,100 @@ export default function Signup({ onAlreadyHaveAccount }) {
   const { refreshUser } = useUser();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
-  const [form, setForm] = useState({ name: '', email: '', password: '', cPassword: '' });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', otp: "", password: '', cPassword: '' });
   const [error, setError] = useState('');
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSendOtp = async () => {
+    setError('');
+    if (!form.email) {
+      setError('Email is required');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await sendOtp({ email: form.email });
+
+      if (response.success) {
+        setOtpSent(true);
+        setCountdown(30); // 30 seconds countdown for resend
+      } else {
+        setError(response.message || 'Failed to send OTP. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred while sending OTP. Please try again.');
+      console.error('OTP send error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setError('');
+
+    if (!form.otp) {
+      setError('Please enter the OTP');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await verifyOtp({
+        email: form.email,
+        otp: form.otp
+      });
+      console.log(response)
+
+      if (response.success) {
+        setOtpVerified(true);
+      } else {
+        setError(response.message || 'Invalid OTP. Please try again.');
+      }
+    } catch (err) {
+      setError(err.message || 'An error occurred while verifying OTP. Please try again.');
+      // console.error('OTP verification error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setError('');
+
+    try {
+      setIsLoading(true);
+      const response = await sendOtp({
+        email: form.email
+      });
+
+      if (response.success) {
+        setCountdown(30); // Reset countdown
+      } else {
+        setError(response.message || 'Failed to resend OTP. Please try again.');
+      }
+    } catch (err) {
+      setError('An error occurred while resending OTP. Please try again.');
+      console.error('OTP resend error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -27,6 +113,11 @@ export default function Signup({ onAlreadyHaveAccount }) {
     setError('');
 
     // Validate form
+    if (!form.name) {
+      setError('Name is required');
+      return;
+    }
+
     if (form.password !== form.cPassword) {
       setError('Passwords do not match');
       return;
@@ -37,12 +128,18 @@ export default function Signup({ onAlreadyHaveAccount }) {
       return;
     }
 
+    if (!otpVerified) {
+      setError('Please verify your email with OTP first');
+      return;
+    }
+
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const response = await signup({
         name: form.name,
         email: form.email,
-        password: form.password
+        password: form.password,
+        otp: form.otp
       });
 
       if (response.success) {
@@ -116,15 +213,59 @@ export default function Signup({ onAlreadyHaveAccount }) {
                 className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
                 required
               />
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Email address"
-                className="flex-1 px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
-                required
-              />
+
+              <div className="relative">
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="Email address"
+                  className="w-full px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300 pr-24" // Added pr-24 for button space
+                  required
+                  disabled={otpSent} // Disable email after OTP is sent
+                />
+                {!otpVerified &&
+                  <button
+                    type="button"
+                    onClick={otpSent && countdown === 0 ? handleResendOtp : handleSendOtp}
+                    disabled={otpSent && countdown > 0}
+                    className={`absolute right-2 top-1/2 text-xs transform -translate-y-1/2 px-4 py-1.5 rounded-full ${otpSent && countdown > 0
+                      ? 'bg-white text-rose-900 cursor-not-allowed'
+                      : 'bg-white/10 text-white hover:bg-white/15'
+                      } transition-all`}
+                  >
+                    {otpSent ? (countdown > 0 ? `${countdown}s` : 'Resend') : 'Send OTP'}
+                  </button>
+                }
+              </div>
+
+              {otpSent && (
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="otp"
+                    value={form.otp}
+                    onChange={handleChange}
+                    disabled={otpVerified}
+                    placeholder="Enter OTP"
+                    className="w-full px-5 py-3 sm:px-6 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300 pr-24"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyOtp}
+                    disabled={otpVerified}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 rounded-full text-xs ${otpVerified
+                      ? 'bg-green-500/90 text-white cursor-default'
+                      : 'bg-white/10 text-white hover:bg-white/15'
+                      } transition-all`}
+                  >
+                    {otpVerified ? 'Verified ✓' : 'Verify'}
+                  </button>
+                </div>
+              )}
+
               <input
                 type="password"
                 name="password"
@@ -171,8 +312,8 @@ export default function Signup({ onAlreadyHaveAccount }) {
 
             <button
               type="submit"
-              disabled={isSubmitted}
-              className={`bg-white text-rose-700 px-8 py-3 sm:py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-2 sm:mt-4 w-full ${isSubmitted ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isLoading || !otpVerified}
+              className={`bg-white text-rose-700 px-8 py-3 sm:py-4 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-2 sm:mt-4 w-full ${isLoading || !otpVerified ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isLoading ? 'Processing...' : 'Sign Up'}
             </button>

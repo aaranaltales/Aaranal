@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,11 +23,58 @@ export default function AddProductPage() {
   });
 
   const [images, setImages] = useState([null, null, null, null]);
+  const [existingImages, setExistingImages] = useState([null, null, null, null]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [productId, setProductId] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if we're editing a product
+    const editData = localStorage.getItem('editProduct');
+    if (editData) {
+      const product = JSON.parse(editData);
+      setIsEditing(true);
+      setProductId(product._id);
+      
+      setForm({
+        name: product.name || '',
+        description: product.description || '',
+        price: product.price || '',
+        category: product.category || 'Tote Bag',
+        bestseller: product.bestseller || false,
+        features: Array.isArray(product.features) && product.features.length > 0 ? product.features : [''],
+        specs: {
+          dimensions: product.specs?.dimensions || '',
+          weight: product.specs?.weight || '',
+          material: product.specs?.material || '',
+          lining: product.specs?.lining || '',
+          origin: product.specs?.origin || '',
+        },
+      });
+
+      // Set existing images
+      if (product.image && Array.isArray(product.image)) {
+        const imageUrls = [...product.image];
+        while (imageUrls.length < 4) {
+          imageUrls.push(null);
+        }
+        setExistingImages(imageUrls);
+      }
+
+      // Clear the edit data from localStorage after loading
+      localStorage.removeItem('editProduct');
+    }
+  }, []);
 
   const handleImageChange = (index, file) => {
     const newImages = [...images];
     newImages[index] = file;
     setImages(newImages);
+    
+    // Clear the existing image at this index when a new one is selected
+    const newExistingImages = [...existingImages];
+    newExistingImages[index] = null;
+    setExistingImages(newExistingImages);
   };
 
   const handleSubmit = async (e) => {
@@ -34,6 +82,7 @@ export default function AddProductPage() {
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
+      
       Object.entries(form).forEach(([key, val]) => {
         if (key === 'features' || key === 'specs') {
           formData.append(key, JSON.stringify(val));
@@ -41,34 +90,59 @@ export default function AddProductPage() {
           formData.append(key, val);
         }
       });
+
+      // Add product ID if editing
+      if (isEditing) {
+        formData.append('id', productId);
+      }
+
+      // Add new images
       images.forEach((file, i) => {
         if (file) formData.append(`image${i + 1}`, file);
       });
 
+      // Add existing images that weren't replaced
+      existingImages.forEach((imageUrl, i) => {
+        if (imageUrl && !images[i]) {
+          formData.append(`existingImage${i + 1}`, imageUrl);
+        }
+      });
+
+      const endpoint = isEditing ? '/api/product/update' : '/api/product/add';
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product/add`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}${endpoint}`,
         formData,
         { headers: { token } }
       );
 
       if (res.data.success) {
         toast.success(res.data.message);
-        setForm({
-          name: '',
-          description: '',
-          price: '',
-          category: 'Tote Bag',
-          bestseller: false,
-          features: [''],
-          specs: {
-            dimensions: '',
-            weight: '',
-            material: '',
-            lining: '',
-            origin: '',
-          },
-        });
-        setImages([null, null, null, null]);
+        
+        if (!isEditing) {
+          // Reset form for new product
+          setForm({
+            name: '',
+            description: '',
+            price: '',
+            category: 'Tote Bag',
+            bestseller: false,
+            features: [''],
+            specs: {
+              dimensions: '',
+              weight: '',
+              material: '',
+              lining: '',
+              origin: '',
+            },
+          });
+          setImages([null, null, null, null]);
+          setExistingImages([null, null, null, null]);
+        } else {
+          // Navigate back to products page after edit
+          setTimeout(() => {
+            router.push('/products');
+          }, 1500);
+        }
       } else {
         toast.error(res.data.message);
       }
@@ -87,10 +161,29 @@ export default function AddProductPage() {
     setForm({ ...form, features: newFeatures });
   };
 
+  const handleCancel = () => {
+    if (isEditing) {
+      router.push('/products');
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 border border-gray-200">
       <ToastContainer />
-      <h1 className="text-3xl font-light mb-8">Add New Product</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-light">
+          {isEditing ? 'Edit Product' : 'Add New Product'}
+        </h1>
+        {isEditing && (
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
+      
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Image Upload */}
         <div>
@@ -100,6 +193,8 @@ export default function AddProductPage() {
               <label key={i} className="aspect-square rounded-xl bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden">
                 {img ? (
                   <img src={URL.createObjectURL(img)} alt={`preview-${i}`} className="object-cover w-full h-full" />
+                ) : existingImages[i] ? (
+                  <img src={existingImages[i]} alt={`existing-${i}`} className="object-cover w-full h-full" />
                 ) : (
                   <span className="text-sm text-gray-400">+ Upload</span>
                 )}
@@ -107,7 +202,13 @@ export default function AddProductPage() {
               </label>
             ))}
           </div>
+          {isEditing && (
+            <p className="text-xs text-gray-500 mt-2">
+              Click on existing images to replace them, or leave as is to keep current images.
+            </p>
+          )}
         </div>
+
         {/* Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
@@ -120,6 +221,7 @@ export default function AddProductPage() {
             className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
           />
         </div>
+
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -132,6 +234,7 @@ export default function AddProductPage() {
             className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
           />
         </div>
+
         {/* Category + Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -157,6 +260,7 @@ export default function AddProductPage() {
             />
           </div>
         </div>
+
         {/* Product Features */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Product Features</label>
@@ -173,13 +277,15 @@ export default function AddProductPage() {
                 placeholder={`Feature ${i + 1}`}
                 className="w-full px-4 py-2 border border-gray-300 rounded-xl"
               />
-              <button
-                type="button"
-                onClick={() => handleRemoveFeature(i)}
-                className="ml-2 text-sm text-red-600 cursor-pointer"
-              >
-                Remove
-              </button>
+              {form.features.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveFeature(i)}
+                  className="ml-2 text-sm text-red-600 cursor-pointer"
+                >
+                  Remove
+                </button>
+              )}
             </div>
           ))}
           <button
@@ -190,6 +296,7 @@ export default function AddProductPage() {
             + Add Feature
           </button>
         </div>
+
         {/* Specifications */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Specifications</label>
@@ -207,6 +314,7 @@ export default function AddProductPage() {
             </div>
           ))}
         </div>
+
         {/* Bestseller */}
         <div className="flex items-center gap-2">
           <input
@@ -220,12 +328,13 @@ export default function AddProductPage() {
             Add to Bestseller
           </label>
         </div>
+
         {/* Submit */}
         <button
           type="submit"
           className="w-full py-3 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 text-white text-lg font-medium hover:from-rose-700 hover:to-pink-600 transition-all duration-300"
         >
-          Add Product
+          {isEditing ? 'Update Product' : 'Add Product'}
         </button>
       </form>
     </div>
