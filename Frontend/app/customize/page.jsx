@@ -11,7 +11,7 @@ export default function ContactPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setHeroVisible(false);
-    }, 200); // slight delay before starting the animation
+    }, 1600); // slight delay before starting the animation
     return () => clearTimeout(timer);
   }, []);
 
@@ -24,14 +24,14 @@ export default function ContactPage() {
             initial={{ height: 'auto' }}
             animate={{ height: 'auto' }}
             exit={{ height: 0 }}
-            transition={{ duration: 2, ease: 'easeInOut' }}
+            transition={{ duration: 1.5, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
             <motion.div
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -120 }}
-              transition={{ duration: 2, ease: 'easeInOut' }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
             >
               <ContactHero />
             </motion.div>

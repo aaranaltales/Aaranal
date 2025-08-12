@@ -16,7 +16,7 @@ export default function CollectionsPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setHeroVisible(false);
-    }, 300);
+    }, 1600);
     return () => clearTimeout(timer);
   }, []);
 
@@ -38,14 +38,14 @@ export default function CollectionsPage() {
             initial={{ height: 'auto' }}
             animate={{ height: 'auto' }}
             exit={{ height: 0 }}
-            transition={{ duration: 2, ease: 'easeInOut' }}
+            transition={{ duration: 1.5, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
             <motion.div
               initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -100 }}
-              transition={{ duration: 2, ease: 'easeInOut' }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
             >
               <CollectionsHero />
             </motion.div>
