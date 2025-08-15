@@ -5,217 +5,14 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Heart, ShoppingBag, Star, ChevronLeft, ChevronRight, Shield, Truck, RotateCcw } from 'lucide-react';
 import { getProductsData } from '@/services/products';
+import { useUser } from '@/context/UserContext';
 
 // This would typically come from your database or API
-const productsData = [
-  {
-    id: 1,
-    name: "Blue Floral Tote",
-    price: 295,
-    originalPrice: 350,
-    image: [
-      "/assests/blue_floral_bag.jpg",
-      "/assests/blue_floral_model1.jpg", // Add more image if available
-      "/assests/blue_floral_model2.jpg",
-      "/assests/blue_floral_model4.jpg"
-    ],
-    category: "Tote Bags",
-    isNew: true,
-    rating: 4.8,
-    reviewCount: 127,
-    description: "Crafted with vibrant blue floral patterns, this tote combines artistic beauty with practical functionality. Each piece is meticulously handcrafted using premium materials and traditional techniques.",
-    colors: ["Blue Floral", "Pink Floral", "Green Floral"],
-    sizes: ["Small", "Medium", "Large"],
-    specifications: {
-      dimensions: '14" × 12" × 6"',
-      weight: "1.8 lbs",
-      material: "Premium Canvas with Leather Trim",
-      hardware: "Antique Brass",
-      lining: "Cotton Canvas",
-      origin: "Handcrafted in Italy"
-    },
-    features: [
-      "Hand-painted floral design",
-      "Reinforced leather handles",
-      "Multiple interior compartments",
-      "Magnetic closure"
-    ]
-  },
-  {
-    id: "688d12228c848f37d49ec4e3",
-    name: "Butterfly Tote",
-    price: 185,
-    originalPrice: 225,
-    image: [
-      "/assests/butterfly_bag.jpg",
-      "/assests/butterfly_model1.jpg",
-      "/assests/butterfly_model2.jpg",
-      "/assests/butterfly_model3.jpg"
-    ],
-    category: "Tote Bags",
-    isNew: false,
-    rating: 4.5,
-    reviewCount: 89,
-    description:
-      "A whimsical blend of elegance and nature, the Butterfly Tote features soft pastel artwork inspired by garden butterflies. Crafted from eco-conscious materials and designed for daily use.",
-    colors: ["Lavender", "Cream", "Sky Blue"],
-    sizes: ["Small", "Medium", "Large"],
-    specifications: {
-      dimensions: '13" × 11" × 5.5"',
-      weight: "1.6 lbs",
-      material: "Eco Canvas",
-      hardware: "Brushed Nickel",
-      lining: "Organic Cotton",
-      origin: "Made in France"
-    },
-    features: [
-      "Hand-painted floral design",
-      "Reinforced leather handles",
-      "Multiple interior compartments",
-      "Magnetic closure"
-    ]
-  },
-  {
-    id: 3,
-    name: "Flowers Tote (Hand-Painted)",
-    price: 125,
-    originalPrice: 150,
-    image: [
-      "/assests/flowers_handpainted_bag.jpg",
-      "/assests/flowers_model1.jpg",
-      "/assests/flowers_model2.jpg",
-      "/assests/flowers_model3.jpg"
-    ],
-    category: "Tote Bags",
-    isNew: false,
-    rating: 4.2,
-    reviewCount: 58,
-    description:
-      "Celebrate artisan craftsmanship with our hand-painted Flowers Tote. Each piece is one-of-a-kind, painted by local artists using waterproof eco-paints.",
-    colors: ["Burgundy", "Charcoal", "Tan"],
-    sizes: ["Medium", "Large"],
-    specifications: {
-      dimensions: '14.5" × 13" × 6"',
-      weight: "1.9 lbs",
-      material: "Hand-Painted Canvas",
-      hardware: "Oxidized Brass",
-      lining: "Cotton Twill",
-      origin: "Handcrafted in India"
-    },
-    features: [
-      "Hand-painted floral design",
-      "Reinforced leather handles",
-      "Multiple interior compartments",
-      "Magnetic closure"
-    ]
-  },
-  {
-    id: 4,
-    name: "Paris Tote",
-    price: 395,
-    originalPrice: 395,
-    image: [
-      "/assests/paris_bag.jpg",
-      "/assests/paris_model1.jpg",
-      "/assests/paris_model2.jpg",
-      "/assests/paris_model3.jpg"
-    ],
-    category: "Tote Bags",
-    isNew: true,
-    rating: 4.9,
-    reviewCount: 211,
-    description:
-      "The Paris Tote captures the spirit of the city of light. Designed with clean lines and timeless silhouettes, this piece is your ultimate style companion.",
-    colors: ["Charcoal", "Saddle Brown", "Indigo"],
-    sizes: ["Small", "Medium"],
-    specifications: {
-      dimensions: '13.5" × 11.5" × 5"',
-      weight: "1.7 lbs",
-      material: "Italian Leather",
-      hardware: "Gold-Tone Steel",
-      lining: "Silk Blend",
-      origin: "Made in Paris"
-    },
-    features: [
-      "Hand-painted floral design",
-      "Reinforced leather handles",
-      "Multiple interior compartments",
-      "Magnetic closure"
-    ]
-  },
-  {
-    id: 5,
-    name: "Red Tulips Tote",
-    price: 225,
-    originalPrice: 260,
-    image: [
-      "/assests/red_tuplis_bag.jpg",
-      "/assests/red_tulips_model1.jpg",
-      "/assests/red_tulips_model2.jpg",
-      "/assests/red_tulips_model3.jpg"
-    ],
-    category: "Tote Bags",
-    isNew: false,
-    rating: 4.6,
-    reviewCount: 105,
-    description:
-      "Bold yet graceful, the Red Tulips Tote brings floral elegance to your everyday fashion. This bag is for the passionate and the poetic.",
-    colors: ["Tan", "Saddle Brown", "Charcoal"],
-    sizes: ["Small", "Medium", "Large"],
-    specifications: {
-      dimensions: '14" × 12.5" × 6.5"',
-      weight: "2.0 lbs",
-      material: "Textured Faux Leather",
-      hardware: "Antique Brass",
-      lining: "Canvas",
-      origin: "Made in Turkey"
-    },
-    features: [
-      "Hand-painted floral design",
-      "Reinforced leather handles",
-      "Multiple interior compartments",
-      "Magnetic closure"
-    ]
-  }
-];
-
-const similarProducts = [
-  {
-    id: 2,
-    name: "Butterfly Tote",
-    price: "$185",
-    image: "/assests/butterfly_bag.jpg",
-    category: "Tote Bags",
-    rating: 4.5,
-  },
-  {
-    id: 3,
-    name: "Flowers Tote (Hand-Painted)",
-    price: "$125",
-    image: "/assests/flowers_handpainted_bag.jpg",
-    category: "Tote Bags",
-    rating: 4.5,
-  },
-  {
-    id: 4,
-    name: "Paris Tote",
-    price: "$395",
-    image: "/assests/paris_bag.jpg",
-    category: "Tote Bags",
-    rating: 4.5,
-  },
-  {
-    id: 5,
-    name: "Red Tulips Tote",
-    price: "$225",
-    image: "/assests/red_tuplis_bag.jpg",
-    rating: 4.5,
-  },
-];
 
 export default function DynamicProductPage() {
   const params = useParams();
   const productId = params.id;
+  const { refreshUser, token, addToCart, toggleWishlist, wishlist } = useUser();
   const [productsData, setAllProducts] = useState([]);
   useEffect(() => {
     const fetchProducts = async () => {
@@ -224,8 +21,20 @@ export default function DynamicProductPage() {
     };
     fetchProducts();
   }, []);
+
+  const handleAddToCart = async (e, productId) => {
+    e.preventDefault(); // Prevent navigation when clicking add to cart
+    e.stopPropagation(); // Stop event bubbling
+    // Add your cart logic here
+
+    addToCart(productId)
+    // You could also dispatch to a global state or call an API here
+  };
   // Find the product by ID
   const product = productsData.find(p => p._id === productId);
+  const similarProducts = productsData.filter(
+    p => p.category === product.category && p._id !== product._id
+  );
   console.log(product)
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[1] || product?.sizes?.[0] || 'Medium');
@@ -298,18 +107,18 @@ export default function DynamicProductPage() {
                 {product.name}
               </h1>
 
-              <div className="flex items-center space-x-4 mb-6">
+              {/* <div className="flex items-center space-x-4 mb-6">
                 <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
                   ))}
                 </div>
                 <span className="text-gray-600">({product.reviewCount} reviews)</span>
-              </div>
+              </div> */}
 
               <div className="flex items-center space-x-4 mb-8">
                 <span className="text-3xl font-light text-gray-900">
-                  ${product.price}
+                  ₹{product.price}
                 </span>
                 {product.originalPrice && (
                   <span className="text-xl text-gray-500 line-through">
@@ -346,7 +155,7 @@ export default function DynamicProductPage() {
             )} */}
 
             {/* Size Selection */}
-            {product.sizes && product.sizes.length > 1 && (
+            {/* {product.sizes && product.sizes.length > 1 && (
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Size</h3>
                 <div className="flex space-x-3">
@@ -364,10 +173,10 @@ export default function DynamicProductPage() {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Quantity */}
-            <div>
+            {/* <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">Quantity</h3>
               <div className="flex items-center space-x-4">
                 <button
@@ -384,17 +193,22 @@ export default function DynamicProductPage() {
                   +
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Actions */}
             <div className="space-y-4">
-              <button className="w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-full text-lg font-medium hover:from-rose-700 hover:to-pink-600 transition-all duration-300 flex items-center justify-center space-x-2">
+              <button
+                onClick={(e) => handleAddToCart(e, product._id)}
+                className="w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-full text-lg font-medium hover:from-rose-700 hover:to-pink-600 transition-all duration-300 flex items-center justify-center space-x-2">
                 <ShoppingBag className="w-5 h-5" />
                 <span>Add to Cart</span>
               </button>
 
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={() => {
+                  toggleWishlist(product._id)
+                  setIsWishlisted(!isWishlisted)
+                }}
                 className={`w-full py-3 rounded-full border-2 transition-all flex items-center justify-center space-x-2 ${isWishlisted
                   ? 'border-rose-500 text-rose-700 bg-rose-50'
                   : 'border-gray-300 hover:border-gray-400'
@@ -471,17 +285,17 @@ export default function DynamicProductPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {similarProducts.map((similarProduct) => (
-              <Link key={similarProduct.id} href={`/product/${similarProduct.id}`} className="group cursor-pointer">
+              <Link key={similarProduct._id} href={`/product/${similarProduct._id}`} className="group cursor-pointer">
                 <div className="aspect-square rounded-2xl overflow-hidden bg-gray-50 mb-4">
                   <img
-                    src={similarProduct.image}
+                    src={similarProduct.image[0]}
                     alt={similarProduct.name}
                     className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-1">
+                  {/* <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
@@ -492,14 +306,14 @@ export default function DynamicProductPage() {
                       />
                     ))}
                     <span className="text-sm text-gray-500 ml-2">({similarProduct.rating})</span>
-                  </div>
+                  </div> */}
 
                   <h3 className="text-lg font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
                     {similarProduct.name}
                   </h3>
 
                   <p className="text-xl font-light text-gray-900">
-                    ${similarProduct.price}
+                    ₹{similarProduct.price}
                   </p>
                 </div>
               </Link>

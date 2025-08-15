@@ -38,7 +38,6 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
       product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'Price: Low to High':
@@ -55,14 +54,16 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
   return (
     <section className="py-16 bg-gradient-to-b from-white via-rose-50/20 to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {/* ✅ Added items-stretch to keep all cards same height */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 items-stretch">
           {sortedProducts.map((product) => (
             <Link
               key={product._id}
               href={`/product/${product._id}`}
-              className="group cursor-pointer block"
+              className="group cursor-pointer block h-full" // ✅ h-full to stretch height
             >
-              <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
+              {/* ✅ flex-col + h-full for equal height cards */}
+              <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
 
                 {/* NEW & SALE Badges */}
                 {product.isNew && (
@@ -103,12 +104,12 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                 </div>
 
                 {/* 📝 Product Info */}
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-4 flex flex-col flex-grow"> {/* ✅ flex-grow so bottom section aligns */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">
                       {product.category}
                     </span>
-                    <div className="flex items-center space-x-1">
+                    {/* <div className="flex items-center space-x-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
                           key={star}
@@ -119,16 +120,17 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                         ></i>
                       ))}
                       <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-                    </div>
+                    </div> */}
                   </div>
 
-                  <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
+                  {/* ✅ Fixed height product name */}
+                  <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors line-clamp-2 min-h-[3.5rem]">
                     {product.name}
                   </h3>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-semibold text-gray-900">{product.price}</span>
+                      <span className="text-2xl font-semibold text-gray-900">₹{product.price}</span>
                       {product.originalPrice && (
                         <span className="text-lg text-gray-500 line-through">{product.originalPrice}</span>
                       )}
