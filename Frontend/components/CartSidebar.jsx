@@ -38,7 +38,7 @@ export default function CartSidebar({ isOpen, onClose }) {
               <div key={item._id} className="flex items-start space-x-4 group">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden bg-rose-50 flex-shrink-0">
                   <img
-                    src={item.image}
+                    src={item.image[0]}
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
