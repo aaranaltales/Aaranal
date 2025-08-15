@@ -225,6 +225,7 @@ export const UserProvider = ({ children }) => {
             );
 
             if (response.data.success) {
+
                 setWishlistCount(response.data.wishlist.length)
                 setWishlist(response.data.wishlist);
             }
@@ -267,7 +268,7 @@ export const UserProvider = ({ children }) => {
             const tempData = wishlist
                 .map((productId) => allProducts.find((p) => p._id === productId))
                 .filter((p) => p); // Remove undefined in case product not found
-
+            setWishlistCount(tempData.length)
             setWishlistData(tempData);
         } else {
             setWishlistData([]);
@@ -276,7 +277,7 @@ export const UserProvider = ({ children }) => {
 
 
 
-    
+
 
 
 
