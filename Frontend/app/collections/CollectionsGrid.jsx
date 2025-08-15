@@ -1,5 +1,4 @@
 'use client';
-
 import { useUser } from '@/context/UserContext';
 import { getProductsData } from '@/services/products';
 import Link from 'next/link';
@@ -7,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
-  const { addToCart, wishlist, toggleWishlist } = useUser(); // ✅ use wishlist from context
+  const { addToCart, wishlist, toggleWishlist } = useUser();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -38,7 +37,6 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
       product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'Price: Low to High':
@@ -60,10 +58,9 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
             <Link
               key={product._id}
               href={`/product/${product._id}`}
-              className="group cursor-pointer block"
+              className="group cursor-pointer block h-full"
             >
-              <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2">
-
+              <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 h-full flex flex-col">
                 {/* NEW & SALE Badges */}
                 {product.isNew && (
                   <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -71,17 +68,16 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                   </div>
                 )}
                 {product.originalPrice && (
-                  <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  <div className="absolute top-4 left-12 z-10 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                     Sale
                   </div>
                 )}
-
-                {/* ❤️ Wishlist Button */}
+                {/* Wishlist Button */}
                 <button
                   onClick={(e) => {
-                    e.preventDefault(); // prevent Link navigation
+                    e.preventDefault();
                     e.stopPropagation();
-                    toggleWishlist(product._id); // ✅ use context
+                    toggleWishlist(product._id);
                   }}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
@@ -92,8 +88,7 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                       } w-5 h-5`}
                   ></i>
                 </button>
-
-                {/* 🖼️ Product Image */}
+                {/* Product Image */}
                 <div className="aspect-[4/5] overflow-hidden rounded-t-3xl">
                   <img
                     src={product.image[0]}
@@ -101,36 +96,21 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                     className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
-
-                {/* 📝 Product Info */}
-                <div className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
+                {/* Product Info */}
+                <div className="p-6 flex-grow flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">
                       {product.category}
                     </span>
-                    <div className="flex items-center space-x-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <i
-                          key={star}
-                          className={`w-4 h-4 ${star <= Math.floor(product.rating)
-                            ? 'ri-star-fill text-yellow-400'
-                            : 'ri-star-line text-gray-300'
-                            }`}
-                        ></i>
-                      ))}
-                      <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-                    </div>
                   </div>
-
-                  <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
+                  <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors mb-4">
                     {product.name}
                   </h3>
-
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2">
-                      <span className="text-2xl font-semibold text-gray-900">{product.price}</span>
+                      <span className="text-2xl font-semibold text-gray-900">₹{product.price}</span>
                       {product.originalPrice && (
-                        <span className="text-lg text-gray-500 line-through">{product.originalPrice}</span>
+                        <span className="text-lg text-gray-500 line-through">₹{product.originalPrice}</span>
                       )}
                     </div>
                     <button
@@ -145,7 +125,6 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
             </Link>
           ))}
         </div>
-
         <div className="text-center mt-16">
           <p className="text-gray-600 mb-8">
             Showing {sortedProducts.length} of {allProducts.length} products

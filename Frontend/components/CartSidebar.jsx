@@ -1,27 +1,23 @@
 'use client';
-
 import { useUser } from '@/context/UserContext';
-import { getProductsData } from '@/services/products';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
 export default function CartSidebar({ isOpen, onClose }) {
   const { updateQuantity, getCartAmount, shipping, cartData } = useUser();
-
   const subtotal = getCartAmount();
-
   const total = subtotal + shipping;
-
-  if (!isOpen) return null;
 
   return (
     <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={onClose}
+        ></div>
+      )}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
-        onClick={onClose}
-      ></div>
-
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col">
+        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
         <div className="flex items-center justify-between p-6 border-b border-rose-100 bg-gradient-to-r from-rose-50 to-pink-50">
           <h2 className="text-2xl font-semibold text-gray-900">Shopping Bag</h2>
           <button
@@ -31,7 +27,6 @@ export default function CartSidebar({ isOpen, onClose }) {
             <i className="ri-close-line w-6 h-6 flex items-center justify-center text-gray-600"></i>
           </button>
         </div>
-
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
             {cartData.map((item) => (
@@ -43,38 +38,37 @@ export default function CartSidebar({ isOpen, onClose }) {
                     className="w-full h-full object-cover"
                   />
                 </div>
-
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 mb-1 text-sm">{item.name}</h3>
-                  {/* <p className="text-sm text-gray-500 mb-2">Color: {item.color}</p> */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <button
                         onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                        className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors">
+                        className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors"
+                      >
                         <i className="ri-subtract-line w-4 h-4 flex items-center justify-center text-rose-600"></i>
                       </button>
                       <span className="text-sm font-medium text-gray-900 w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors">
+                        className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors"
+                      >
                         <i className="ri-add-line w-4 h-4 flex items-center justify-center text-rose-600"></i>
                       </button>
                     </div>
                     <p className="font-semibold text-gray-900 text-sm">₹{item.price}</p>
                   </div>
                 </div>
-
                 <button
                   onClick={() => updateQuantity(item._id, 0)}
-                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer">
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer"
+                >
                   <i className="ri-delete-bin-line w-4 h-4 flex items-center justify-center text-gray-400 hover:text-rose-600"></i>
                 </button>
               </div>
             ))}
           </div>
         </div>
-
         <div className="border-t border-rose-100 p-6 bg-gradient-to-b from-white to-rose-50/30">
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-sm">
@@ -92,7 +86,6 @@ export default function CartSidebar({ isOpen, onClose }) {
               </div>
             </div>
           </div>
-
           <div className="space-y-3">
             <Link
               href="/checkout"

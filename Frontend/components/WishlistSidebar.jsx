@@ -1,5 +1,4 @@
 'use client';
-
 import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
 
@@ -23,24 +22,23 @@ const wishlistItems = [
 ];
 
 export default function WishlistSidebar({ isOpen, onClose }) {
-
   const { toggleWishlist, wishlistData, addToCart } = useUser();
-
   const addCart = (item) => {
-    toggleWishlist(item._id)
-    addToCart(item._id)
+    toggleWishlist(item._id);
+    addToCart(item._id);
   };
-
-  if (!isOpen) return null;
 
   return (
     <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={onClose}
+        ></div>
+      )}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity duration-300"
-        onClick={onClose}
-      ></div>
-
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col">
+        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
         <div className="flex items-center justify-between p-6 border-b border-rose-100 bg-gradient-to-r from-rose-50 to-pink-50">
           <div className="flex items-center space-x-3">
             <i className="ri-heart-fill w-6 h-6 flex items-center justify-center text-rose-600"></i>
@@ -53,7 +51,6 @@ export default function WishlistSidebar({ isOpen, onClose }) {
             <i className="ri-close-line w-6 h-6 flex items-center justify-center text-gray-600"></i>
           </button>
         </div>
-
         {wishlistData.length === 0 ? (
           <div className="flex-1 flex items-center justify-center p-8">
             <div className="text-center space-y-4">
@@ -85,7 +82,6 @@ export default function WishlistSidebar({ isOpen, onClose }) {
                           className="w-full h-full object-cover"
                         />
                       </div>
-
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-start justify-between">
                           <div>
@@ -99,14 +95,12 @@ export default function WishlistSidebar({ isOpen, onClose }) {
                             <i className="ri-heart-fill w-4 h-4 flex items-center justify-center text-rose-500 hover:text-rose-600"></i>
                           </button>
                         </div>
-
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-gray-900 text-sm">{item.price}</span>
                           {item.originalPrice && (
                             <span className="text-xs text-gray-500 line-through">{item.originalPrice}</span>
                           )}
                         </div>
-
                         <div className="flex items-center justify-between">
                           <div className="flex space-x-1">
                             {/* {item.colors.map((color, index) => (
@@ -130,7 +124,6 @@ export default function WishlistSidebar({ isOpen, onClose }) {
                 ))}
               </div>
             </div>
-
             <div className="border-t border-rose-100 p-6 bg-gradient-to-b from-white to-rose-50/30">
               <div className="space-y-3">
                 <div className="bg-gradient-to-r from-rose-100 to-pink-100 p-4 rounded-2xl">
@@ -142,7 +135,6 @@ export default function WishlistSidebar({ isOpen, onClose }) {
                     </div>
                   </div>
                 </div>
-
                 <Link
                   href="/collections"
                   onClick={onClose}
