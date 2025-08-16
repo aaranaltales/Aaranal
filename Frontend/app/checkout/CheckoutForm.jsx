@@ -68,8 +68,9 @@ export default function CheckoutForm() {
             </button>
           )}
           <button
-            type="submit"
-            className="w-full sm:w-auto bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
+            type="button"
+            onClick={() => setCurrentStep(currentStep + 1)}
+            className="ml-auto bg-gradient-to-r from-rose-600 to-pink-500 text-white px-8 py-4 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
           >
             {currentStep === 2 ? 'Complete Order' : 'Continue to Payment'}
           </button>
