@@ -1,7 +1,26 @@
-export default function Loading() {
+export default function LoadingPage() {
     return (
-        <div className="flex items-center justify-center h-screen ">
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+            <video
+                width="80"
+                height="80"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="object-contain"
+            >
+                <source src="assests/logo_gif.mp4" type="video/mp4" />
+                {/* Fallback to GIF if MP4 doesn't work */}
+                <Image
+                    src="/loading.gif"
+                    alt="Loading..."
+                    width={100}
+                    height={100}
+                    unoptimized={true}
+                    priority={true}
+                />
+            </video>
         </div>
     );
 }

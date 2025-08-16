@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-br from-gray-50 to-rose-50 border-t border-rose-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className=" flex items-center text-3xl sm:text-4xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent hover:from-rose-700 hover:to-pink-600 transition-all duration-300">
               <Image src="/assests/logo.png" alt='Aaranal logo'  width={50} height={50} className="h-12 mr-2 w-12" />
@@ -33,36 +33,44 @@ export default function Footer() {
               </button>
             </div>
           </div>
-
+        <div className='flex w-full justify-between pr-10'>
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900">Collections</h3>
             <ul className="space-y-4">
-              <li>
-                <Link href="/tote-bags" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
-                  Tote Bags
-                </Link>
-              </li>
-              <li>
-                <Link href="/pouches" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
-                  Pouches
-                </Link>
-              </li>
-              <li>
-                <Link href="/money-pouches" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
-                  Money Pouches
-                </Link>
-              </li>
-              <li>
-                <Link href="/limited-edition" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
-                  Limited Edition
-                </Link>
-              </li>
-              <li>
-                <Link href="/gift-sets" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
-                  Gift Sets
-                </Link>
-              </li>
-            </ul>
+                <li>
+                  <Link
+                    href={{
+                      pathname: "/collections",
+                      query: { category: "Tote Bags" },
+                    }}
+                    className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
+                  >
+                    Tote Bags
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={{
+                      pathname: "/collections",
+                      query: { category: "Pouch" },
+                    }}
+                    className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
+                  >
+                    Pouches
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={{
+                      pathname: "/collections",
+                      query: { category: "Money Pouch" },
+                    }}
+                    className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
+                  >
+                    Money Pouches
+                  </Link>
+                </li>
+              </ul>
           </div>
 
           <div className="space-y-6">
@@ -95,6 +103,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+        </div>
         </div>
 
         <div className="border-t border-rose-200 mt-16 pt-8">

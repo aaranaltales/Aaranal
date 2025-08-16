@@ -6,3 +6,14 @@
 .input-field {
   @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400;
 }
+
+@media (min-width: 1024px) {
+  .hero-gradient-overlay {
+    background: linear-gradient(
+      to right,
+      rgba(249, 232, 232, 0.908) 0%,      /* deep rose */
+      rgba(190,18,60,0) 60%,
+      rgba(190,18,60,0) 100%
+    ) !important;
+  }
+}

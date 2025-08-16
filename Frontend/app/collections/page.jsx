@@ -1,5 +1,5 @@
 'use client';
-
+import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import CollectionsFilter from './CollectionsFilter';
@@ -7,12 +7,14 @@ import CollectionsGrid from './CollectionsGrid';
 import CollectionsHero from './CollectionsHero';
 
 export default function CollectionsPage() {
+  const searchParams = useSearchParams();
   const [heroVisible, setHeroVisible] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('Featured');
 
+  // Handle hero visibility
   useEffect(() => {
     const timer = setTimeout(() => {
       setHeroVisible(false);
@@ -20,14 +22,21 @@ export default function CollectionsPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Handle search debounce
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
     }, 300); // 300ms delay
-
-    return () => clearTimeout(handler); // Cleanup
+    return () => clearTimeout(handler);
   }, [searchQuery]);
 
+  // Handle category from URL query
+  useEffect(() => {
+    const category = searchParams.get('category');
+    if (category && ['Tote Bags', 'Pouch', 'Money Pouch'].includes(category)) {
+      setActiveCategory(category);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen overflow-hidden">
@@ -52,7 +61,6 @@ export default function CollectionsPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
       <div className="relative z-10">
         <CollectionsFilter
           activeCategory={activeCategory}
@@ -62,14 +70,11 @@ export default function CollectionsPage() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
-
         <CollectionsGrid
           activeCategory={activeCategory}
           sortBy={sortBy}
           searchQuery={debouncedSearch}
         />
-
-
       </div>
     </div>
   );
