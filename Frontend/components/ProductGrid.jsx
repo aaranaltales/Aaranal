@@ -96,25 +96,23 @@ export default function ProductGrid() {
                   <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors mb-4">
                     {product.name}
                   </h3>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-2xl font-semibold text-gray-900">₹{product.price}</span>
+                      {product.originalPrice && (
+                        <span className="text-lg text-gray-500 line-through">₹{product.originalPrice}</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={(e) => handleAddToCart(e, product._id)}
+                      className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap font-medium shadow-lg"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
-              </Link>
-
-              {/* 🛒 Add to Cart (outside Link) */}
-              <div className="px-6 pb-6 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl font-semibold text-gray-900">₹{product.price}</span>
-                  {product.originalPrice && (
-                    <span className="text-lg text-gray-500 line-through">{product.originalPrice}</span>
-                  )}
-                </div>
-                <button
-                  onClick={(e) => handleAddToCart(e, product._id)}
-                  className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
-                >
-                  Add to Cart
-                </button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
         <div className="text-center mt-16">
@@ -126,7 +124,7 @@ export default function ProductGrid() {
             <i className="ri-arrow-right-line w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform"></i>
           </Link>
         </div>
-      </div >
-    </section >
+      </div>
+    </section>
   );
 }
