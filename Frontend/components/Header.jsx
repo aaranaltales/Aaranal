@@ -124,13 +124,6 @@ export default function Header() {
                         >
                           My Orders
                         </Link>
-                        <Link
-                          href="/wishlist"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 hover:text-rose-600"
-                          onClick={() => setIsProfileOpen(false)}
-                        >
-                          My Wishlist
-                        </Link>
                       </div>
                       <div className="py-1 border-t border-rose-50">
                         <button

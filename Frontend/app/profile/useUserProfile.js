@@ -310,36 +310,52 @@ export default function useUserProfile() {
   };
 
   const handleSubmitNewAddress = async () => {
-    try {
-      const response = await axios.post(
-        `${dbUri}/api/user/address`,
-        newAddress,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.data.success) {
-        toast.success(response.data.message);
-        setUser((prevUser) => ({
-          ...prevUser,
-          addresses: response.data.addresses
-        }));
-      }
+  if (!newAddress.house || !newAddress.city || !newAddress.pincode) {
+    toast.error("Please fill in required fields (House, City, Pincode)");
+    return;
+  }
 
-      setShowAddAddressForm(false);
-      setNewAddress({
-        type: "",
-        doorNo: "",
-        pincode: "",
-        addressLine1: "",
-        address: "",
-      });
-    } catch (error) {
-      toast.error(error.message);
+  try {
+    const addressToSubmit = {
+      ...newAddress,
+      type: newAddress.type || "Home",
+    };
+
+    const token = localStorage.getItem("token");
+    const response = await axios.post(
+      `${dbUri}/api/user/address`,
+      addressToSubmit,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      toast.success(response.data.message);
+      setUser((prevUser) => ({
+        ...prevUser,
+        addresses: response.data.addresses,
+      }));
     }
-  };
+    setShowAddAddressForm(false);
+    setNewAddress({
+      type: "Home",
+      name: "",
+      number: "",
+      pincode: "",
+      house: "",
+      area: "",
+      city: "",
+      state: "",
+      landmark: "",
+    });
+  } catch (error) {
+    toast.error(error.response?.data?.message || error.message);
+  }
+};
+
 
   return {
     activeSection,
