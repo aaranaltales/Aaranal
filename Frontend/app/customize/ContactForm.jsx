@@ -7,9 +7,9 @@ export default function ContactForm() {
     name: '',
     email: '',
     phone: '',
-    subject: '',
-    message: '',
-    interest: 'general'
+    type_of_bag: '',
+    design_description: '',
+    interest: 'custom'
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -25,21 +25,19 @@ export default function ContactForm() {
     setIsSubmitted(true);
     setTimeout(() => setIsSubmitted(false), 5000);
     setFormData({
-      name: '',
+        name: '',
       email: '',
       phone: '',
-      subject: '',
-      message: '',
-      interest: 'general'
+      type_of_bag: '',
+      design_description: '',
+      interest: 'custom'
     });
   };
 
   const interests = [
-    { value: 'general', label: 'General Inquiry' },
+
     { value: 'custom', label: 'Custom Design' },
-    { value: 'visit', label: 'Atelier Visit' },
-    { value: 'wholesale', label: 'Wholesale Partnership' },
-    { value: 'repair', label: 'Repair Service' }
+    { value: 'bulk', label: 'Bulk Order' },
   ];
 
   return (
@@ -71,7 +69,7 @@ export default function ContactForm() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
+              {/* <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center">
                   <i className="ri-phone-line w-6 h-6 flex items-center justify-center text-rose-600"></i>
                 </div>
@@ -79,7 +77,7 @@ export default function ContactForm() {
                   <h3 className="font-semibold text-gray-900">Direct Line</h3>
                   <p className="text-gray-600 font-light">+34 93 123 4567</p>
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center">
@@ -95,12 +93,12 @@ export default function ContactForm() {
             <div className="bg-gradient-to-br from-rose-50 to-pink-50 p-8 rounded-3xl border border-rose-100">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Custom Design Service</h3>
               <p className="text-gray-600 font-light leading-relaxed mb-6">
-                Transform your vision into reality with our bespoke leather goods service. 
+                Transform your vision into reality with our custom totebag service. 
                 From initial concept to final creation, our master artisans work with you every step of the way.
               </p>
               <div className="flex items-center text-rose-600">
                 <i className="ri-star-line w-5 h-5 flex items-center justify-center mr-2"></i>
-                <span className="font-medium">Starting from €200</span>
+                <span className="font-medium">We will connect you as soon as possible.</span>
               </div>
             </div>
           </div>
@@ -175,21 +173,21 @@ export default function ContactForm() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Type of Bag</label>
                   <input
                     type="text"
-                    name="subject"
-                    value={formData.subject}
+                    name="type_of_bag"
+                    value={formData.type_of_bag}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Design Description *</label>
                   <textarea
-                    name="message"
-                    value={formData.message}
+                    name="design_description"
+                    value={formData.design_description}
                     onChange={handleChange}
                     rows={6}
                     maxLength={500}
@@ -198,7 +196,7 @@ export default function ContactForm() {
                     required
                   ></textarea>
                   <div className="text-right text-sm text-gray-500 mt-1">
-                    {formData.message.length}/500 characters
+                    {formData.design_description.length}/500 characters
                   </div>
                 </div>
 
