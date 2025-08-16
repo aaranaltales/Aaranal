@@ -3,10 +3,10 @@ export default function AddressSelector({ show, addresses, formData, onClose, on
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[85vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900">Select Address</h3>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Select Address</h3>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-lg">
                         ✕
                     </button>
                 </div>
@@ -15,13 +15,14 @@ export default function AddressSelector({ show, addresses, formData, onClose, on
                     {addresses.map((address) => (
                         <div
                             key={address._id}
-                            className={`p-4 border rounded-xl cursor-pointer hover:border-rose-300 transition-colors ${formData.name === address.name && formData.phone === address.number
+                            className={`p-4 border rounded-xl cursor-pointer hover:border-rose-300 transition-colors ${
+                                formData.name === address.name && formData.phone === address.number
                                     ? 'border-rose-500 bg-rose-50'
                                     : 'border-gray-200'
-                                }`}
+                            }`}
                             onClick={() => onSelect(address)}
                         >
-                            <div className="flex justify-between">
+                            <div className="flex justify-between flex-wrap gap-2">
                                 <h4 className="font-medium text-gray-900">{address.name}</h4>
                                 {address.default && (
                                     <span className="bg-rose-100 text-rose-800 text-xs px-2 py-1 rounded">
@@ -30,7 +31,7 @@ export default function AddressSelector({ show, addresses, formData, onClose, on
                                 )}
                             </div>
                             <p className="text-gray-600 text-sm mt-1">{address.number}</p>
-                            <p className="text-gray-600 text-sm mt-1">
+                            <p className="text-gray-600 text-sm mt-1 break-words">
                                 {address.house}, {address.area}, {address.city}, {address.state} - {address.pincode}
                             </p>
                             {address.landmark && (
