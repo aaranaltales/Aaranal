@@ -82,7 +82,7 @@ export default function ProductsPage() {
                 </td>
                 <td className="px-4 py-3 font-medium">{item.name}</td>
                 <td className="px-4 py-3">{item.category}</td>
-                <td className="px-4 py-3">${item.price}</td>
+                <td className="px-4 py-3">₹{item.price}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <button

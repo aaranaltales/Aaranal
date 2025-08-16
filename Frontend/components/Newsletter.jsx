@@ -77,18 +77,20 @@ export default function Newsletter() {
             </button>
           </a>
           
-          <div className="flex items-center justify-center space-x-8 mt-10 text-rose-200">
-            <div className="flex items-center space-x-2">
-              <i className="ri-mail-line w-5 h-5 flex items-center justify-center"></i>
-              <span className="text-sm">Choose your color</span>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8 text-rose-200 text-xs sm:text-sm">
+            <div className="flex items-center space-x-1">
+              <i className="ri-mail-line w-4 h-4 flex items-center justify-center"></i>
+              <span>Choose your color</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <i className="ri-gift-line w-5 h-5 flex items-center justify-center"></i>
-              <span className="text-sm">Select the Design</span>
+            <span className="mx-2 hidden sm:inline">|</span>
+            <div className="flex items-center space-x-1">
+              <i className="ri-gift-line w-4 h-4 flex items-center justify-center"></i>
+              <span>Select the Design</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <i className="ri-eye-line w-5 h-5 flex items-center justify-center"></i>
-              <span className="text-sm">Make it yours</span>
+            <span className="mx-2 hidden sm:inline">|</span>
+            <div className="flex items-center space-x-1">
+              <i className="ri-eye-line w-4 h-4 flex items-center justify-center"></i>
+              <span>Make it yours</span>
             </div>
           </div>
         </div>
