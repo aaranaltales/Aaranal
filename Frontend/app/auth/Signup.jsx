@@ -126,7 +126,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
       });
       if (response.success) {
         refreshUser();
-        setForm({ name: '', email: '', password: '', cPassword: '' });
+        setForm({ name: '', email: '',otp: "", password: '', cPassword: '' });
         setAgreeToTerms(false);
         Cookies.set("token", response.token, {
           expires: 3,
