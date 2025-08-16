@@ -216,6 +216,26 @@ const userOrders = async (req, res) => {
     }
 }
 
+// Fetch a single order by ID
+const orderDetails = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const order = await orderModel.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        // Rename 'address' to 'shippingAddress' for clarity in the frontend
+        const orderWithShippingAddress = {
+            ...order._doc,
+            shippingAddress: order.address
+        };
+        res.status(200).json({ success: true, order: orderWithShippingAddress });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
 // update order status from Admin Panel
 const updateStatus = async (req, res) => {
     try {
@@ -231,4 +251,4 @@ const updateStatus = async (req, res) => {
     }
 }
 
-export { verifyRazorpay, verifyStripe, placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateStatus }
+export { verifyRazorpay, verifyStripe, placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateStatus, orderDetails };

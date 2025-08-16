@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
+import Link from "next/link";
 import {
   ArrowLeft,
   Package,
@@ -98,7 +99,8 @@ const OrdersPage = () => {
       order.items.some((item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -169,20 +171,24 @@ const OrdersPage = () => {
             {showFilters && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
                 <div className="py-2">
-                  {["all", "Order Placed", "Shipped", "Delivered", "Cancelled"].map(
-                    (status) => (
-                      <button
-                        key={status}
-                        onClick={() => {
-                          setStatusFilter(status);
-                          setShowFilters(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200 capitalize font-light"
-                      >
-                        {status === "all" ? "All Orders" : status}
-                      </button>
-                    )
-                  )}
+                  {[
+                    "all",
+                    "Order Placed",
+                    "Shipped",
+                    "Delivered",
+                    "Cancelled",
+                  ].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(status);
+                        setShowFilters(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200 capitalize font-light"
+                    >
+                      {status === "all" ? "All Orders" : status}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -220,9 +226,9 @@ const OrdersPage = () => {
                           {order._id}
                         </h3>
                         <div
-                          className={`flex items-center space-x-1.5 px-3 py-1 border rounded-full text-xs font-medium ${
-                            getStatusColor(order.status)
-                          }`}
+                          className={`flex items-center space-x-1.5 px-3 py-1 border rounded-full text-xs font-medium ${getStatusColor(
+                            order.status
+                          )}`}
                         >
                           {getStatusIcon(order.status)}
                           <span className="capitalize">{order.status}</span>
@@ -295,25 +301,12 @@ const OrdersPage = () => {
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-light">
-                      <Eye className="w-4 h-4" />
-                      <span>View Details</span>
-                    </button>
-
-                    {order.status === "Delivered" && (
-                      <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-500 text-white rounded-full hover:from-rose-700 hover:to-pink-600 transition-all duration-300 font-medium">
-                        <Star className="w-4 h-4" />
-                        <span>Review</span>
-                      </button>
-                    )}
-
-                    {(order.status === "Shipped" ||
-                      order.status === "Order Placed") && (
+                    <Link href={`/orders/${order._id}`} passHref>
                       <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-rose-300 text-rose-600 rounded-full hover:bg-rose-50 transition-all duration-300 font-light">
-                        <Truck className="w-4 h-4" />
-                        <span>Track</span>
+                        <Eye className="w-4 h-4" />
+                        <span>View Details</span>
                       </button>
-                    )}
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -331,42 +324,12 @@ const OrdersPage = () => {
               </span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light">
-              Our artisan care team is here to assist with any questions about your
-              orders.
+              Our artisan care team is here to assist with any questions about
+              your orders.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button className="group p-6 rounded-2xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-300">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="p-4 bg-gray-50 group-hover:bg-white rounded-full transition-colors duration-300">
-                  <Download className="w-6 h-6 text-gray-600 group-hover:text-rose-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">
-                    Download Invoice
-                  </h3>
-                  <p className="text-sm text-gray-600 font-light">
-                    Get your order receipts
-                  </p>
-                </div>
-              </div>
-            </button>
-
-            <button className="group p-6 rounded-2xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-300">
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="p-4 bg-gray-50 group-hover:bg-white rounded-full transition-colors duration-300">
-                  <RotateCcw className="w-6 h-6 text-gray-600 group-hover:text-rose-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Return Item</h3>
-                  <p className="text-sm text-gray-600 font-light">
-                    30-day return policy
-                  </p>
-                </div>
-              </div>
-            </button>
-
+          <div className="grid grid-cols-1 gap-4">
             <button className="group p-6 rounded-2xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-300">
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="p-4 bg-gray-50 group-hover:bg-white rounded-full transition-colors duration-300">
@@ -402,7 +365,9 @@ const OrdersPage = () => {
             </div>
             <div className="flex items-center justify-center space-x-2.5">
               <RotateCcw className="w-5 h-5 text-rose-600" />
-              <span className="text-gray-700 font-light">30-Day Return Policy</span>
+              <span className="text-gray-700 font-light">
+                30-Day Return Policy
+              </span>
             </div>
           </div>
         </div>
