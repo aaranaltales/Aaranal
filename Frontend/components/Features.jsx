@@ -4,26 +4,27 @@
 import Link from 'next/link';
 
 const features = [
-  {
-    icon: "ri-award-line",
-    title: "Artisan Crafted",
-    description: "Every piece is meticulously handcrafted by skilled artisans using time-honored techniques passed down through generations."
-  },
-  {
-    icon: "ri-leaf-line",
-    title: "Sustainable Materials",
-    description: "We source only the finest ethically-sourced leather, ensuring both premium quality and environmental responsibility."
-  },
-  {
-    icon: "ri-shield-star-line",
-    title: "Lifetime Warranty",
-    description: "Your investment is protected with our comprehensive lifetime warranty covering craftsmanship and materials."
-  },
-  {
-    icon: "ri-gift-line",
-    title: "Luxury Experience",
-    description: "From our signature packaging to personalized service, every touch point reflects our commitment to excellence."
-  }
+{
+  icon: "ri-paint-brush-line",
+  title: "Hand-Painted Detailing",
+  description: "Every tote, pouch, and crochet carries unique brushstrokes, turning everyday essentials into one-of-a-kind art."
+},
+{
+  icon: "ri-scissors-line",
+  title: "Embroidered with Care",
+  description: "Delicate embroidery adds depth, beauty, and a personal touch, making each piece timeless and full of character."
+},
+{
+  icon: "ri-hand-heart-line",
+  title: "Sustainably Handmade",
+  description: "Crafted using eco-conscious practices and durable fabrics, our creations are as kind to the planet as they are to you."
+},
+{
+  icon: "ri-star-smile-line",
+  title: "Everyday Elegance",
+  description: "Designed for style and function, Aaranal’s pieces bring artistry into your daily life with effortless grace."
+}
+
 ];
 
 export default function Features() {
@@ -44,7 +45,8 @@ export default function Features() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-            Our commitment to excellence extends beyond our products to every aspect of your experience with us.
+           At Aaranal, we believe accessories should be more than just useful.
+They should carry artistry, care, and timeless beauty.
           </p>
         </div>
 

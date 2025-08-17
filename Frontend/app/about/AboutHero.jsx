@@ -28,8 +28,7 @@ export default function AboutHero() {
           </h1>
           
           <p className="text-xl text-gray-200 font-light leading-relaxed mb-8">
-            We have been dedicated to the art of Designing Totes, 
-            creating timeless pieces that tell stories of tradition, excellence, and unwavering quality.
+           At Aaranal, every tote is more than just a bag it’s a story stitched with care and painted with passion. We carry forward a legacy of creativity and craftsmanship, blending tradition with modern artistry to create timeless pieces that celebrate excellence, individuality, and love.
           </p>
           
           <div className="flex items-center space-x-8 text-white">
@@ -42,7 +41,7 @@ export default function AboutHero() {
               <div className="text-sm text-gray-300">Generations</div>
             </div> */}
             <div className="text-center">
-              <div className="text-3xl font-light mb-1">12+</div>
+              <div className="text-3xl font-light mb-1">40+</div>
               <div className="text-sm text-gray-300">Happy Customers</div>
             </div>
           </div>

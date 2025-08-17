@@ -15,8 +15,8 @@ export default function Footer() {
               <p >Aaranal</p>
             </Link>
             <p className="text-gray-600 text-lg max-w-md font-light leading-relaxed">
-              Where traditional craftsmanship meets contemporary elegance. Each piece tells a story 
-              of dedication, artistry, and timeless sophistication.
+             Every piece tells a story, and now it’s part of yours.
+Stay connected with Aaranal.
             </p>
             <div className="flex space-x-4">
               <button className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center hover:from-rose-200 hover:to-pink-200 hover:scale-110 transform transition-all duration-300 cursor-pointer group">
@@ -92,11 +92,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/warranty" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
-                  Warranty
-                </Link>
-              </li>
-              <li>
                 <Link href="/contact" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
                   Contact Us
                 </Link>
@@ -117,9 +112,6 @@ export default function Footer() {
               </Link>
               <Link href="/terms" className="text-gray-600 hover:text-rose-600 text-sm transition-colors cursor-pointer font-light">
                 Terms of Service
-              </Link>
-              <Link href="/accessibility" className="text-gray-600 hover:text-rose-600 text-sm transition-colors cursor-pointer font-light">
-                Accessibility
               </Link>
             </div>
           </div>

@@ -36,8 +36,10 @@ export default function TeamSection() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-            Our team combines generations of traditional expertise with contemporary innovation, 
-            ensuring each piece reflects both heritage and modern excellence.
+           Guided by tradition and inspired by innovation,
+our artisans pour passion into every detail,
+crafting timeless pieces that carry stories of art and care.
+
           </p>
         </div>
 

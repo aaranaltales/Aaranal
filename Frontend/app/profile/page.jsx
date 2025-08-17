@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import useUserProfile from "./useUserProfile";
+import { useUser } from "@/context/UserContext";
 import {
   Edit2,
   Save,
@@ -46,7 +47,7 @@ export default function ProfilePage() {
   });
 
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
-
+  const { token } = useUser();
   // Fetch recent orders from backend
   useEffect(() => {
     const fetchRecentOrders = async () => {
@@ -56,7 +57,7 @@ export default function ProfilePage() {
           { userId: user?._id },
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
