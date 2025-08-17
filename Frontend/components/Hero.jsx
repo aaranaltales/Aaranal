@@ -40,7 +40,10 @@ export default function Hero() {
             </h1>
           </div>
           <p className="text-base text-white/90 lg:text-black leading-relaxed max-w-lg mx-auto lg:mx-0 font-light">
-            Discover our curated collection of premium leather accessories. Each piece is meticulously crafted to embody sophistication and enduring style.
+            The art you carry.
+From tote bags to pouches, each piece is designed with care,
+hand-painted and embroidered to make your everyday look
+a little more special.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start">
             <Link

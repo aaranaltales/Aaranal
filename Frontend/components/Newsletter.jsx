@@ -43,8 +43,8 @@ export default function Newsletter() {
           </h2>
           
           <p className="text-xl text-rose-100 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-            Join our inner circle and receive exclusive insights into our craftsmanship process, 
-            early access to new collections, and special artisan stories.
+            Your style, your story. Customize your tote with hand-painted art and embroidery,
+making it a one-of-a-kind piece that reflects you perfectly.
           </p>
 
           {/* Uncomment below to enable newsletter form */}

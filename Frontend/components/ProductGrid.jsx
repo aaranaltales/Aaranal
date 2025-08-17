@@ -39,8 +39,10 @@ export default function ProductGrid() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-            Each piece in our collection represents the perfect harmony of traditional craftsmanship
-            and contemporary design, created for the discerning individual.
+           These are the pieces closest to our heart.
+From the first brushstroke to the final stitch,
+our signature collection celebrates craftsmanship,
+bringing you artful accessories that stand out with elegance.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">

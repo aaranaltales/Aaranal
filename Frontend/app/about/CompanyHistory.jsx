@@ -1,42 +1,36 @@
 'use client';
 
 const milestones = [
-  {
-    year: "6th June 2025",
-    title: "The Beginning",
-    description: "Founded by master craftsman Antonio Rodriguez in Barcelona, starting with traditional leather goods for local aristocracy.",
-    icon: "ri-home-line"
-  },
-  {
-    year: "11th June 2025",
-    title: "4+ Totes Released",
-    description: "Antonio's son Carlos expanded the workshop, introducing innovative techniques while preserving traditional methods.",
-    icon: "ri-tools-line"
-  },
-  {
-    year: "14th June 2025",
-    title: "2+ Hand Painted Totes Released",
-    description: "First international exhibition in Paris, establishing our reputation for exceptional quality and artisan craftsmanship.",
-    icon: "ri-award-line"
-  },
-  {
-    year: "23rd June 2025",
-    title: "Started Designing Pouches",
-    description: "Elena Rodriguez, third generation, modernized production while maintaining hand-crafting traditions and heritage techniques.",
-    icon: "ri-lightbulb-line"
-  },
-  {
-    year: "30th June 2025",
-    title: "Served 12+ Customers",
-    description: "Launched our online presence, bringing artisan leather goods to discerning customers worldwide.",
-    icon: "ri-global-line"
-  },
-  {
-    year: "11th July 2025",
-    title: "1 Month Anniversary",
-    description: "Leading the industry in sustainable practices while continuing our commitment to timeless craftsmanship.",
-    icon: "ri-leaf-line"
-  }
+ {
+  year: "Early 2006",
+  title: "Aarchana Designer Boutique",
+  description: "Founded by Archana Vedurupaka, starting her journey in fashion and design that built a strong legacy over 20 years.",
+  icon: "ri-home-line"
+},
+{
+  year: "Late 2024",
+  title: "The Spark of Aaranal",
+  description: "Her daughter, Alokya Vedurupaka, envisioned a new brand and began shaping the idea of Aaranal with creativity and passion.",
+  icon: "ri-lightbulb-line"
+},
+{
+  year: "May 2025",
+  title: "The Birth of Aaranal",
+  description: "Aaranal was officially launched, carrying forward a tradition of artistry through hand-painted and embroidered creations.",
+  icon: "ri-sparkling-2-line"
+},
+{
+  year: "June 2025",
+  title: "First Tote Crafted",
+  description: "We created our very first tote bag, marking the beginning of a journey in handmade accessories filled with art and care.",
+  icon: "ri-shopping-bag-3-line"
+},
+{
+  year: "Present Day",
+  title: "40+ Products Loved",
+  description: "In just a few months, over 40 creations have already reached happy customers a milestone that fuels our growing journey.",
+  icon: "ri-heart-line"
+}
 ];
 
 export default function CompanyHistory() {
