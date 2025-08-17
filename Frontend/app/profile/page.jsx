@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import useUserProfile from "./useUserProfile";
 import { useUser } from "@/context/UserContext";
 import {
@@ -20,6 +21,7 @@ import {
   Eye,
 } from "lucide-react";
 
+
 export default function ProfilePage() {
   const {
     user,
@@ -35,7 +37,8 @@ export default function ProfilePage() {
     showAddAddressForm,
     setShowAddAddressForm,
   } = useUserProfile();
-
+  console.log(user)
+  const router = useRouter();
   const [addresses, setAddresses] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [editingAddress, setEditingAddress] = useState(null);
@@ -45,6 +48,14 @@ export default function ProfilePage() {
     name: user?.name || "",
     email: user?.email || "",
   });
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || "",
+        email: user.email || "",
+      });
+    }
+  }, [user]);
 
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { token } = useUser();
@@ -125,8 +136,7 @@ export default function ProfilePage() {
 
   // Navigate to order (placeholder)
   const navigateToOrder = (orderId) => {
-    console.log(`Navigate to order: ${orderId}`);
-    alert(`Navigating to order ${orderId}`);
+    router.push(`/orders/${orderId}`)
   };
 
   // Get status color for order status
@@ -652,7 +662,7 @@ export default function ProfilePage() {
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="text-sm font-semibold text-gray-900 group-hover:text-rose-600 transition-colors">
-                                {order._id}
+                                {"ORD-" + order._id.toString().slice(-6)}
                               </h3>
                               <p className="text-xs text-gray-500 truncate">
                                 {order.items[0]?.name}
@@ -708,4 +718,3 @@ export default function ProfilePage() {
     </div>
   );
 }
- 

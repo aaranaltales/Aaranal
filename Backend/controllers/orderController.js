@@ -20,10 +20,10 @@ const placeOrder = async (req, res) => {
 
     try {
 
-        const { userId, items, amount, address } = req.body;
-
+        const { items, amount, address } = req.body.orderData;
+        const { user } = req
         const orderData = {
-            userId,
+            userId: user._id,
             items,
             address,
             amount,
@@ -35,7 +35,7 @@ const placeOrder = async (req, res) => {
         const newOrder = new orderModel(orderData)
         await newOrder.save()
 
-        await userModel.findByIdAndUpdate(userId, { cartData: {} })
+        await userModel.findByIdAndUpdate(user._id, { cartData: {} })
 
         res.json({ success: true, message: "Order Placed" })
 
@@ -130,10 +130,11 @@ const verifyStripe = async (req, res) => {
 const placeOrderRazorpay = async (req, res) => {
     try {
 
-        const { userId, items, amount, address } = req.body
+        const { items, amount, address } = req.body.orderData;
+        const { user } = req
 
         const orderData = {
-            userId,
+            userId: user._id,
             items,
             address,
             amount,
@@ -153,6 +154,7 @@ const placeOrderRazorpay = async (req, res) => {
 
         await razorpayInstance.orders.create(options, (error, order) => {
             if (error) {
+                console.log("failed here")
                 console.log(error)
                 return res.json({ success: false, message: error })
             }
