@@ -1,7 +1,7 @@
 'use client';
 import { useState } from "react";
 
-const categories = ['All', 'Tote Bag', 'Pouch', 'Money Pouch'];
+const categories = ['All', 'Tote Bag', 'Pouch', 'Money Purse', 'Crochet'];
 const sortOptions = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest'];
 
 export default function CollectionsFilter({

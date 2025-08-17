@@ -22,14 +22,14 @@ export default function ContactInfo() {
                 Discover our timeless totes, each crafted with purpose and personality.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-20  py-4 sm:py-8 sm:pr-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-20  py-4 ">
               <div className="flex flex-col items-center space-y-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center">
                   <i className="ri-map-pin-line w-6 h-6 flex items-center justify-center text-rose-600"></i>
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
-                  <p className="text-gray-600 font-light">Madhavpatnam, Kakinada<br />Andhra Pradesh</p>
+                  <p className="text-gray-600 font-light">Kakinada Andhra Pradesh</p>
                 </div>
               </div>
               <div className="flex flex-col items-center space-y-4">
@@ -38,7 +38,6 @@ export default function ContactInfo() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Opening Hours</h3>
-                  <p className="text-gray-600 font-light">Weekdays: 10:00 - 17:00</p>
                   <p className="text-gray-600 font-light">Sunday: 12:00 - 17:00</p>
                 </div>
               </div>
@@ -48,7 +47,7 @@ export default function ContactInfo() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Contact</h3>
-                  <p className="text-gray-600 font-light">+91 123 456 789<br />hello@aaranal.com</p>
+                  <p className="text-gray-600 font-light">support@aaranaltales.shop</p>
                 </div>
               </div>
             </div>

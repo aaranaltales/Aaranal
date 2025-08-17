@@ -18,20 +18,21 @@ export default function Footer() {
              Every piece tells a story, and now it’s part of yours.
 Stay connected with Aaranal.
             </p>
-            <div className="flex space-x-4">
-              <button className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center hover:from-rose-200 hover:to-pink-200 hover:scale-110 transform transition-all duration-300 cursor-pointer group">
-                <i className="ri-instagram-line w-6 h-6 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform"></i>
-              </button>
-              <button className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center hover:from-rose-200 hover:to-pink-200 hover:scale-110 transform transition-all duration-300 cursor-pointer group">
-                <i className="ri-facebook-line w-6 h-6 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform"></i>
-              </button>
-              <button className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center hover:from-rose-200 hover:to-pink-200 hover:scale-110 transform transition-all duration-300 cursor-pointer group">
-                <i className="ri-pinterest-line w-6 h-6 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform"></i>
-              </button>
-              <button className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center hover:from-rose-200 hover:to-pink-200 hover:scale-110 transform transition-all duration-300 cursor-pointer group">
-                <i className="ri-youtube-line w-6 h-6 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform"></i>
-              </button>
-            </div>
+            <div className="flex items-center space-x-3">
+  <a
+    href="https://instagram.com/aaranal.tales"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center space-x-2 group"
+  >
+    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center group-hover:from-rose-200 group-hover:to-pink-200 transform transition-all duration-300">
+      <i className="ri-instagram-line text-rose-600 text-xl sm:text-2xl group-hover:scale-110 transition-transform"></i>
+    </div>
+    <span className="text-rose-600 font-medium text-sm sm:text-base group-hover:text-rose-700 transition-colors duration-300">
+      @aaranal.tales
+    </span>
+  </a>
+</div>
           </div>
         <div className='flex w-full justify-between pr-10'>
           <div className="space-y-6">
@@ -41,11 +42,11 @@ Stay connected with Aaranal.
                   <Link
                     href={{
                       pathname: "/collections",
-                      query: { category: "Tote Bags" },
+                      query: { category: "Tote Bag" },
                     }}
                     className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
                   >
-                    Tote Bags
+                    Tote Bag
                   </Link>
                 </li>
                 <li>
@@ -56,18 +57,29 @@ Stay connected with Aaranal.
                     }}
                     className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
                   >
-                    Pouches
+                    Pouch
                   </Link>
                 </li>
                 <li>
                   <Link
                     href={{
                       pathname: "/collections",
-                      query: { category: "Money Pouch" },
+                      query: { category: "Money Purse" },
                     }}
                     className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
                   >
-                    Money Pouches
+                    Money Purse
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={{
+                      pathname: "/collections",
+                      query: { category: "Crochet" },
+                    }}
+                    className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
+                  >
+                    Crochet
                   </Link>
                 </li>
               </ul>
@@ -82,12 +94,12 @@ Stay connected with Aaranal.
                 </Link>
               </li> */}
               <li>
-                <Link href="/personalization" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
+                <Link href="/customize" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
                   Customization
                 </Link>
               </li>
               <li>
-                <Link href="/care-guide" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
+                <Link href="/careguide" className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light">
                   Care Guide
                 </Link>
               </li>
@@ -107,7 +119,7 @@ Stay connected with Aaranal.
               © 2025 Aaranal. Crafted with passion and precision.
             </p>
             <div className="flex space-x-8">
-              <Link href="/privacy" className="text-gray-600 hover:text-rose-600 text-sm transition-colors cursor-pointer font-light">
+              <Link href="/privacypolicy" className="text-gray-600 hover:text-rose-600 text-sm transition-colors cursor-pointer font-light">
                 Privacy Policy
               </Link>
               <Link href="/terms" className="text-gray-600 hover:text-rose-600 text-sm transition-colors cursor-pointer font-light">
