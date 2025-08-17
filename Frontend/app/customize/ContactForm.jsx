@@ -20,19 +20,25 @@ export default function ContactForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+// In ContactForm.jsx
+const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 5000);
-    setFormData({
-        name: '',
-      email: '',
-      phone: '',
-      type_of_bag: '',
-      design_description: '',
-      interest: 'custom'
-    });
-  };
+    try {
+        const userId = localStorage.getItem('userId') || 'guest'; // Replace with actual logic
+        const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/submit`,
+            { ...formData, userId }
+        );
+        if (res.data.success) {
+            setIsSubmitted(true);
+            setFormData({ name: '', email: '', phone: '', type_of_bag: '', design_description: '', interest: 'custom' });
+            setTimeout(() => setIsSubmitted(false), 5000);
+        }
+    } catch (err) {
+        alert("Error submitting form!");
+    }
+};
+
 
   const interests = [
 

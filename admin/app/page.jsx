@@ -74,7 +74,7 @@ export default function DashboardPage() {
                 className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 items-start sm:items-center border-b border-gray-100 pb-2"
               >
                 <span className="font-medium">
-                  {order.items[0].name} × {order.items[0].quantity}
+                  {order.items.name} × {order.items.quantity}
                 </span>
                 <span className="text-gray-500 text-xs">
                   {new Date(order.date).toLocaleDateString()}
