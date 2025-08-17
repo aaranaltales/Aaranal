@@ -66,6 +66,7 @@ export const UserProvider = ({ children }) => {
             if (response.data.success) {
                 const cartData = response.data.cartData;
                 setCartItems(cartData); // ✅ Will trigger useEffect to update cartCount
+                return cartData
             }
         } catch (error) {
             console.log(error);
@@ -305,7 +306,9 @@ export const UserProvider = ({ children }) => {
                 setUser,
                 loading,
                 cartItems,
+                setCartItems,
                 refreshUser,
+                getUserCart
             }}
         >
             {children}
