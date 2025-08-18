@@ -345,7 +345,7 @@ const OrderDetailsPage = () => {
                     Subtotal
                   </span>
                   <span className="font-light text-gray-900 text-sm md:text-base">
-                    ₹{order.amount - (order.shippingCost || 0)}
+                    ₹{order.amount - (25 || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1.5">
@@ -355,7 +355,7 @@ const OrderDetailsPage = () => {
                   <span className="font-light text-green-600 text-sm md:text-base">
                     {order.shippingCost === 0
                       ? "Free"
-                      : `₹${order.shippingCost}`}
+                      : `₹25`}
                   </span>
                 </div>
                 <div className="border-t border-gray-200 pt-3 mt-4">
@@ -468,13 +468,15 @@ const OrderDetailsPage = () => {
                   <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                 </div>
                 <div className="text-gray-600 font-light text-sm md:text-base leading-relaxed">
-                  <p>{order.shippingAddress?.street || "N/A"}</p>
+                  <p>{order.shippingAddress?.name || "N/A"}</p>
                   <p>
+                    {order.shippingAddress?.house || "N/A"},{" "}
                     {order.shippingAddress?.city || "N/A"},{" "}
-                    {order.shippingAddress?.state || "N/A"}{" "}
-                    {order.shippingAddress?.zip || "N/A"}
                   </p>
-                  <p>{order.shippingAddress?.country || "N/A"}</p>
+                  <p>
+                    {order.shippingAddress?.state || "N/A"}{" "}
+                    {order.shippingAddress?.pincode || "N/A"}
+                  </p>
                   <p>Phone: {order.shippingAddress?.phone || "N/A"}</p>
                 </div>
               </div>
