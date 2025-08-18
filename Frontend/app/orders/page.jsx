@@ -20,6 +20,7 @@ import {
   Heart,
   ChevronRight,
 } from "lucide-react";
+import { getProductsData } from "@/services/products";
 
 const OrdersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,12 +28,21 @@ const OrdersPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [orders, setOrders] = useState([]);
   const { user, token } = useUser();
+  const [allProducts, setAllProducts] = useState([]);
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const products = await getProductsData();
+      setAllProducts(products);
+    };
+    fetchProducts();
+  }, []);
   // Fetch user orders
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchAndEnrichOrders = async () => {
       try {
+        // 1. Fetch orders
         const response = await axios.post(
           `${dbUri}/api/order/userorders`,
           { userId: user?._id },
@@ -42,17 +52,39 @@ const OrdersPage = () => {
             },
           }
         );
+
         if (response.data.success) {
-          setOrders(response.data.orders);
+          let fetchedOrders = response.data.orders;
+
+          // 2. Enrich orders (only if products available)
+          if (allProducts.length > 0) {
+            fetchedOrders = fetchedOrders.map((order) => {
+              const alreadyEnriched = order.items.every((item) => item.product);
+              if (alreadyEnriched) return order;
+
+              const enrichedItems = order.items.map((item) => {
+                const product = allProducts.find((p) => p._id === item.productId);
+                if (!product) return item;
+                return { ...item, product };
+              });
+
+              return { ...order, items: enrichedItems };
+            });
+          }
+
+          // 3. Update state
+          setOrders(fetchedOrders);
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
     };
+
     if (user?._id && token) {
-      fetchOrders();
+      fetchAndEnrichOrders();
     }
-  }, [user, token]);
+  }, [user, token, allProducts]);
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -95,10 +127,7 @@ const OrdersPage = () => {
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      order._id.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -163,9 +192,8 @@ const OrdersPage = () => {
                 {statusFilter === "all" ? "All Orders" : statusFilter}
               </span>
               <ChevronDown
-                className={`w-4 h-4 text-gray-600 transition-transform duration-300 ${
-                  showFilters ? "rotate-180" : ""
-                }`}
+                className={`w-4 h-4 text-gray-600 transition-transform duration-300 ${showFilters ? "rotate-180" : ""
+                  }`}
               />
             </button>
             {showFilters && (
@@ -253,15 +281,15 @@ const OrdersPage = () => {
                         )}
                         {(order.status === "Shipped" ||
                           order.status === "Order Placed") && (
-                          <span className="block sm:inline sm:ml-2">
-                            • Expected by{" "}
-                            {formatDate(
-                              new Date(order.date).setDate(
-                                new Date(order.date).getDate() + 5
-                              )
-                            )}
-                          </span>
-                        )}
+                            <span className="block sm:inline sm:ml-2">
+                              • Expected by{" "}
+                              {formatDate(
+                                new Date(order.date).setDate(
+                                  new Date(order.date).getDate() + 5
+                                )
+                              )}
+                            </span>
+                          )}
                       </div>
                       <div>
                         {order.items.length}{" "}
@@ -276,17 +304,18 @@ const OrdersPage = () => {
                           key={index}
                           className="flex-shrink-0 flex items-center space-x-3"
                         >
+                          {console.log(item)}
                           <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
                             <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                              <Package className="w-6 h-6 text-gray-400" />
+                              <img src={item.product.image[0]} className="w-6 h-6 text-gray-400" />
                             </div>
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">
-                              {item.name}
+                              {item.product.name}
                             </p>
                             <p className="text-xs text-gray-500 font-light">
-                              ₹{item.price}
+                              ₹{item.product.price}
                             </p>
                           </div>
                         </div>
