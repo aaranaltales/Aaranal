@@ -33,7 +33,7 @@ export default function CollectionsPage() {
   // Handle category from URL query
   useEffect(() => {
     const category = searchParams.get('category');
-    if (category && ['Tote Bags', 'Pouch', 'Money Pouch'].includes(category)) {
+    if (category && ['Tote Bag', 'Pouch', 'Money Purse', 'Crochet'].includes(category)) {
       setActiveCategory(category);
     }
   }, [searchParams]);
