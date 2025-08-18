@@ -55,7 +55,7 @@ const sendOrderConfirmation = async (to, order) => {
         to,
         subject: `Order Confirmation – Order #${order.id}`,
         html,
-        fromAlias: 'orders@aaranaltales.shop',
+        fromAlias: 'orders@aaranaltales.shop', 
     });
 };
 

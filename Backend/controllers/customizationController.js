@@ -4,12 +4,14 @@ import orderModel from '../models/orderModel.js';
 
 // Submit customization request
 export const submitCustomization = async (req, res) => {
+    const { user } = req
     try {
         const { name, email, phone, type_of_bag, design_description, interest } = req.body;
         const newCustomization = new customizationModel({
-            name, email, phone, type_of_bag, design_description, interest
+            userId: user._id, name, email, phone, type_of_bag, design_description, interest
         });
         await newCustomization.save();
+        console.log("called")
         res.json({ success: true, message: "Customization request submitted!" });
     } catch (error) {
         res.json({ success: false, message: error.message });

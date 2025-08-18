@@ -9,6 +9,8 @@ const deliveryCharge = 10
 
 // gateway initialize
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+console.log(process.env.RAZORPAY_KEY_ID)
+console.log(process.env.RAZORPAY_KEY_SECRET)
 
 const razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -170,8 +172,10 @@ const placeOrderRazorpay = async (req, res) => {
 const verifyRazorpay = async (req, res) => {
     try {
 
-        const { userId, razorpay_order_id } = req.body
-
+        const { razorpay_order_id } = req.body.response
+        const userId = req.user._id
+        console.log(userId)
+        console.log(razorpay_order_id)
         const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
         if (orderInfo.status === 'paid') {
             await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true });

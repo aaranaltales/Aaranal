@@ -1,5 +1,7 @@
 'use client';
 
+import { useUser } from '@/context/UserContext';
+import axios from 'axios';
 import { useState } from 'react';
 
 export default function ContactForm() {
@@ -12,7 +14,7 @@ export default function ContactForm() {
     interest: 'custom'
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const { token } = useUser();
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -20,24 +22,32 @@ export default function ContactForm() {
     }));
   };
 
-// In ContactForm.jsx
-const handleSubmit = async (e) => {
+  // In ContactForm.jsx
+  const handleSubmit = async (e) => {
+    console.log("clled in frontend")
     e.preventDefault();
     try {
-        const userId = localStorage.getItem('userId') || 'guest'; // Replace with actual logic
-        const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/submit`,
-            { ...formData, userId }
-        );
-        if (res.data.success) {
-            setIsSubmitted(true);
-            setFormData({ name: '', email: '', phone: '', type_of_bag: '', design_description: '', interest: 'custom' });
-            setTimeout(() => setIsSubmitted(false), 5000);
+      const userId = localStorage.getItem('userId') || 'guest'; // Replace with actual logic
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/submit`,
+        { ...formData, },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      console.log(res)
+      if (res.data.success) {
+        setIsSubmitted(true);
+        setFormData({ name: '', email: '', phone: '', type_of_bag: '', design_description: '', interest: 'custom' });
+        setTimeout(() => setIsSubmitted(false), 5000);
+      }
     } catch (err) {
-        alert("Error submitting form!");
+      console.log(err)
+      alert("Error submitting form!");
     }
-};
+  };
 
 
   const interests = [
@@ -59,7 +69,7 @@ const handleSubmit = async (e) => {
                 </span>
               </h2>
               <p className="text-lg text-gray-600 font-light leading-relaxed">
-                Every inquiry is important to us. Our team of artisans and customer care specialists 
+                Every inquiry is important to us. Our team of artisans and customer care specialists
                 are ready to assist you with personalized attention and expert guidance.
               </p>
             </div>
@@ -99,7 +109,7 @@ const handleSubmit = async (e) => {
             <div className="bg-gradient-to-br from-rose-50 to-pink-50 p-8 rounded-3xl border border-rose-100">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Custom Design Service</h3>
               <p className="text-gray-600 font-light leading-relaxed mb-6">
-                Transform your vision into reality with our custom totebag service. 
+                Transform your vision into reality with our custom totebag service.
                 From initial concept to final creation, our master artisans work with you every step of the way.
               </p>
               <div className="flex items-center text-rose-600">
@@ -208,6 +218,7 @@ const handleSubmit = async (e) => {
 
                 <button
                   type="submit"
+                  onClick={handleSubmit}
                   className="w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-2xl hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
                 >
                   Send Message

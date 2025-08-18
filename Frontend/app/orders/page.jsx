@@ -307,6 +307,7 @@ const OrdersPage = () => {
                           {console.log(item)}
                           <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
                             <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                              {console.log(item.product)}
                               <img src={item.product.image[0]} className="w-6 h-6 text-gray-400" />
                             </div>
                           </div>
