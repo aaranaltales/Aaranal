@@ -1,6 +1,6 @@
 "use client"
 // admin/CustomizationsPage.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,7 +16,10 @@ export default function CustomizationsPage() {
     zipcode: '',
     phone: '',
     paymentMethod: 'COD',
+    customImage: null,
+    customPrice: '',
   });
+  const fileInputRef = useRef(null);
 
   // Fetch all customizations
   const fetchCustomizations = async () => {
@@ -38,8 +41,17 @@ export default function CustomizationsPage() {
 
   // Handle form input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    if (name === 'customImage' && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, customImage: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // Place order
@@ -51,15 +63,35 @@ export default function CustomizationsPage() {
         {
           customizationId: customization._id,
           userId: customization.userId,
-          address: formData,
-          amount: 1000, // Replace with your logic
+          address: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            country: formData.country,
+            zipcode: formData.zipcode,
+            phone: formData.phone,
+          },
+          amount: formData.customPrice,
           paymentMethod: formData.paymentMethod,
+          customImage: formData.customImage,
+          customPrice: formData.customPrice,
         },
         { headers: { token } }
       );
       if (res.data.success) {
         toast.success('Order placed successfully!');
         setExpandedId(null);
+        setFormData({
+          street: '',
+          city: '',
+          state: '',
+          country: '',
+          zipcode: '',
+          phone: '',
+          paymentMethod: 'COD',
+          customImage: null,
+          customPrice: '',
+        });
         fetchCustomizations();
       }
     } catch (err) {
@@ -171,6 +203,17 @@ export default function CustomizationsPage() {
                         required
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                      <input
+                        type="number"
+                        name="customPrice"
+                        value={formData.customPrice}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                        required
+                      />
+                    </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
                       <select
@@ -183,6 +226,26 @@ export default function CustomizationsPage() {
                         <option value="Stripe">Stripe</option>
                         <option value="Razorpay">Razorpay</option>
                       </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+                      <input
+                        type="file"
+                        name="customImage"
+                        ref={fileInputRef}
+                        onChange={handleInputChange}
+                        accept="image/*"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                      />
+                      {formData.customImage && (
+                        <div className="mt-2">
+                          <img
+                            src={formData.customImage}
+                            alt="Preview"
+                            className="w-32 h-32 object-cover rounded-lg"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="mt-6 flex justify-end gap-3">

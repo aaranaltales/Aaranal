@@ -26,6 +26,8 @@ export default function ContactForm() {
   const handleSubmit = async (e) => {
     console.log("clled in frontend")
     e.preventDefault();
+    console.log("Form submitted:", formData);
+
     try {
       const userId = localStorage.getItem('userId') || 'guest'; // Replace with actual logic
       const res = await axios.post(

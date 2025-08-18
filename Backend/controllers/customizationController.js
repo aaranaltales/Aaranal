@@ -43,20 +43,24 @@ export const updateCustomizationStatus = async (req, res) => {
 // controllers/customizationController.js
 export const convertToOrder = async (req, res) => {
     try {
-        const { customizationId, userId, address, amount, paymentMethod } = req.body;
+        const { customizationId, userId, address, amount, paymentMethod, customImage, customPrice } = req.body;
         const customization = await customizationModel.findById(customizationId);
         if (!customization) throw new Error("Customization not found");
 
         const orderData = {
             userId,
-            items: [{ name: customization.type_of_bag || "Custom Tote Bag", price: amount, quantity: 1 }],
-            amount,
+            items: [{ name: customization.type_of_bag || "Custom Tote Bag", price: customPrice, quantity: 1 }],
+            amount: customPrice,
             address,
             status: "Order Placed",
             paymentMethod,
             payment: paymentMethod === "COD" ? false : true,
-            date: Date.now()
+            date: Date.now(),
+            isCustomized: true,
+            customImage,
+            customPrice,
         };
+
         const newOrder = new orderModel(orderData);
         await newOrder.save();
         await customizationModel.findByIdAndUpdate(customizationId, { status: "Converted to Order" });
@@ -66,3 +70,4 @@ export const convertToOrder = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 };
+

@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "axios";
 
 const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -11,7 +11,7 @@ export const userDetails = async (token) => {
         });
         return res.data;
     } catch (error) {
-        throw new Error(error.response.data.message);
+        throw new Error(error.response?.data?.message || "Failed to fetch user details");
     }
 };
 
@@ -19,13 +19,13 @@ export const signin = async (email, password) => {
     try {
         const response = await axios.post(`${dbUri}/api/user/login`, {
             email,
-            password
+            password,
         });
         return response.data;
     } catch (error) {
-        throw new Error(error.response.data.message);
+        throw new Error(error.response?.data?.message || "Login failed");
     }
-}
+};
 
 export const signup = async ({ name, email, password }) => {
     try {
@@ -36,10 +36,10 @@ export const signup = async ({ name, email, password }) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error)
-        throw new Error(error.response.data.message);
+        console.log(error);
+        throw new Error(error.response?.data?.message || "Signup failed");
     }
-}
+};
 
 export const sendOtp = async ({ email }) => {
     try {
@@ -48,20 +48,34 @@ export const sendOtp = async ({ email }) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error)
-        throw new Error(error.response.data.message);
+        console.log(error);
+        throw new Error(error.response?.data?.message || "Failed to send OTP");
     }
-}
+};
 
 export const verifyOtp = async ({ email, otp }) => {
     try {
         const response = await axios.post(`${dbUri}/api/otp/verify`, {
             email,
-            otp
+            otp,
         });
         return response.data;
     } catch (error) {
-        console.log(error)
-        throw new Error(error.response.data.message);
+        console.log(error);
+        throw new Error(error.response?.data?.message || "OTP verification failed");
     }
-}
+};
+
+export const resetPassword = async ({ email, otp, newPassword }) => {
+    try {
+        const response = await axios.post(`${dbUri}/api/user/resetpassword`, {
+            email,
+            otp,
+            newPassword,
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error.response?.data?.message || "Password reset failed");
+    }
+};
