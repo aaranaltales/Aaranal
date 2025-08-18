@@ -21,7 +21,6 @@ import {
   Eye,
 } from "lucide-react";
 
-
 export default function ProfilePage() {
   const {
     user,
@@ -37,7 +36,6 @@ export default function ProfilePage() {
     showAddAddressForm,
     setShowAddAddressForm,
   } = useUserProfile();
-  console.log(user)
   const router = useRouter();
   const [addresses, setAddresses] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -48,6 +46,7 @@ export default function ProfilePage() {
     name: user?.name || "",
     email: user?.email || "",
   });
+
   useEffect(() => {
     if (user) {
       setProfileData({
@@ -59,7 +58,7 @@ export default function ProfilePage() {
 
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { token } = useUser();
-  // Fetch recent orders from backend
+
   useEffect(() => {
     const fetchRecentOrders = async () => {
       try {
@@ -73,7 +72,6 @@ export default function ProfilePage() {
           }
         );
         if (response.data.success) {
-          // Sort by date (newest first) and take the 3 most recent
           const sortedOrders = response.data.orders
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 3);
@@ -88,20 +86,17 @@ export default function ProfilePage() {
     }
   }, [user?._id]);
 
-  // Update addresses when user data changes
   useEffect(() => {
     if (user?.addresses) {
       setAddresses(user.addresses);
     }
   }, [user?.addresses]);
 
-  // Handle edit address (local state)
   const handleEditAddressLocal = (address) => {
     setEditingAddress({ ...address });
     setIsAddingNew(false);
   };
 
-  // Handle save address (local state)
   const handleSaveAddressLocal = () => {
     if (editingAddress) {
       handleSubmitEditAddress(editingAddress);
@@ -109,23 +104,19 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle cancel edit
   const handleCancelEdit = () => {
     setEditingAddress(null);
     setIsAddingNew(false);
   };
 
-  // Handle edit profile
   const handleEditProfile = () => {
     setIsEditingProfile(true);
   };
 
-  // Handle save profile
   const handleSaveProfile = () => {
     setIsEditingProfile(false);
   };
 
-  // Handle cancel profile edit
   const handleCancelProfileEdit = () => {
     setIsEditingProfile(false);
     setProfileData({
@@ -134,12 +125,10 @@ export default function ProfilePage() {
     });
   };
 
-  // Navigate to order (placeholder)
   const navigateToOrder = (orderId) => {
-    router.push(`/orders/${orderId}`)
+    router.push(`/orders/${orderId}`);
   };
 
-  // Get status color for order status
   const getStatusColor = (status) => {
     switch (status) {
       case "Delivered":
@@ -155,7 +144,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Get address icon
   const getAddressIcon = (type) => {
     switch (type) {
       case "Home":
@@ -167,7 +155,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -181,7 +168,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {/* Profile Header Card */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8 relative">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
             <div className="relative">
               <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg">
@@ -191,7 +178,7 @@ export default function ProfilePage() {
                 <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               {isEditingProfile ? (
                 <div className="space-y-4">
                   <input
@@ -200,7 +187,7 @@ export default function ProfilePage() {
                     onChange={(e) =>
                       setProfileData({ ...profileData, name: e.target.value })
                     }
-                    className="text-3xl md:text-4xl font-light text-gray-900 bg-transparent border-b-2 border-rose-300 focus:border-rose-500 focus:outline-none transition-colors w-full max-w-md"
+                    className="text-2xl md:text-3xl font-light text-gray-900 bg-transparent border-b-2 border-rose-300 focus:border-rose-500 focus:outline-none transition-colors w-full max-w-md"
                   />
                   <div className="flex items-center space-x-2">
                     <Mail className="w-5 h-5 text-rose-600 flex-shrink-0" />
@@ -210,20 +197,20 @@ export default function ProfilePage() {
                       onChange={(e) =>
                         setProfileData({ ...profileData, email: e.target.value })
                       }
-                      className="text-lg text-gray-600 bg-transparent border-b border-gray-300 focus:border-rose-500 focus:outline-none transition-colors"
+                      className="text-base md:text-lg text-gray-600 bg-transparent border-b border-gray-300 focus:border-rose-500 focus:outline-none transition-colors w-full"
                     />
                   </div>
                   <div className="flex items-center space-x-3">
                     <button
                       onClick={handleSaveProfile}
-                      className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-2xl hover:from-rose-700 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2 shadow-lg"
+                      className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-xl md:rounded-2xl hover:from-rose-700 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2 shadow-lg text-sm md:text-base"
                     >
                       <Save className="w-4 h-4" />
                       <span>Save</span>
                     </button>
                     <button
                       onClick={handleCancelProfileEdit}
-                      className="px-6 py-2.5 rounded-2xl border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center space-x-2"
+                      className="px-4 py-2 md:px-6 md:py-2.5 rounded-xl md:rounded-2xl border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center space-x-2 text-sm md:text-base"
                     >
                       <X className="w-4 h-4" />
                       <span>Cancel</span>
@@ -231,14 +218,14 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
                   <div>
-                    <h1 className="text-3xl md:text-4xl font-light text-gray-900 mb-2">
+                    <h1 className="text-2xl md:text-3xl font-light text-gray-900 mb-2">
                       {profileData.name}
                     </h1>
                     <div className="flex items-center space-x-2 text-gray-600 mb-4">
                       <Mail className="w-5 h-5 text-rose-600" />
-                      <span className="text-lg">{profileData.email}</span>
+                      <span className="text-base md:text-lg">{profileData.email}</span>
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl border border-rose-100">
@@ -255,33 +242,36 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={handleEditProfile}
-                    className="p-3 rounded-2xl hover:bg-gray-50 transition-colors border border-gray-200 hover:border-gray-300"
-                  >
-                    <Edit2 className="w-5 h-5 text-rose-600" />
-                  </button>
                 </div>
               )}
             </div>
+            {/* Edit button - Top-right corner for both mobile and desktop */}
+            {!isEditingProfile && (
+              <button
+                onClick={handleEditProfile}
+                className="p-2 md:p-3 rounded-xl md:rounded-2xl hover:bg-gray-50 transition-colors border border-gray-200 hover:border-gray-300 absolute top-4 right-4"
+              >
+                <Edit2 className="w-5 h-5 text-rose-600" />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-5 gap-8">
-          {/* Saved Addresses - 2 columns */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8">
+          {/* Saved Addresses - Full width on mobile */}
+          <div className="lg:col-span-2 col-span-1">
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
+              <div className="flex items-center justify-between mb-4 md:mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                    <Home className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl md:rounded-2xl flex items-center justify-center">
+                    <Home className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-lg md:text-xl font-semibold text-gray-900">
                       Addresses
                     </h2>
-                    <p className="text-sm text-gray-500">Manage delivery locations</p>
+                    <p className="text-xs md:text-sm text-gray-500">Manage delivery locations</p>
                   </div>
                 </div>
                 <button
@@ -289,25 +279,25 @@ export default function ProfilePage() {
                     setIsAddingNew(true);
                     setShowAddAddressForm(true);
                   }}
-                  className="bg-gradient-to-r from-rose-500 to-pink-600 text-white p-2.5 rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all duration-300 shadow-lg"
+                  className="bg-gradient-to-r from-rose-500 to-pink-600 text-white p-2 rounded-xl md:rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all duration-300 shadow-lg"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
               </div>
-              <div className="max-h-80 overflow-y-auto space-y-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
+              <div className="max-h-80 overflow-y-auto space-y-2 md:space-y-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
                 {/* New Address Form */}
                 {isAddingNew && showAddAddressForm && (
-                  <div className="border-2 border-dashed border-rose-200 rounded-2xl p-4 bg-rose-50">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="border-2 border-dashed border-rose-200 rounded-xl md:rounded-2xl p-3 md:p-4 bg-rose-50">
+                    <h3 className="text-base md:text-lg font-medium text-gray-900 mb-3 md:mb-4">
                       New Address
                     </h3>
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       <select
                         value={newAddress.type}
                         onChange={(e) =>
                           handleNewAddressChange("type", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       >
                         <option value="Home">Home</option>
                         <option value="Work">Work</option>
@@ -320,7 +310,7 @@ export default function ProfilePage() {
                         onChange={(e) =>
                           handleNewAddressChange("name", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       />
                       <input
                         type="text"
@@ -329,7 +319,7 @@ export default function ProfilePage() {
                         onChange={(e) =>
                           handleNewAddressChange("number", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       />
                       <input
                         type="text"
@@ -338,7 +328,7 @@ export default function ProfilePage() {
                         onChange={(e) =>
                           handleNewAddressChange("pincode", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       />
                       <input
                         type="text"
@@ -347,7 +337,7 @@ export default function ProfilePage() {
                         onChange={(e) =>
                           handleNewAddressChange("house", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       />
                       <input
                         type="text"
@@ -356,9 +346,9 @@ export default function ProfilePage() {
                         onChange={(e) =>
                           handleNewAddressChange("area", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       />
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                         <input
                           type="text"
                           placeholder="City"
@@ -366,7 +356,7 @@ export default function ProfilePage() {
                           onChange={(e) =>
                             handleNewAddressChange("city", e.target.value)
                           }
-                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                          className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                         />
                         <input
                           type="text"
@@ -375,7 +365,7 @@ export default function ProfilePage() {
                           onChange={(e) =>
                             handleNewAddressChange("state", e.target.value)
                           }
-                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                          className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                         />
                       </div>
                       <input
@@ -385,13 +375,13 @@ export default function ProfilePage() {
                         onChange={(e) =>
                           handleNewAddressChange("landmark", e.target.value)
                         }
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                       />
                     </div>
-                    <div className="flex justify-end space-x-2 mt-4">
+                    <div className="flex justify-end space-x-2 mt-3 md:mt-4">
                       <button
                         onClick={handleCancelEdit}
-                        className="px-4 py-2 rounded-xl border border-gray-300 hover:border-gray-400 transition-all text-sm"
+                        className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl border border-gray-300 hover:border-gray-400 transition-all text-xs md:text-sm"
                       >
                         Cancel
                       </button>
@@ -401,7 +391,7 @@ export default function ProfilePage() {
                           setIsAddingNew(false);
                           setShowAddAddressForm(false);
                         }}
-                        className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all text-sm"
+                        className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all text-xs md:text-sm"
                       >
                         Save
                       </button>
@@ -410,17 +400,17 @@ export default function ProfilePage() {
                 )}
                 {/* Address List or No Addresses Message */}
                 {addresses.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No saved addresses</p>
+                  <div className="text-center py-6 md:py-8">
+                    <p className="text-gray-500 text-sm md:text-base">No saved addresses</p>
                   </div>
                 ) : (
                   addresses.map((address) => (
                     <div
                       key={address._id}
-                      className="group border border-gray-200 rounded-2xl p-4 hover:border-rose-300 hover:bg-rose-50 transition-all cursor-pointer"
+                      className="group border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:bg-rose-50 transition-all cursor-pointer"
                     >
                       {editingAddress && editingAddress._id === address._id ? (
-                        <div className="space-y-3">
+                        <div className="space-y-2 md:space-y-3">
                           <select
                             value={editingAddress.type}
                             onChange={(e) =>
@@ -430,7 +420,7 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           >
                             <option value="Home">Home</option>
                             <option value="Work">Work</option>
@@ -447,7 +437,7 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           />
                           <input
                             type="text"
@@ -460,7 +450,7 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           />
                           <input
                             type="text"
@@ -473,7 +463,7 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           />
                           <input
                             type="text"
@@ -486,7 +476,7 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           />
                           <input
                             type="text"
@@ -499,9 +489,9 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           />
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <input
                               type="text"
                               placeholder="City"
@@ -513,7 +503,7 @@ export default function ProfilePage() {
                                   e.target.value
                                 )
                               }
-                              className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                              className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                             />
                             <input
                               type="text"
@@ -526,7 +516,7 @@ export default function ProfilePage() {
                                   e.target.value
                                 )
                               }
-                              className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                              className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                             />
                           </div>
                           <input
@@ -540,33 +530,33 @@ export default function ProfilePage() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-sm"
+                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
                           />
                           <div className="flex justify-end space-x-2">
                             <button
                               onClick={handleCancelEdit}
-                              className="px-3 py-1.5 rounded-lg border border-gray-300 hover:border-gray-400 transition-all text-sm"
+                              className="px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg border border-gray-300 hover:border-gray-400 transition-all text-xs md:text-sm"
                             >
                               Cancel
                             </button>
                             <button
                               onClick={handleSaveAddressLocal}
-                              className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-3 py-1.5 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all text-sm"
+                              className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all text-xs md:text-sm"
                             >
                               Save
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
+                        <div className="flex flex-col md:flex-row items-start justify-between">
+                          <div className="flex-1 w-full md:w-auto mb-3 md:mb-0">
                             <div className="flex items-center space-x-2 mb-2">
-                              <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg group-hover:border-rose-300">
+                              <span className="inline-flex items-center space-x-1.5 px-2 py-1 md:px-2.5 md:py-1 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg group-hover:border-rose-300">
                                 {getAddressIcon(address.type)}
-                                <span>{address.type}</span>
+                                <span className="text-xs">{address.type}</span>
                               </span>
                               {address.default && (
-                                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium rounded-lg">
+                                <span className="inline-flex items-center space-x-1.5 px-2 py-1 md:px-2.5 md:py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium rounded-lg">
                                   Default
                                 </span>
                               )}
@@ -574,17 +564,17 @@ export default function ProfilePage() {
                             <p className="text-sm font-medium text-gray-900 mb-1">
                               {address.name}
                             </p>
-                            <p className="text-sm text-gray-600 mb-1">
+                            <p className="text-xs md:text-sm text-gray-600 mb-1">
                               {address.house}, {address.area}
                             </p>
-                            <p className="text-sm text-gray-600 mb-1">
+                            <p className="text-xs md:text-sm text-gray-600 mb-1">
                               {address.city}, {address.state} {address.pincode}
                             </p>
-                            <p className="text-sm text-gray-600 mb-3">
+                            <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">
                               Phone: {address.number}
                             </p>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1.5 md:space-x-2">
                             {!address.default && (
                               <button
                                 onClick={() => handleSetDefaultAddress(address._id)}
@@ -595,15 +585,15 @@ export default function ProfilePage() {
                             )}
                             <button
                               onClick={() => handleEditAddressLocal(address)}
-                              className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white transition-all"
+                              className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
                             >
-                              <Edit2 className="w-3.5 h-3.5 text-rose-600" />
+                              <Edit2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-rose-600" />
                             </button>
                             <button
                               onClick={() => handleDeleteAddress(address._id)}
-                              className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-white transition-all"
+                              className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
                             >
-                              <X className="w-3.5 h-3.5 text-red-600" />
+                              <X className="w-3 h-3 md:w-3.5 md:h-3.5 text-red-600" />
                             </button>
                           </div>
                         </div>
@@ -614,40 +604,39 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          {/* Recent Orders - 3 columns */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
+          {/* Recent Orders - Full width on mobile */}
+          <div className="lg:col-span-3 col-span-1">
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
+              <div className="flex items-center justify-between mb-4 md:mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                    <Package className="w-5 h-5 text-white" />
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl md:rounded-2xl flex items-center justify-center">
+                    <Package className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-lg md:text-xl font-semibold text-gray-900">
                       Recent Orders
                     </h2>
-                    <p className="text-sm text-gray-500">Track your recent purchases</p>
+                    <p className="text-xs md:text-sm text-gray-500">Track your recent purchases</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  <span className="text-sm text-gray-500">Live updates</span>
+                  <span className="text-xs md:text-sm text-gray-500">Live updates</span>
                 </div>
               </div>
-              <div className="max-h-80 overflow-y-auto space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
+              <div className="max-h-80 overflow-y-auto space-y-3 md:space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
                 {recentOrders.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No recent orders found.</p>
+                  <div className="text-center py-6 md:py-8">
+                    <p className="text-gray-500 text-sm md:text-base">No recent orders found.</p>
                   </div>
                 ) : (
                   recentOrders.map((order) => (
                     <div
                       key={order._id}
                       onClick={() => navigateToOrder(order._id)}
-                      className="group cursor-pointer border border-gray-200 rounded-2xl p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300"
+                      className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300"
                     >
-                      <div className="flex space-x-4">
+                      <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
                           <img
                             src={
@@ -669,14 +658,14 @@ export default function ProfilePage() {
                               </p>
                             </div>
                             <span
-                              className={`px-2.5 py-1 text-xs font-medium rounded-lg border ${getStatusColor(
+                              className={`px-2 py-1 md:px-2.5 md:py-1 text-xs font-medium rounded-lg border ${getStatusColor(
                                 order.status
                               )}`}
                             >
                               {order.status}
                             </span>
                           </div>
-                          <div className="grid grid-cols-3 gap-4 text-xs text-gray-600 mb-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 text-xs text-gray-600 mb-2 md:mb-3">
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-3 h-3" />
                               <span>{formatDate(order.date)}</span>
