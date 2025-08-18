@@ -50,7 +50,7 @@ export default function Login({ onCreateAccount }) {
       <div
         className="absolute inset-0 bg-gradient-to-br from-rose-900 via-pink-800 to-rose-800"
         style={{
-          backgroundImage: `url("https://readdy.ai/api/search-image?query=Elegant%20leather%20crafting%20workshop%20with%20artisan%20tools%20and%20premium%20leather%20materials%2C%20warm%20ambient%20lighting%20creating%20sophisticated%20atmosphere%2C%20hands%20working%20on%20luxury%20handbag%20with%20traditional%20techniques%2C%20rich%20brown%20and%20golden%20tones%20with%20soft%20shadows&width=1200&height=800&seq=newsletter-craft&orientation=landscape")`,
+          backgroundImage: `url("/assests/auth_bg.jpg")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundBlendMode: 'overlay'
