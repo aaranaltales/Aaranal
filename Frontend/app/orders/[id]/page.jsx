@@ -52,18 +52,25 @@ const OrderDetailsPage = () => {
     if (id && token) fetchOrderDetails();
   }, [id, token]);
 
-  useEffect(() => {
-    if (order && allProducts.length > 0) {
-      const alreadyEnriched = order.items.every((item) => item._id);
-      if (!alreadyEnriched) {
-        const enrichedItems = order.items.map((item) => {
-          const product = allProducts.find((p) => p._id === item.productId);
-          return product ? { ...product, quantity: item.quantity } : item;
-        });
-        setOrder((prevOrder) => ({ ...prevOrder, items: enrichedItems }));
-      }
+ useEffect(() => {
+  if (order && allProducts.length > 0) {
+    const alreadyEnriched = order.items.every((item) => item.image); // check for enrichment
+    if (!alreadyEnriched) {
+      const enrichedItems = order.items.map((item) => {
+        const product = allProducts.find((p) => p._id === item.productId);
+        return product ? { ...product, quantity: item.quantity } : item;
+      });
+
+      // ✅ only update if different
+      setOrder((prev) => {
+        if (JSON.stringify(prev.items) === JSON.stringify(enrichedItems)) {
+          return prev;
+        }
+        return { ...prev, items: enrichedItems };
+      });
     }
-  }, [order, allProducts]);
+  }
+}, [order, allProducts]);
 
   useEffect(() => {
     if (!order) return;
@@ -417,8 +424,8 @@ const OrderDetailsPage = () => {
                 </div>
                 <div className="text-gray-600 font-light text-sm md:text-base leading-relaxed">
                   <p>{order.shippingAddress?.name || "N/A"}</p>
-                  <p>{order.shippingAddress?.house || "N/A"}, {order.shippingAddress?.city || "N/A"}</p>
-                  <p>{order.shippingAddress?.state || "N/A"} {order.shippingAddress?.pincode || "N/A"}</p>
+                  <p>{order.shippingAddress?.house || order.shippingAddress?.street || "N/A"}, {order.shippingAddress?.city || "N/A"}</p>
+                  <p>{order.shippingAddress?.state || "N/A"} {order.shippingAddress?.pincode || order.shippingAddress?.zipcode || "N/A"}</p>
                   <p>Phone: {order.shippingAddress?.phone || "N/A"}</p>
                 </div>
               </div>

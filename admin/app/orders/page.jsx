@@ -1,6 +1,6 @@
-'use client';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+"use client";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,7 +13,7 @@ export default function OrdersPage() {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/list`,
         {},
-        { headers: { token } }
+        { headers: { token} }
       );
       if (res.data.success) {
         setOrders(res.data.orders.reverse());
@@ -21,7 +21,7 @@ export default function OrdersPage() {
         toast.error(res.data.message);
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
@@ -31,12 +31,12 @@ export default function OrdersPage() {
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/status`,
         { orderId, status: newStatus },
-        { headers: { token } }
+        { headers: { token} }
       );
       toast.success('Status Updated');
       fetchOrders();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
@@ -112,11 +112,15 @@ export default function OrdersPage() {
                 )}
               </div>
 
-              {/* Address & Order Info */}
+              {/* Address & Order Info - Updated to include name */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium text-gray-800">Shipping Address</h3>
                   <div className="bg-gray-50 p-4 rounded-lg">
+                    {/* Added name display */}
+                    {order.address?.name && (
+                      <p className="text-sm font-medium text-gray-800 mb-1">{order.address.name}</p>
+                    )}
                     <p className="text-sm text-gray-700">{order.address.street}</p>
                     <p className="text-sm text-gray-700">
                       {order.address.city}, {order.address.state} - {order.address.zipcode}
@@ -130,6 +134,12 @@ export default function OrdersPage() {
                   <h3 className="text-sm font-medium text-gray-800">Order Details</h3>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex justify-between text-sm text-gray-700">
+                      <span>Customer:</span>
+                      <span className="font-medium">
+                        {order.address?.name || (order.isCustomized ? order.items[0]?.name : 'N/A')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-700 mt-2">
                       <span>Items:</span>
                       <span className="font-medium">{order.items.length}</span>
                     </div>
@@ -183,4 +193,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-

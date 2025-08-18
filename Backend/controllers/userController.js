@@ -85,33 +85,6 @@ const registerUser = async (req, res) => {
     }
 }
 
-export const resetPassword = async (req, res) => {
-    try {
-        const { email, newPassword } = req.body;
-
-        if (!email || !newPassword) {
-            return res.json({ success: false, message: "Email and new password are required" });
-        }
-
-        const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.json({ success: false, message: "User not found" });
-        }
-
-        // Hash new password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        user.password = hashedPassword;
-        await user.save();
-
-        res.json({ success: true, message: "Password reset successful" });
-    } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: error.message });
-    }
-};
-
 // Route for admin login
 const adminLogin = async (req, res) => {
     try {

@@ -1,59 +1,98 @@
 'use client';
-
 import { useUser } from '@/context/UserContext';
 import axios from 'axios';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function ContactForm() {
+  const { user, token } = useUser();
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     type_of_bag: '',
     design_description: '',
     interest: 'custom'
   });
+
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { token } = useUser();
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Update form data when user changes
+  useState(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone
+      }));
+    }
+  }, [user]);
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
   };
 
-  // In ContactForm.jsx
   const handleSubmit = async (e) => {
-    console.log("clled in frontend")
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    setIsUploading(true);
 
     try {
-      const userId = localStorage.getItem('userId') || 'guest'; // Replace with actual logic
-      const res = await axios.post(
+      const submissionData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        type_of_bag: formData.type_of_bag,
+        design_description: formData.design_description,
+        interest: formData.interest,
+      };
+
+      // Add user ID if available
+      if (user?._id) {
+        submissionData.userId = user._id;
+      }
+
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/submit`,
-        { ...formData, },
+        submissionData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         }
       );
-      console.log(res)
-      if (res.data.success) {
+
+      if (response.data.success) {
         setIsSubmitted(true);
-        setFormData({ name: '', email: '', phone: '', type_of_bag: '', design_description: '', interest: 'custom' });
+        // Reset form
+        setFormData({
+          name: user?.name || '',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          type_of_bag: '',
+          design_description: '',
+          interest: 'custom'
+        });
+
         setTimeout(() => setIsSubmitted(false), 5000);
       }
     } catch (err) {
-      console.log(err)
-      alert("Error submitting form!");
+      toast.error(err.response?.data?.message ||
+                 err.message ||
+                 "An error occurred while submitting your request");
+    } finally {
+      setIsUploading(false);
     }
   };
 
-
   const interests = [
-
     { value: 'custom', label: 'Custom Design' },
     { value: 'bulk', label: 'Bulk Order' },
   ];
@@ -75,7 +114,6 @@ export default function ContactForm() {
                 are ready to assist you with personalized attention and expert guidance.
               </p>
             </div>
-
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center">
@@ -86,17 +124,6 @@ export default function ContactForm() {
                   <p className="text-gray-600 font-light">Within 24 hours</p>
                 </div>
               </div>
-
-              {/* <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center">
-                  <i className="ri-phone-line w-6 h-6 flex items-center justify-center text-rose-600"></i>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Direct Line</h3>
-                  <p className="text-gray-600 font-light">+34 93 123 4567</p>
-                </div>
-              </div> */}
-
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-2xl flex items-center justify-center">
                   <i className="ri-mail-line w-6 h-6 flex items-center justify-center text-rose-600"></i>
@@ -107,7 +134,6 @@ export default function ContactForm() {
                 </div>
               </div>
             </div>
-
             <div className="bg-gradient-to-br from-rose-50 to-pink-50 p-8 rounded-3xl border border-rose-100">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Custom Design Service</h3>
               <p className="text-gray-600 font-light leading-relaxed mb-6">
@@ -158,7 +184,6 @@ export default function ContactForm() {
                     />
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
@@ -189,7 +214,6 @@ export default function ContactForm() {
                     </div>
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Type of Bag</label>
                   <input
@@ -200,7 +224,6 @@ export default function ContactForm() {
                     className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Design Description *</label>
                   <textarea
@@ -217,13 +240,22 @@ export default function ContactForm() {
                     {formData.design_description.length}/500 characters
                   </div>
                 </div>
-
                 <button
                   type="submit"
-                  onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-2xl hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
+                  disabled={isUploading}
+                  className={`w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-2xl hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg ${
+                    isUploading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
                 >
-                  Send Message
+                  {isUploading ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : 'Send Message'}
                 </button>
               </form>
             )}
