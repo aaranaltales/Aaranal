@@ -24,6 +24,7 @@ import {
 export default function ProfilePage() {
   const {
     user,
+    handleProfileUpdate,
     handleAddAddress,
     handleNewAddressChange,
     handleSubmitNewAddress,
@@ -115,6 +116,7 @@ export default function ProfilePage() {
 
   const handleSaveProfile = () => {
     setIsEditingProfile(false);
+    handleProfileUpdate(profileData.name, profileData.email)
   };
 
   const handleCancelProfileEdit = () => {

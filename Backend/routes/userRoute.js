@@ -4,6 +4,7 @@ import {
     registerUser,
     adminLogin,
     userDetails,
+    updateUser,
     addAddress,
     updateAddress,
     deleteAddress,
@@ -21,10 +22,11 @@ const router = express.Router()
 router.post("/register", registerUser)
 router.post("/login", loginUser)
 router.post("/admin", adminLogin)
-router.post("/resetpassword", resetPassword )
+router.post("/resetpassword", resetPassword)
 
 // Protected routes for user details, addresses, and payment methods
 router.get("/details", protect, userDetails)
+router.put('/update', protect, updateUser)
 
 router.post("/address", protect, addAddress)
 router.put("/address", protect, updateAddress)

@@ -86,6 +86,33 @@ export default function useUserProfile() {
     setEditPaymentId(null);
   };
 
+  const handleProfileUpdate = async (name, email) => {
+    try {
+      const response = await axios.put(
+        `${dbUri}/api/user/update`,
+        {
+          name,
+          email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          name: response.data.user.name,
+          eamil: response.data.user.email,
+        }));
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+
   const handleChangePayment = (id, field, value) => {
     setUser((prevUser) => ({
       ...prevUser,
@@ -310,52 +337,51 @@ export default function useUserProfile() {
   };
 
   const handleSubmitNewAddress = async () => {
-  if (!newAddress.house || !newAddress.city || !newAddress.pincode) {
-    toast.error("Please fill in required fields (House, City, Pincode)");
-    return;
-  }
-
-  try {
-    const addressToSubmit = {
-      ...newAddress,
-      type: newAddress.type || "Home",
-    };
-
-    const token = localStorage.getItem("token");
-    const response = await axios.post(
-      `${dbUri}/api/user/address`,
-      addressToSubmit,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (response.data.success) {
-      toast.success(response.data.message);
-      setUser((prevUser) => ({
-        ...prevUser,
-        addresses: response.data.addresses,
-      }));
+    if (!newAddress.house || !newAddress.city || !newAddress.pincode) {
+      toast.error("Please fill in required fields (House, City, Pincode)");
+      return;
     }
-    setShowAddAddressForm(false);
-    setNewAddress({
-      type: "Home",
-      name: "",
-      number: "",
-      pincode: "",
-      house: "",
-      area: "",
-      city: "",
-      state: "",
-      landmark: "",
-    });
-  } catch (error) {
-    toast.error(error.response?.data?.message || error.message);
-  }
-};
 
+    try {
+      const addressToSubmit = {
+        ...newAddress,
+        type: newAddress.type || "Home",
+      };
+
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${dbUri}/api/user/address`,
+        addressToSubmit,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setUser((prevUser) => ({
+          ...prevUser,
+          addresses: response.data.addresses,
+        }));
+      }
+      setShowAddAddressForm(false);
+      setNewAddress({
+        type: "Home",
+        name: "",
+        number: "",
+        pincode: "",
+        house: "",
+        area: "",
+        city: "",
+        state: "",
+        landmark: "",
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
 
   return {
     activeSection,
@@ -382,6 +408,7 @@ export default function useUserProfile() {
     handleEdit,
     handleSave,
     handleChange,
+    handleProfileUpdate,
     handleEditPayment,
     handleSavePayment,
     handleChangePayment,

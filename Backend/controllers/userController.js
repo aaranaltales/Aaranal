@@ -102,6 +102,24 @@ const adminLogin = async (req, res) => {
     }
 }
 
+const updateUser = async (req, res) => {
+    try {
+        const { _id } = req.user
+        const { name, email } = req.body;
+        const user = await userModel.findById(_id)
+        if (!user) {
+            return res.json({ success: false, message: "User not found" })
+        }
+        user.name = name;
+        user.email = email;
+        user = await user.save();
+        res.json({ success: true, message: "User updated successfully", user })
+    } catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
 // Address Management
 const addAddress = async (req, res) => {
     try {
@@ -342,6 +360,7 @@ export {
     loginUser,
     registerUser,
     adminLogin,
+    updateUser,
     userDetails,
     addAddress,
     updateAddress,
