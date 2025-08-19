@@ -1,12 +1,13 @@
 'use client';
+
 import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import CollectionsFilter from './CollectionsFilter';
 import CollectionsGrid from './CollectionsGrid';
 import CollectionsHero from './CollectionsHero';
 
-export default function CollectionsPage() {
+function CollectionsContent() {
   const searchParams = useSearchParams();
   const [heroVisible, setHeroVisible] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,5 +78,13 @@ export default function CollectionsPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function CollectionsPage() {
+  return (
+    <Suspense fallback={<div>Loading collections...</div>}>
+      <CollectionsContent />
+    </Suspense>
   );
 }

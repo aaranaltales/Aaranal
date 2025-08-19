@@ -1,5 +1,6 @@
 'use client';
-import { useState } from "react";
+
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Login from "./Login";
 import Signup from "./Signup";
@@ -28,23 +29,25 @@ export default function AuthPage() {
 
         {/* Login Form */}
         <div
-          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
-            showLogin ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-          }`}
+          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${showLogin ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
         >
           <div className="h-full w-full flex items-center justify-center">
-            <Login onCreateAccount={() => setShowLogin(false)} />
+            <Suspense fallback={<div>Loading login...</div>}>
+              <Login onCreateAccount={() => setShowLogin(false)} />
+            </Suspense>
           </div>
         </div>
 
         {/* Signup Form */}
         <div
-          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
-            !showLogin ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-          }`}
+          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${!showLogin ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
         >
           <div className="h-full w-full flex items-center justify-center">
-            <Signup onAlreadyHaveAccount={() => setShowLogin(true)} />
+            <Suspense fallback={<div>Loading signup...</div>}>
+              <Signup onAlreadyHaveAccount={() => setShowLogin(true)} />
+            </Suspense>
           </div>
         </div>
       </div>
