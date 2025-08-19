@@ -16,7 +16,7 @@ export default function AddressSelector({ show, addresses, formData, onClose, on
                         <div
                             key={address._id}
                             className={`p-4 border rounded-xl cursor-pointer hover:border-rose-300 transition-colors ${
-                                formData.name === address.name && formData.phone === address.number
+                                formData.name === address.name && formData.number === address.number
                                     ? 'border-rose-500 bg-rose-50'
                                     : 'border-gray-200'
                             }`}

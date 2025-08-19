@@ -123,15 +123,12 @@ export default function CheckoutForm({ assets }) {
         }
       }
 
-
-
-
       const orderData = {
         address: formData,
         items: orderItems,
         amount: subtotal + shipping,
       };
-      console.log(orderData)
+      // console.log(orderData)
       if (method === 'cod') {
         const res = await axios.post(
           `${backendUrl}/api/order/place`,

@@ -51,8 +51,8 @@ export default function ShippingStep({
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
                     <input
                         type="tel"
-                        name="phone"
-                        value={formData.phone}
+                        name="number"
+                        value={formData.number}
                         onChange={handleChange}
                         className="w-full px-4 py-3 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300"
                         required
