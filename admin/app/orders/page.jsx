@@ -1,6 +1,6 @@
-'use client';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+"use client";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,16 +13,15 @@ export default function OrdersPage() {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/list`,
         {},
-        { headers: { token } }
+        { headers: { token} }
       );
-
       if (res.data.success) {
         setOrders(res.data.orders.reverse());
       } else {
         toast.error(res.data.message);
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
@@ -32,12 +31,12 @@ export default function OrdersPage() {
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/status`,
         { orderId, status: newStatus },
-        { headers: { token } }
+        { headers: { token} }
       );
       toast.success('Status Updated');
       fetchOrders();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
@@ -46,10 +45,9 @@ export default function OrdersPage() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto p-6">
       <ToastContainer />
       <h1 className="text-3xl font-light mb-8">Orders</h1>
-
       {orders.length === 0 ? (
         <p className="text-gray-400 text-center py-10">No orders yet.</p>
       ) : (
@@ -59,66 +57,134 @@ export default function OrdersPage() {
               key={order._id}
               className="border border-gray-200 rounded-2xl p-6 shadow-sm bg-white"
             >
-              {/* Items */}
-              <div className="mb-4">
-                <h2 className="text-lg font-medium text-gray-800 mb-2">Items:</h2>
-                <ul className="text-gray-600 text-sm space-y-1">
-                  {order.items.map((item, index) => (
-                    <li key={index}>
-                      {item.name} × {item.quantity} <span className="text-xs text-gray-500">({item.size})</span>
-                    </li>
-                  ))}
-                </ul>
+              {/* Order ID and Header */}
+              <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100">
+                <h2 className="text-xl font-medium text-gray-800">
+                  Order #{order._id.substring(0, 8)}...
+                </h2>
+                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                  order.status === 'Delivered'
+                    ? 'bg-green-100 text-green-800'
+                    : order.status === 'Shipped'
+                    ? 'bg-blue-100 text-blue-800'
+                    : order.status === 'Out for delivery'
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {order.status}
+                </span>
               </div>
 
-              {/* Address & Customer Info */}
-              <div className="grid md:grid-cols-2 gap-6 mb-4">
-                <div className="space-y-2 text-sm text-gray-700">
+              {/* Items Section */}
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-800 mb-3">Items:</h3>
+                {order.isCustomized ? (
+                  <div className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                    {order.customImage ? (
+                      <img
+                        src={order.customImage}
+                        alt="Custom design"
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-500 text-xs">No Image</span>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-800">{order.items[0].name}</h4>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {order.designDescription || "Custom design as per specifications"}
+                      </p>
+                      <p className="text-sm font-medium text-gray-800 mt-2">₹{order.customPrice}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <ul className="text-gray-600 text-sm space-y-2">
+                    {order.items.map((item, index) => (
+                      <li key={index} className="p-3 bg-gray-50 rounded-lg">
+                        {item.name} × {item.quantity}
+                        {item.size && <span className="text-xs text-gray-500 ml-2">({item.size})</span>}
+                        <span className="font-medium text-gray-800 float-right">₹{item.price}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Address & Order Info - Updated to include name */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-3">
                   <h3 className="text-sm font-medium text-gray-800">Shipping Address</h3>
-                  <p>{order.address.street}</p>
-                  <p>
-                    {order.address.city}, {order.address.state}, {order.address.country} -{' '}
-                    {order.address.zipcode}
-                  </p>
-                  <p>📞 {order.address.phone}</p>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    {/* Added name display */}
+                    {order.address?.name && (
+                      <p className="text-sm font-medium text-gray-800 mb-1">{order.address.name}</p>
+                    )}
+                    <p className="text-sm text-gray-700">{order.address.street}</p>
+                    <p className="text-sm text-gray-700">
+                      {order.address.city}, {order.address.state} - {order.address.zipcode}
+                    </p>
+                    <p className="text-sm text-gray-700">{order.address.country}</p>
+                    <p className="text-sm text-gray-700 mt-2">📞 {order.address.phone}</p>
+                  </div>
                 </div>
 
-                <div className="text-sm text-gray-700 space-y-1">
-                  <p>
-                    <span className="font-medium">Items:</span> {order.items.length}
-                  </p>
-                  <p>
-                    <span className="font-medium">Payment:</span>{' '}
-                    {order.payment ? 'Done' : 'Pending'}
-                  </p>
-                  <p>
-                    <span className="font-medium">Method:</span> {order.payMethod}
-                  </p>
-                  <p>
-                    <span className="font-medium">Date:</span>{' '}
-                    {new Date(order.date).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Amount:</span>{' '}
-                    <span className="text-gray-900 font-semibold">${order.amount}</span>
-                  </p>
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-gray-800">Order Details</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex justify-between text-sm text-gray-700">
+                      <span>Customer:</span>
+                      <span className="font-medium">
+                        {order.address?.name || (order.isCustomized ? order.items[0]?.name : 'N/A')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-700 mt-2">
+                      <span>Items:</span>
+                      <span className="font-medium">{order.items.length}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-700 mt-2">
+                      <span>Payment:</span>
+                      <span className={`font-medium ${
+                        order.payment ? 'text-green-600' : 'text-yellow-600'
+                      }`}>
+                        {order.payment ? 'Done' : 'Pending'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-700 mt-2">
+                      <span>Method:</span>
+                      <span className="font-medium">{order.paymentMethod}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-700 mt-2">
+                      <span>Date:</span>
+                      <span className="font-medium">
+                        {new Date(order.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-700 mt-2">
+                      <span>Amount:</span>
+                      <span className="font-semibold text-gray-900">₹{order.amount}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Status Dropdown */}
-              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mt-4">
-                <label className="text-sm font-medium text-gray-700">Update Status:</label>
-                <select
-                  value={order.status}
-                  onChange={(e) => updateStatus(order._id, e.target.value)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 text-sm text-gray-800 focus:ring-2 focus:ring-rose-400"
-                >
-                  <option value="Order Placed">Order Placed</option>
-                  <option value="Packing">Packing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Out for delivery">Out for delivery</option>
-                  <option value="Delivered">Delivered</option>
-                </select>
+              {/* Status Update */}
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <label className="text-sm font-medium text-gray-700">Update Status:</label>
+                  <select
+                    value={order.status}
+                    onChange={(e) => updateStatus(order._id, e.target.value)}
+                    className="px-4 py-2 rounded-xl border border-gray-300 text-sm text-gray-800 focus:ring-2 focus:ring-rose-400"
+                  >
+                    <option value="Order Placed">Order Placed</option>
+                    <option value="Packing">Packing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Out for delivery">Out for delivery</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                </div>
               </div>
             </div>
           ))}

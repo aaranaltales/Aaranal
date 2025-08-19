@@ -1,20 +1,39 @@
-// controllers/customizationController.js
 import customizationModel from '../models/customizationModel.js';
 import orderModel from '../models/orderModel.js';
+import { v2 as cloudinary } from 'cloudinary';
 
 // Submit customization request
 export const submitCustomization = async (req, res) => {
-    const { user } = req
     try {
-        const { name, email, phone, type_of_bag, design_description, interest } = req.body;
+        const { name, email, phone, type_of_bag, design_description, interest, userId } = req.body;
+
+        // Handle reference image upload if provided
+        let referenceImageUrl = null;
+        if (req.files && req.files.referenceImage) {
+            const result = await cloudinary.uploader.upload(req.files.referenceImage[0].path, {
+                folder: 'customization-references',
+                resource_type: 'image'
+            });
+            referenceImageUrl = result.secure_url;
+        }
+
         const newCustomization = new customizationModel({
-            userId: user._id, name, email, phone, type_of_bag, design_description, interest
+            userId,
+            name,
+            email,
+            phone,
+            type_of_bag,
+            design_description,
+            interest,
+            referenceImage: referenceImageUrl,
+            status: 'Pending'
         });
+
         await newCustomization.save();
-        console.log("called")
         res.json({ success: true, message: "Customization request submitted!" });
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        console.error("Error in submitCustomization:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -24,7 +43,8 @@ export const getAllCustomizations = async (req, res) => {
         const customizations = await customizationModel.find({}).sort({ date: -1 });
         res.json({ success: true, customizations });
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        console.error("Error in getAllCustomizations:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -35,34 +55,61 @@ export const updateCustomizationStatus = async (req, res) => {
         await customizationModel.findByIdAndUpdate(id, { status });
         res.json({ success: true, message: "Status updated!" });
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        console.error("Error in updateCustomizationStatus:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
 // Convert customization to order
-// controllers/customizationController.js
 export const convertToOrder = async (req, res) => {
     try {
-        const { customizationId, userId, address, amount, paymentMethod } = req.body;
+        const { customizationId, userId, address, paymentMethod, customPrice } = req.body;
+
+        // Parse address from JSON string
+        const addressObj = typeof address === 'string' ? JSON.parse(address) : address;
+
+        // Handle custom design image upload
+        let customImageUrl = null;
+        if (req.files && req.files.customImage) {
+            const result = await cloudinary.uploader.upload(req.files.customImage[0].path, {
+                folder: 'custom-tote-designs',
+                resource_type: 'image'
+            });
+            customImageUrl = result.secure_url;
+        }
+
         const customization = await customizationModel.findById(customizationId);
-        if (!customization) throw new Error("Customization not found");
+        if (!customization) {
+            return res.status(404).json({ success: false, message: "Customization not found" });
+        }
 
         const orderData = {
-            userId,
-            items: [{ name: customization.type_of_bag || "Custom Tote Bag", price: amount, quantity: 1 }],
-            amount,
-            address,
+            userId: userId || customization.userId,
+            items: [{ name: customization.type_of_bag || "Custom Tote Bag", price: customPrice, quantity: 1 }],
+            amount: customPrice,
+            address: addressObj,  // Now includes name
             status: "Order Placed",
             paymentMethod,
             payment: paymentMethod === "COD" ? false : true,
-            date: Date.now()
+            date: Date.now(),
+            isCustomized: true,
+            customImage: customImageUrl,
+            customPrice: parseFloat(customPrice),
+            designDescription: customization.design_description
         };
+
         const newOrder = new orderModel(orderData);
         await newOrder.save();
-        await customizationModel.findByIdAndUpdate(customizationId, { status: "Converted to Order" });
+
+        // Update customization status
+        await customizationModel.findByIdAndUpdate(customizationId, {
+            status: "Converted to Order",
+            orderId: newOrder._id
+        });
 
         res.json({ success: true, message: "Order placed!", orderId: newOrder._id });
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        console.error("Error in convertToOrder:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };

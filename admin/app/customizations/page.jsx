@@ -1,14 +1,16 @@
 "use client"
 // admin/CustomizationsPage.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation';
 
 export default function CustomizationsPage() {
   const [customizations, setCustomizations] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [formData, setFormData] = useState({
+    name: '',  // Added name field
     street: '',
     city: '',
     state: '',
@@ -16,54 +18,150 @@ export default function CustomizationsPage() {
     zipcode: '',
     phone: '',
     paymentMethod: 'COD',
+    customImage: null,
+    customPrice: '',
   });
+  const fileInputRef = useRef(null);
+  const router = useRouter();
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/admin/login');
+    }
+  }, [router]);
 
   // Fetch all customizations
   const fetchCustomizations = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/admin/login');
+        return;
+      }
+
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/list`,
-        { headers: { token } }
+  { headers: { token } }
       );
+
       if (res.data.success) {
         setCustomizations(res.data.customizations);
       } else {
         toast.error(res.data.message);
+        if (res.data.message === 'Not authorized' || res.data.message === 'Invalid token') {
+          localStorage.removeItem('token');
+          router.push('/admin/login');
+        }
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        router.push('/admin/login');
+      }
     }
   };
 
   // Handle form input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+
+    if (name === 'customImage' && files && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, [name]: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // Reset form data when expanding a new customization
+  const handleExpand = (customizationId) => {
+    if (expandedId === customizationId) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(customizationId);
+      // Reset form when opening a new customization
+      // Pre-fill name from customization if available
+      const customization = customizations.find(c => c._id === customizationId);
+      setFormData({
+        name: customization?.name || '',  // Pre-fill with customer's name
+        street: '',
+        city: '',
+        state: '',
+        country: '',
+        zipcode: '',
+        phone: customization?.phone || '',
+        paymentMethod: 'COD',
+        customImage: null,
+        customPrice: '',
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   // Place order
   const handlePlaceOrder = async (customization) => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/admin/login');
+        return;
+      }
+      const submissionData = new FormData();
+      submissionData.append('customizationId', customization._id);
+      submissionData.append('userId', customization.userId);
+
+      // Append address fields with name
+      submissionData.append('address', JSON.stringify({
+        name: formData.name || customization.name,  // Use form name or fallback to customization name
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        zipcode: formData.zipcode,
+        phone: formData.phone || customization.phone,
+      }));
+
+      submissionData.append('paymentMethod', formData.paymentMethod);
+      submissionData.append('customPrice', formData.customPrice);
+
+      // Append the image file if it exists
+      if (fileInputRef.current?.files[0]) {
+        submissionData.append('customImage', fileInputRef.current.files[0]);
+      }
+
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
-        {
-          customizationId: customization._id,
-          userId: customization.userId,
-          address: formData,
-          amount: 1000, // Replace with your logic
-          paymentMethod: formData.paymentMethod,
-        },
-        { headers: { token } }
+         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
+  submissionData,
+  {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      token
+    }
+  }
       );
+
       if (res.data.success) {
         toast.success('Order placed successfully!');
         setExpandedId(null);
         fetchCustomizations();
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
+      toast.error(err.response?.data?.message || err.message || 'Failed to place order');
+      console.error('Error placing order:', err);
+
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        router.push('/admin/login');
+      }
     }
   };
 
@@ -95,10 +193,11 @@ export default function CustomizationsPage() {
               </div>
               {customization.status !== 'Converted to Order' && (
                 <button
-                  onClick={() => setExpandedId(expandedId === customization._id ? null : customization._id)}
+                  type="button"
+                  onClick={() => handleExpand(customization._id)}
                   className="px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-500 text-white rounded-xl hover:from-rose-700 hover:to-pink-600 transition-all"
                 >
-                  Place Order
+                  {expandedId === customization._id ? 'Cancel' : 'Place Order'}
                 </button>
               )}
               {expandedId === customization._id && (
@@ -106,8 +205,21 @@ export default function CustomizationsPage() {
                   <h3 className="text-lg font-medium text-gray-800 mb-4">Order Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Street</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Recipient Name *</label>
                       <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                        required
+                        placeholder={customization.name}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Street *</label>
+                     <input
                         type="text"
                         name="street"
                         value={formData.street}
@@ -117,7 +229,7 @@ export default function CustomizationsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
                       <input
                         type="text"
                         name="city"
@@ -128,7 +240,7 @@ export default function CustomizationsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">State *</label>
                       <input
                         type="text"
                         name="state"
@@ -139,7 +251,7 @@ export default function CustomizationsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Country *</label>
                       <input
                         type="text"
                         name="country"
@@ -150,7 +262,7 @@ export default function CustomizationsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Zipcode</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
                       <input
                         type="text"
                         name="zipcode"
@@ -171,6 +283,17 @@ export default function CustomizationsPage() {
                         required
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+                      <input
+                        type="number"
+                        name="customPrice"
+                        value={formData.customPrice}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                        required
+                      />
+                    </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
                       <select
@@ -184,6 +307,26 @@ export default function CustomizationsPage() {
                         <option value="Razorpay">Razorpay</option>
                       </select>
                     </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+                      <input
+                        type="file"
+                        name="customImage"
+                        ref={fileInputRef}
+                        onChange={handleInputChange}
+                        accept="image/*"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                      />
+                      {formData.customImage && (
+                        <div className="mt-2">
+                          <img
+                            src={formData.customImage}
+                            alt="Preview"
+                            className="w-32 h-32 object-cover rounded-lg"
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="mt-6 flex justify-end gap-3">
                     <button
@@ -194,6 +337,7 @@ export default function CustomizationsPage() {
                       Cancel
                     </button>
                     <button
+                      type="button"
                       onClick={() => handlePlaceOrder(customization)}
                       className="px-6 py-2 bg-gradient-to-r from-rose-600 to-pink-500 text-white rounded-xl hover:from-rose-700 hover:to-pink-600 transition-all"
                     >
