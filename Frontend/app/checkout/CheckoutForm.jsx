@@ -211,7 +211,7 @@ export default function CheckoutForm({ assets }) {
               </div>
 
               {/* COD */}
-              <div
+              {/* <div
                 onClick={() => setMethod('cod')}
                 className={`flex items-center gap-3 border p-2 px-3 cursor-pointer rounded-md transition ${method === 'cod' ? 'border-green-400 bg-green-50' : 'border-gray-300'
                   }`}
@@ -221,7 +221,7 @@ export default function CheckoutForm({ assets }) {
                     }`}
                 ></p>
                 <p className="text-gray-700 text-sm font-medium mx-4">CASH ON DELIVERY</p>
-              </div>
+              </div> */}
             </div>
           </div>
         )}

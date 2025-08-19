@@ -41,10 +41,10 @@ export const signup = async ({ name, email, password }) => {
     }
 };
 
-export const sendOtp = async ({ email }) => {
+export const sendOtp = async ({ email, method = "signup" }) => {
     try {
         const response = await axios.post(`${dbUri}/api/otp`, {
-            email,
+            email, method
         });
         return response.data;
     } catch (error) {
