@@ -106,7 +106,7 @@ const updateUser = async (req, res) => {
     try {
         const { _id } = req.user
         const { name, email } = req.body;
-        const user = await userModel.findById(_id)
+        let user = await userModel.findById(_id)
         if (!user) {
             return res.json({ success: false, message: "User not found" })
         }
@@ -149,7 +149,7 @@ const updateAddress = async (req, res) => {
         const { _id } = req.user
         const { addressId, address } = req.body
         const { type, name, number, pincode, house, area, city, state, landmark, latitude, longitude } = address;
-        const user = await userModel.findById(_id)
+        let user = await userModel.findById(_id)
         if (!user) {
             return res.json({ success: false, message: "User not found" })
         }
@@ -161,7 +161,6 @@ const updateAddress = async (req, res) => {
 
         addressToUpdate.set({ type, name, number, pincode, house, area, city, state, landmark, latitude, longitude })
         user = await user.save()
-
         res.json({ success: true, message: "Address updated successfully", addresses: user.addresses })
     } catch (error) {
         console.log(error)

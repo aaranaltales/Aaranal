@@ -191,6 +191,7 @@ export default function useUserProfile() {
       }
       handleSaveAddress();
     } catch (error) {
+      console.log(error)
       toast.error(error.message);
     }
   }
@@ -348,7 +349,6 @@ export default function useUserProfile() {
         type: newAddress.type || "Home",
       };
 
-      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${dbUri}/api/user/address`,
         addressToSubmit,

@@ -36,11 +36,11 @@ export default function ProfilePage() {
     newAddress,
     showAddAddressForm,
     setShowAddAddressForm,
+    editAddressId
   } = useUserProfile();
   const router = useRouter();
   const [addresses, setAddresses] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
-  const [editingAddress, setEditingAddress] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -94,15 +94,8 @@ export default function ProfilePage() {
   }, [user?.addresses]);
 
   const handleEditAddressLocal = (address) => {
-    setEditingAddress({ ...address });
+    handleEditAddress(address._id)
     setIsAddingNew(false);
-  };
-
-  const handleSaveAddressLocal = () => {
-    if (editingAddress) {
-      handleSubmitEditAddress(editingAddress);
-      setEditingAddress(null);
-    }
   };
 
   const handleCancelEdit = () => {
@@ -411,10 +404,10 @@ export default function ProfilePage() {
                       key={address._id}
                       className="group border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:bg-rose-50 transition-all cursor-pointer"
                     >
-                      {editingAddress && editingAddress._id === address._id ? (
+                      {editAddressId === address._id ? (
                         <div className="space-y-2 md:space-y-3">
                           <select
-                            value={editingAddress.type}
+                            value={address.type}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -431,7 +424,7 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             placeholder="Full Name"
-                            value={editingAddress.name}
+                            value={address.name}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -444,7 +437,7 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             placeholder="Mobile Number"
-                            value={editingAddress.number}
+                            value={address.number}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -457,7 +450,7 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             placeholder="Pincode"
-                            value={editingAddress.pincode}
+                            value={address.pincode}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -470,7 +463,7 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             placeholder="House No./Building Name"
-                            value={editingAddress.house}
+                            value={address.house}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -483,7 +476,7 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             placeholder="Area/Street"
-                            value={editingAddress.area}
+                            value={address.area}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -497,7 +490,7 @@ export default function ProfilePage() {
                             <input
                               type="text"
                               placeholder="City"
-                              value={editingAddress.city}
+                              value={address.city}
                               onChange={(e) =>
                                 handleChangeAddress(
                                   address._id,
@@ -510,7 +503,7 @@ export default function ProfilePage() {
                             <input
                               type="text"
                               placeholder="State"
-                              value={editingAddress.state}
+                              value={address.state}
                               onChange={(e) =>
                                 handleChangeAddress(
                                   address._id,
@@ -524,7 +517,7 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             placeholder="Landmark (Optional)"
-                            value={editingAddress.landmark}
+                            value={address.landmark}
                             onChange={(e) =>
                               handleChangeAddress(
                                 address._id,
@@ -542,7 +535,7 @@ export default function ProfilePage() {
                               Cancel
                             </button>
                             <button
-                              onClick={handleSaveAddressLocal}
+                              onClick={() => handleSubmitEditAddress(address)}
                               className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all text-xs md:text-sm"
                             >
                               Save
