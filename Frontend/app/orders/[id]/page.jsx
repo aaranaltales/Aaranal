@@ -16,6 +16,7 @@ const OrderDetailsPage = () => {
   const { id } = params;
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
@@ -28,6 +29,7 @@ const OrderDetailsPage = () => {
     const fetchProducts = async () => {
       const products = await getProductsData();
       setAllProducts(products);
+      setProductsLoading(false);
     };
     fetchProducts();
   }, []);
@@ -52,25 +54,25 @@ const OrderDetailsPage = () => {
     if (id && token) fetchOrderDetails();
   }, [id, token]);
 
- useEffect(() => {
-  if (order && allProducts.length > 0) {
-    const alreadyEnriched = order.items.every((item) => item.image); // check for enrichment
-    if (!alreadyEnriched) {
-      const enrichedItems = order.items.map((item) => {
-        const product = allProducts.find((p) => p._id === item.productId);
-        return product ? { ...product, quantity: item.quantity } : item;
-      });
+  useEffect(() => {
+    if (order && allProducts.length > 0) {
+      const alreadyEnriched = order.items.every((item) => item.image); // check for enrichment
+      if (!alreadyEnriched) {
+        const enrichedItems = order.items.map((item) => {
+          const product = allProducts.find((p) => p._id === item.productId);
+          return product ? { ...product, quantity: item.quantity } : item;
+        });
 
-      // ✅ only update if different
-      setOrder((prev) => {
-        if (JSON.stringify(prev.items) === JSON.stringify(enrichedItems)) {
-          return prev;
-        }
-        return { ...prev, items: enrichedItems };
-      });
+        // ✅ only update if different
+        setOrder((prev) => {
+          if (JSON.stringify(prev.items) === JSON.stringify(enrichedItems)) {
+            return prev;
+          }
+          return { ...prev, items: enrichedItems };
+        });
+      }
     }
-  }
-}, [order, allProducts]);
+  }, [order, allProducts]);
 
   useEffect(() => {
     if (!order) return;
@@ -171,7 +173,7 @@ const OrderDetailsPage = () => {
     </div>
   );
 
-  if (loading) {
+  if (loading || productsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -248,93 +250,103 @@ const OrderDetailsPage = () => {
           {/* Left Column - Order Items */}
           <div className="space-y-8 md:space-y-12">
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
-  <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-6">
-    Your Handcrafted
-    <span className="block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
-      Pieces
-    </span>
-  </h2>
-  <div className="space-y-4 md:space-y-6">
-    {order.isCustomized ? (
-      // Customized Order
-      <div className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300">
-        <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
-          <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
-            {order.customImage ? (
-              <img
-                src={order.customImage}
-                alt={order.items[0].name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                <ShoppingBag className="w-8 h-8 text-gray-400" />
-              </div>
-            )}
-          </div>
-          <div className="w-full md:flex-1 space-y-2">
-            <div className="flex items-center space-x-2">
-              <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-xs font-medium rounded-full">
-                Custom Tote Bag
-              </span>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
-              {order.items[0].name}
-            </h3>
-            <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
-              <span>Qty: 1</span>
-            </div>
-            <p className="text-sm text-gray-600 font-light mt-1">
-              {order.designDescription || "Custom design as per your specifications"}
-            </p>
-          </div>
-          <div className="w-full md:w-auto text-right md:mt-0">
-            <div className="flex items-center space-x-3 justify-end">
-              <span className="text-xl font-light text-gray-900">
-                ₹{order.customPrice}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    ) : (
-      // Non-Customized Order
-      order.items.map((item, index) => (
-        <div key={index} className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300">
-          <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
-            <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="w-full md:flex-1 space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-xs font-medium rounded-full">
-                  {item.category || "Tote Bags"}
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-6">
+                Your Handcrafted
+                <span className="block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
+                  Pieces
                 </span>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
-                {item.name}
-              </h3>
-              <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
-                <span>Qty: {item.quantity}</span>
+              </h2>
+              <div className="space-y-4 md:space-y-6">
+                {order.isCustomized ? (
+                  // Customized Order
+                  <div className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300">
+                    <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
+                      <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
+                        {order.customImage ? (
+                          <img
+                            src={order.customImage}
+                            alt={order.items[0].name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                            <ShoppingBag className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="w-full md:flex-1 space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-xs font-medium rounded-full">
+                            Custom Tote Bag
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
+                          {order.items[0].name}
+                        </h3>
+                        <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
+                          <span>Qty: 1</span>
+                        </div>
+                        <p className="text-sm text-gray-600 font-light mt-1">
+                          {order.designDescription || "Custom design as per your specifications"}
+                        </p>
+                      </div>
+                      <div className="w-full md:w-auto text-right md:mt-0">
+                        <div className="flex items-center space-x-3 justify-end">
+                          <span className="text-xl font-light text-gray-900">
+                            ₹{order.customPrice}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // Non-Customized Order
+                  order.items.map((item, index) => (
+                    <div key={index} className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300">
+                      <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
+                        <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
+                          {console.log(item)}
+
+
+
+                          {item.image ? (
+                            <img
+                              src={item.image[0]}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                              <ShoppingBag className="w-8 h-8 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="w-full md:flex-1 space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-xs font-medium rounded-full">
+                              {item.category || "Tote Bags"}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
+                            {item.name}
+                          </h3>
+                          <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
+                            <span>Qty: {item.quantity}</span>
+                          </div>
+                        </div>
+                        <div className="w-full md:w-auto text-right md:mt-0">
+                          <div className="flex items-center space-x-3 justify-end">
+                            <span className="text-xl font-light text-gray-900">
+                              ₹{item.price}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
-            <div className="w-full md:w-auto text-right md:mt-0">
-              <div className="flex items-center space-x-3 justify-end">
-                <span className="text-xl font-light text-gray-900">
-                  ₹{item.price}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))
-    )}
-  </div>
-</div>
 
 
             {/* Order Summary */}

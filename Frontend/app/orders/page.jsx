@@ -56,7 +56,7 @@ const OrdersPage = () => {
 
         if (response.data.success) {
           let fetchedOrders = response.data.orders;
-
+          fetchedOrders = fetchedOrders.filter((order) => order.payment === true);
           // 2. Enrich orders (only if products available)
           if (allProducts.length > 0) {
             fetchedOrders = fetchedOrders.map((order) => {
@@ -299,91 +299,91 @@ const OrdersPage = () => {
                     </div>
 
                     {/* Order Items Preview */}
-<div className="flex items-center space-x-3 overflow-x-auto pb-2">
-  {order.isCustomized ? (
-    // Customized Order Preview
-    <div className="flex-shrink-0 flex items-center space-x-3">
-      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-        {order.customImage ? (
-          <img
-            src={order.customImage}
-            alt="Custom design"
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6 text-gray-400" />
-          </div>
-        )}
-      </div>
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">
-          {order.items[0]?.name || "Custom Tote Bag"}
-        </p>
-        <p className="text-xs text-gray-500 font-light">
-          ₹{order.customPrice}
-        </p>
-      </div>
-    </div>
-  ) : (
-    // Non-Customized Orders Preview
-    <>
-      {order.items.slice(0, 3).map((item, index) => {
-        // Check if item has product data
-        if (item.product) {
-          return (
-            <div key={index} className="flex-shrink-0 flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-                {item.product.image && item.product.image[0] ? (
-                  <img
-                    src={item.product.image[0]}
-                    alt={item.product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                    <ShoppingBag className="w-6 h-6 text-gray-400" />
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {item.product.name || item.name}
-                </p>
-                <p className="text-xs text-gray-500 font-light">
-                  ₹{item.product.price || item.price}
-                </p>
-              </div>
-            </div>
-          );
-        }
-        // Fallback for items without product data
-        return (
-          <div key={index} className="flex-shrink-0 flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-gray-400" />
-              </div>
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {item.name}
-              </p>
-              <p className="text-xs text-gray-500 font-light">
-                ₹{item.price}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-      {order.items.length > 3 && (
-        <div className="flex-shrink-0 text-sm text-gray-500 font-light">
-          +{order.items.length - 3} more
-        </div>
-      )}
-    </>
-  )}
-</div>
+                    <div className="flex items-center space-x-3 overflow-x-auto pb-2">
+                      {order.isCustomized ? (
+                        // Customized Order Preview
+                        <div className="flex-shrink-0 flex items-center space-x-3">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                            {order.customImage ? (
+                              <img
+                                src={order.customImage}
+                                alt="Custom design"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                <ShoppingBag className="w-6 h-6 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {order.items[0]?.name || "Custom Tote Bag"}
+                            </p>
+                            <p className="text-xs text-gray-500 font-light">
+                              ₹{order.customPrice}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        // Non-Customized Orders Preview
+                        <>
+                          {order.items.slice(0, 3).map((item, index) => {
+                            // Check if item has product data
+                            if (item.product) {
+                              return (
+                                <div key={index} className="flex-shrink-0 flex items-center space-x-3">
+                                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                                    {item.product.image && item.product.image[0] ? (
+                                      <img
+                                        src={item.product.image[0]}
+                                        alt={item.product.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                        <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                      {item.product.name || item.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500 font-light">
+                                      ₹{item.product.price || item.price}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            // Fallback for items without product data
+                            return (
+                              <div key={index} className="flex-shrink-0 flex items-center space-x-3">
+                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                    <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                  </div>
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {item.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500 font-light">
+                                    ₹{item.price}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {order.items.length > 3 && (
+                            <div className="flex-shrink-0 text-sm text-gray-500 font-light">
+                              +{order.items.length - 3} more
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {/* Action Buttons */}

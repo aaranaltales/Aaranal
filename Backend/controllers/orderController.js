@@ -2,6 +2,9 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from 'stripe'
 import razorpay from 'razorpay'
+import mailer from './mailController.js';
+
+const { sendOrderConfirmation } = mailer;
 
 // global variables
 const currency = 'inr'
@@ -180,6 +183,19 @@ const verifyRazorpay = async (req, res) => {
         if (orderInfo.status === 'paid') {
             await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true });
             await userModel.findByIdAndUpdate(userId, { cartData: {} })
+            const order = await orderModel.findById(orderInfo.receipt)
+            const itemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+            const orderSummary = {
+                orderId: order._id,
+                itemsCount,
+                totalCost: order.amount,
+                address: order.address
+            };
+            const user = await userModel.findById(userId);
+
+            console.log(orderSummary)
+
+            await sendOrderConfirmation(user.email, orderSummary)
             res.json({ success: true, message: "Payment Successful" })
         } else {
             res.json({ success: false, message: 'Payment Failed' });

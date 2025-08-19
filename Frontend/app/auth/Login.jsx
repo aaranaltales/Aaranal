@@ -67,7 +67,7 @@ export default function Login({ onCreateAccount }) {
     }
     try {
       setFpIsLoading(true);
-      const response = await sendOtp({ email: fpForm.email });
+      const response = await sendOtp({ email: fpForm.email, method: "forgot" });
       if (response.success) {
         setFpStep(2);
         setCountdown(30);
@@ -106,7 +106,7 @@ export default function Login({ onCreateAccount }) {
     setFpError('');
     try {
       setFpIsLoading(true);
-      const response = await sendOtp({ email: fpForm.email });
+      const response = await sendOtp({ email: fpForm.email, method: "forgot" });
       if (response.success) {
         setCountdown(30);
       } else {
@@ -129,33 +129,33 @@ export default function Login({ onCreateAccount }) {
   }, [countdown]);
 
   const handleResetPassword = async () => {
-  setFpError('');
-  if (!fpForm.newPassword || !fpForm.confirmPassword) {
-    setFpError('Please enter and confirm your new password');
-    return;
-  }
-  if (fpForm.newPassword !== fpForm.confirmPassword) {
-    setFpError('Passwords do not match');
-    return;
-  }
-  try {
-    setFpIsLoading(true);
-    const response = await resetPassword({
-      email: fpForm.email,
-      otp: fpForm.otp,
-      newPassword: fpForm.newPassword,
-    });
-    if (response.success) {
-      setFpStep(4); // Move to success step
-    } else {
-      setFpError(response.message || 'Failed to reset password. Please try again.');
+    setFpError('');
+    if (!fpForm.newPassword || !fpForm.confirmPassword) {
+      setFpError('Please enter and confirm your new password');
+      return;
     }
-  } catch (err) {
-    setFpError(err.message || 'Password reset failed. Please try again.');
-  } finally {
-    setFpIsLoading(false);
-  }
-};
+    if (fpForm.newPassword !== fpForm.confirmPassword) {
+      setFpError('Passwords do not match');
+      return;
+    }
+    try {
+      setFpIsLoading(true);
+      const response = await resetPassword({
+        email: fpForm.email,
+        otp: fpForm.otp,
+        newPassword: fpForm.newPassword,
+      });
+      if (response.success) {
+        setFpStep(4); // Move to success step
+      } else {
+        setFpError(response.message || 'Failed to reset password. Please try again.');
+      }
+    } catch (err) {
+      setFpError(err.message || 'Password reset failed. Please try again.');
+    } finally {
+      setFpIsLoading(false);
+    }
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden w-full">
@@ -214,9 +214,8 @@ export default function Login({ onCreateAccount }) {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-4 ${
-                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
+                  className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-4 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                 >
                   {isLoading ? 'Logging in...' : 'Login'}
                 </button>
@@ -245,154 +244,150 @@ export default function Login({ onCreateAccount }) {
               </div>
             </>
           ) : (
-  <>
-    <span className="inline-block px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-full tracking-wide mb-3">
-      {fpStep === 1 ? 'Forgot Password' : fpStep === 2 ? 'Verify OTP' : 'Set New Password'}
-    </span>
-    <h2 className="text-3xl sm:text-4xl font-light text-white mb-3">
-      {fpStep === 1 ? 'Reset Password' : fpStep === 2 ? 'Enter OTP' : 'New Password'}
-    </h2>
-    <p className="text-base sm:text-lg text-rose-100 mb-6 font-light leading-relaxed">
-      {fpStep === 1
-        ? 'Enter your email to receive an OTP'
-        : fpStep === 2
-        ? 'Enter the OTP sent to your email'
-        : 'Set your new password'}
-    </p>
+            <>
+              <span className="inline-block px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-full tracking-wide mb-3">
+                {fpStep === 1 ? 'Forgot Password' : fpStep === 2 ? 'Verify OTP' : 'Set New Password'}
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-light text-white mb-3">
+                {fpStep === 1 ? 'Reset Password' : fpStep === 2 ? 'Enter OTP' : 'New Password'}
+              </h2>
+              <p className="text-base sm:text-lg text-rose-100 mb-6 font-light leading-relaxed">
+                {fpStep === 1
+                  ? 'Enter your email to receive an OTP'
+                  : fpStep === 2
+                    ? 'Enter the OTP sent to your email'
+                    : 'Set your new password'}
+              </p>
 
-    {/* Step 1: Email Input */}
-    {fpStep === 1 && (
-      <div className="max-w-xs mx-auto space-y-4">
-        {fpError && (
-          <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">{fpError}</div>
-        )}
-        <input
-          type="email"
-          name="email"
-          value={fpForm.email}
-          onChange={handleFpChange}
-          placeholder="Email address"
-          className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
-          required
-        />
-        <button
-          type="button"
-          onClick={handleSendOtp}
-          disabled={fpIsLoading}
-          className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300 ${
-            fpIsLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          {fpIsLoading ? 'Sending OTP...' : 'Send OTP'}
-        </button>
-      </div>
-    )}
+              {/* Step 1: Email Input */}
+              {fpStep === 1 && (
+                <div className="max-w-xs mx-auto space-y-4">
+                  {fpError && (
+                    <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">{fpError}</div>
+                  )}
+                  <input
+                    type="email"
+                    name="email"
+                    value={fpForm.email}
+                    onChange={handleFpChange}
+                    placeholder="Email address"
+                    className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={fpIsLoading}
+                    className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300 ${fpIsLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                  >
+                    {fpIsLoading ? 'Sending OTP...' : 'Send OTP'}
+                  </button>
+                </div>
+              )}
 
-    {/* Step 2: OTP Input */}
-    {fpStep === 2 && (
-      <div className="max-w-xs mx-auto space-y-4">
-        {fpError && (
-          <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">{fpError}</div>
-        )}
-        <div className="relative">
-          <input
-            type="text"
-            name="otp"
-            value={fpForm.otp}
-            onChange={handleFpChange}
-            placeholder="Enter OTP"
-            className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300 pr-24"
-            required
-          />
-          <button
-            type="button"
-            onClick={countdown > 0 ? undefined : handleResendOtp}
-            disabled={countdown > 0}
-            className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs ${
-              countdown > 0 ? 'bg-white/10 text-white/50 cursor-not-allowed' : 'bg-white/10 text-white hover:bg-white/15'
-            }`}
-          >
-            {countdown > 0 ? `${countdown}s` : 'Resend'}
-          </button>
-        </div>
-        <button
-          type="button"
-          onClick={() => setFpStep(1)}
-          className="text-rose-200 hover:text-white transition underline text-sm w-full text-left"
-        >
-          Change Email
-        </button>
-        <button
-          type="button"
-          onClick={handleVerifyOtp}
-          disabled={fpIsLoading}
-          className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300 ${
-            fpIsLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          {fpIsLoading ? 'Verifying...' : 'Verify OTP'}
-        </button>
-      </div>
-    )}
+              {/* Step 2: OTP Input */}
+              {fpStep === 2 && (
+                <div className="max-w-xs mx-auto space-y-4">
+                  {fpError && (
+                    <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">{fpError}</div>
+                  )}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="otp"
+                      value={fpForm.otp}
+                      onChange={handleFpChange}
+                      placeholder="Enter OTP"
+                      className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300 pr-24"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={countdown > 0 ? undefined : handleResendOtp}
+                      disabled={countdown > 0}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs ${countdown > 0 ? 'bg-white/10 text-white/50 cursor-not-allowed' : 'bg-white/10 text-white hover:bg-white/15'
+                        }`}
+                    >
+                      {countdown > 0 ? `${countdown}s` : 'Resend'}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFpStep(1)}
+                    className="text-rose-200 hover:text-white transition underline text-sm w-full text-left"
+                  >
+                    Change Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerifyOtp}
+                    disabled={fpIsLoading}
+                    className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300 ${fpIsLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                  >
+                    {fpIsLoading ? 'Verifying...' : 'Verify OTP'}
+                  </button>
+                </div>
+              )}
 
-    {/* Step 3: New Password Input */}
-    {fpStep === 3 && (
-      <div className="max-w-xs mx-auto space-y-4">
-        {fpError && (
-          <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">{fpError}</div>
-        )}
-        <input
-          type="password"
-          name="newPassword"
-          value={fpForm.newPassword}
-          onChange={handleFpChange}
-          placeholder="New Password"
-          className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
-          required
-        />
-        <input
-          type="password"
-          name="confirmPassword"
-          value={fpForm.confirmPassword}
-          onChange={handleFpChange}
-          placeholder="Confirm New Password"
-          className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
-          required
-        />
-        <button
-          type="button"
-          onClick={handleResetPassword}
-          disabled={fpIsLoading}
-          className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300 ${
-            fpIsLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          {fpIsLoading ? 'Resetting...' : 'Reset Password'}
-        </button>
-      </div>
-    )}
+              {/* Step 3: New Password Input */}
+              {fpStep === 3 && (
+                <div className="max-w-xs mx-auto space-y-4">
+                  {fpError && (
+                    <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">{fpError}</div>
+                  )}
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={fpForm.newPassword}
+                    onChange={handleFpChange}
+                    placeholder="New Password"
+                    className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
+                    required
+                  />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={fpForm.confirmPassword}
+                    onChange={handleFpChange}
+                    placeholder="Confirm New Password"
+                    className="w-full px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-rose-200 focus:ring-2 focus:ring-rose-300 focus:outline-none focus:bg-white/30 transition-all duration-300"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    disabled={fpIsLoading}
+                    className={`w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300 ${fpIsLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                  >
+                    {fpIsLoading ? 'Resetting...' : 'Reset Password'}
+                  </button>
+                </div>
+              )}
 
-    {/* Step 4: Success */}
-    {fpStep === 4 && (
-      <div className="max-w-xs mx-auto space-y-4">
-        <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">
-          Password reset successfully!
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setShowForgotPassword(false);
-            setFpStep(1);
-            setFpForm({ email: '', otp: '', newPassword: '', confirmPassword: '' });
-          }}
-          className="w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300"
-        >
-          Back to Login
-        </button>
-      </div>
-    )}
-  </>
-)}
+              {/* Step 4: Success */}
+              {fpStep === 4 && (
+                <div className="max-w-xs mx-auto space-y-4">
+                  <div className="bg-rose-900/50 text-white px-4 py-3 rounded-lg text-sm">
+                    Password reset successfully!
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setFpStep(1);
+                      setFpForm({ email: '', otp: '', newPassword: '', confirmPassword: '' });
+                    }}
+                    className="w-full bg-white text-rose-700 px-8 py-3 rounded-full hover:bg-rose-50 transition-all duration-300"
+                  >
+                    Back to Login
+                  </button>
+                </div>
+              )}
+            </>
+          )}
 
         </div>
       </div>

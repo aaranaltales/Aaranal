@@ -9,14 +9,13 @@ otpRouter.get('/', (req, res) => {
 })
 
 otpRouter.post('/', (req, res) => {
-    const { email } = req.body;
+    const { email, method } = req.body;
     console.log(req.body)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 min
 
     otpStore[email] = { otp, expiresAt };
-
-    mailController.sendOtpEmail(email, otp)
+    mailController.sendOtpEmail(email, otp, method)
         .then(() => res.json({ success: true }))
         .catch(err => res.status(500).json({ success: false, error: err.message }));
 });
