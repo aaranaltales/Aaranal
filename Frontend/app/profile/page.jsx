@@ -635,7 +635,7 @@ export default function ProfilePage() {
                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
                           <img
                             src={
-                              order.items[0]?.image ||
+                              order.image ||
                               "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80"
                             }
                             alt={order.items[0]?.name}

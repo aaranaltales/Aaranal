@@ -127,7 +127,6 @@ export const CheckoutProvider = ({ children }) => {
                     state: formData.state,
                 });
             }
-            console.log("Form submitted");
         }
     };
 

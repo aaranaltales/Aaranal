@@ -13,8 +13,8 @@ const deliveryCharge = 10
 
 // gateway initialize
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-console.log(process.env.RAZORPAY_KEY_ID)
-console.log(process.env.RAZORPAY_KEY_SECRET)
+// console.log(process.env.RAZORPAY_KEY_ID)
+// console.log(process.env.RAZORPAY_KEY_SECRET)
 
 const razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -23,7 +23,6 @@ const razorpayInstance = new razorpay({
 
 // Placing orders using COD Method
 const placeOrder = async (req, res) => {
-    console.log("Place")
     try {
         const { items, amount, address } = req.body.orderData;
         const { user } = req
@@ -140,7 +139,6 @@ const placeOrderRazorpay = async (req, res) => {
         let highestItem = null;
         items.forEach((cartItem) => {
             const product = products.find(p => p._id.toString() === cartItem.productId)
-            console.log(product)
             if (product) {
                 const totalForThisItem = product.price * cartItem.quantity;
                 if (!highestItem || totalForThisItem > highestItem.total) {
@@ -174,7 +172,6 @@ const placeOrderRazorpay = async (req, res) => {
 
         razorpayInstance.orders.create(options, (error, order) => {
             if (error) {
-                console.log("failed here");
                 console.log(error);
                 return res.json({ success: false, message: error });
             }
@@ -193,8 +190,8 @@ const verifyRazorpay = async (req, res) => {
 
         const { razorpay_order_id } = req.body.response
         const userId = req.user._id
-        console.log(userId)
-        console.log(razorpay_order_id)
+        // console.log(userId)
+        // console.log(razorpay_order_id)
         const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
         if (orderInfo.status === 'paid') {
             await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true });
@@ -209,7 +206,7 @@ const verifyRazorpay = async (req, res) => {
             };
             const user = await userModel.findById(userId);
 
-            console.log(orderSummary)
+            // console.log(orderSummary)
 
             await sendOrderConfirmation(user.email, orderSummary)
             res.json({ success: true, message: "Payment Successful" })

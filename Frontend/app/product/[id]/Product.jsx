@@ -35,7 +35,7 @@ export default function DynamicProductPage() {
   const similarProducts = productsData.filter(
     p => p.category === product.category && p._id !== product._id
   );
-  console.log(product)
+  // console.log(product)
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[1] || product?.sizes?.[0] || 'Medium');
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || 'Default');

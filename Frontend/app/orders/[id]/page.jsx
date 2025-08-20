@@ -305,10 +305,6 @@ const OrderDetailsPage = () => {
                     <div key={index} className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300">
                       <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
                         <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
-                          {console.log(item)}
-
-
-
                           {item.image ? (
                             <img
                               src={item.image[0]}
