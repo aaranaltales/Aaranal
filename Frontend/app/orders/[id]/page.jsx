@@ -264,7 +264,7 @@ const OrderDetailsPage = () => {
                       <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
                         {order.customImage ? (
                           <img
-                            src={order.customImage}
+                            src={order.image}
                             alt={order.items[0].name}
                             className="w-full h-full object-cover"
                           />

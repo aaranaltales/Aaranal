@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import productModel from '../models/productModel.js'
 import Stripe from 'stripe'
 import razorpay from 'razorpay'
 import mailer from './mailController.js';
@@ -22,9 +23,8 @@ const razorpayInstance = new razorpay({
 
 // Placing orders using COD Method
 const placeOrder = async (req, res) => {
-
+    console.log("Place")
     try {
-
         const { items, amount, address } = req.body.orderData;
         const { user } = req
         const orderData = {
@@ -36,26 +36,19 @@ const placeOrder = async (req, res) => {
             payment: false,
             date: Date.now()
         }
-
         const newOrder = new orderModel(orderData)
         await newOrder.save()
-
         await userModel.findByIdAndUpdate(user._id, { cartData: {} })
-
         res.json({ success: true, message: "Order Placed" })
-
-
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
     }
-
 }
 
 // Placing orders using Stripe Method
 const placeOrderStripe = async (req, res) => {
     try {
-
         const { userId, items, amount, address } = req.body
         const { origin } = req.headers;
 
@@ -134,9 +127,30 @@ const verifyStripe = async (req, res) => {
 // Placing orders using Razorpay Method
 const placeOrderRazorpay = async (req, res) => {
     try {
-
         const { items, amount, address } = req.body.orderData;
-        const { user } = req
+        const { user } = req;
+
+        // 1. Fetch product details
+        // assuming you have a Product model
+        const products = await productModel.find({
+            _id: { $in: items.map((i) => i.productId) }
+        });
+
+        // 2. Calculate total per item and track the max
+        let highestItem = null;
+        items.forEach((cartItem) => {
+            const product = products.find(p => p._id.toString() === cartItem.productId)
+            console.log(product)
+            if (product) {
+                const totalForThisItem = product.price * cartItem.quantity;
+                if (!highestItem || totalForThisItem > highestItem.total) {
+                    highestItem = {
+                        image: product.image[0],
+                        total: totalForThisItem
+                    };
+                }
+            }
+        });
 
         const orderData = {
             userId: user._id,
@@ -145,32 +159,34 @@ const placeOrderRazorpay = async (req, res) => {
             amount,
             paymentMethod: "Razorpay",
             payment: false,
-            date: Date.now()
-        }
+            date: Date.now(),
+            image: highestItem?.image || null
+        };
 
-        const newOrder = new orderModel(orderData)
-        await newOrder.save()
+        const newOrder = new orderModel(orderData);
+        await newOrder.save();
 
         const options = {
             amount: amount * 100,
             currency: currency.toUpperCase(),
             receipt: newOrder._id.toString()
-        }
+        };
 
-        await razorpayInstance.orders.create(options, (error, order) => {
+        razorpayInstance.orders.create(options, (error, order) => {
             if (error) {
-                console.log("failed here")
-                console.log(error)
-                return res.json({ success: false, message: error })
+                console.log("failed here");
+                console.log(error);
+                return res.json({ success: false, message: error });
             }
-            res.json({ success: true, order })
-        })
+            res.json({ success: true, order });
+        });
 
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-}
+};
+
 
 const verifyRazorpay = async (req, res) => {
     try {

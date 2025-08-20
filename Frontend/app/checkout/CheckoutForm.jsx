@@ -143,6 +143,7 @@ export default function CheckoutForm({ assets }) {
           setCartItems({});
           router.push('/orders');
         } else {
+          console.log(res.data.message)
           toast.error(res.data.message || 'Failed to place COD order.');
         }
       }

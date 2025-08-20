@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema({
     isCustomized: { type: Boolean, default: false },
     customImage: { type: String },
     customPrice: { type: Number },
+    image: { type: String },
 });
 
 const orderModel = mongoose.models.order || mongoose.model('order', orderSchema);
