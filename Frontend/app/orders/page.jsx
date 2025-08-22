@@ -252,7 +252,7 @@ const OrdersPage = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                       <div className="flex items-center space-x-3 mb-2 sm:mb-0">
                         <h3 className="text-lg font-medium text-gray-900">
-                          {order._id}
+                          {"ORD-" + order._id.toString().slice(-6)}
                         </h3>
                         <div
                           className={`flex items-center space-x-1.5 px-3 py-1 border rounded-full text-xs font-medium ${getStatusColor(

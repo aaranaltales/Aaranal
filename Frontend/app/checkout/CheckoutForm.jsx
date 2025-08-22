@@ -24,12 +24,13 @@ export default function CheckoutForm({ assets }) {
     subtotal,
     shipping,
     products,
+    handleSubmit,
   } = useCheckoutContext();
 
   const { token, getUserCart, } = useUser();
 
   const router = useRouter();
-  const [method, setMethod] = useState('cod');
+  const [method, setMethod] = useState('razorpay');
   const [isRzpLoaded, setIsRzpLoaded] = useState(false);
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   // ✅ Load Razorpay SDK once
@@ -109,9 +110,9 @@ export default function CheckoutForm({ assets }) {
   // ✅ Handle placing order depending on payment method
   const handlePayment = async () => {
     try {
+      handleSubmit();
       // build order items
       const cartItems = await getUserCart();
-      console.log(cartItems)
       const orderItems = [];
       for (const productId in cartItems) {
         const qty = cartItems[productId];

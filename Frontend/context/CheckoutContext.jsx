@@ -110,8 +110,7 @@ export const CheckoutProvider = ({ children }) => {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = () => {
         if (currentStep < 2) {
             setCurrentStep(currentStep + 1);
         } else {
@@ -134,9 +133,8 @@ export const CheckoutProvider = ({ children }) => {
         return cartData?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
     }, [cartData]);
 
-    const shipping = formData.shippingMethod === "express" ? 45 : 25;
-    const tax = Math.round(subtotal * 0.21);
-    const total = subtotal + shipping + tax;
+    const shipping = formData.shippingMethod === "express" ? 45 : 0;
+    const total = subtotal + shipping;
 
     const value = {
         user,
@@ -151,7 +149,6 @@ export const CheckoutProvider = ({ children }) => {
         setCurrentStep,
         subtotal,
         shipping,
-        tax,
         total,
         paymentData,
         setPaymentData,

@@ -2,12 +2,109 @@ import validator from "validator"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import userModel from "../models/userModel.js"
+import { OAuth2Client } from 'google-auth-library'
+
+// Initialize Google OAuth client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: "3d", // or '1h', '30m', etc.
     })
 }
+
+// Google Sign In/Up
+const googleAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
+        console.log('Received Google token:', token ? 'Yes' : 'No');
+
+        if (!token) {
+            return res.json({ success: false, message: "Google token is required" });
+        }
+
+        // Verify the Google token with more lenient timing
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+            // Add clock tolerance for timing issues
+            clockSkew: 300 // 5 minutes tolerance
+        });
+
+        const payload = ticket.getPayload();
+        console.log('Google payload:', {
+            email: payload.email,
+            name: payload.name,
+            googleId: payload.sub
+        });
+
+        const { sub: googleId, email, name, picture } = payload;
+
+        if (!email) {
+            return res.json({ success: false, message: "Email not provided by Google" });
+        }
+
+        // Check if user exists by email OR googleId
+        let user = await userModel.findOne({
+            $or: [{ email }, { googleId }]
+        });
+
+        if (user) {
+            // Update existing user
+            if (!user.googleId) {
+                user.googleId = googleId;
+                user.avatar = picture;
+                user.isGoogleUser = true;
+                await user.save();
+            }
+            console.log('Existing user signed in:', user.email);
+        } else {
+            // Create new user
+            user = new userModel({
+                name: name || email.split('@')[0],
+                email,
+                googleId,
+                avatar: picture,
+                isGoogleUser: true,
+                // Don't set a password for Google users
+                password: undefined
+            });
+            await user.save();
+            console.log('New user created:', user.email);
+        }
+
+        const jwtToken = createToken(user._id);
+        console.log('JWT token created successfully');
+
+        res.json({ 
+            success: true, 
+            token: jwtToken,
+            message: "Google authentication successful"
+        });
+
+    } catch (error) {
+        console.error('Google auth error:', error);
+        
+        if (error.message && error.message.includes('Token used too early')) {
+            return res.json({ 
+                success: false, 
+                message: "Authentication timing error. Please try again." 
+            });
+        }
+        
+        if (error.message && error.message.includes('audience')) {
+            return res.json({ 
+                success: false, 
+                message: "Invalid Google client configuration" 
+            });
+        }
+        
+        res.json({ 
+            success: false, 
+            message: "Google authentication failed: " + error.message 
+        });
+    }
+};
 
 // Get user details (including addresses and payment methods)
 const userDetails = async (req, res) => {
@@ -32,6 +129,11 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: "User doesn't exist" })
         }
 
+        // Check if user is a Google user trying to login with password
+        if (user.isGoogleUser && !user.password) {
+            return res.json({ success: false, message: "Please use Google Sign-In for this account" })
+        }
+
         const isMatch = await bcrypt.compare(password, user.password)
 
         if (isMatch) {
@@ -49,7 +151,8 @@ const loginUser = async (req, res) => {
 // Route for user register
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body
+        const { name, email, password, otp } = req.body
+        
         // checking user already exists or not
         const exists = await userModel.findOne({ email })
         if (exists) {
@@ -60,8 +163,8 @@ const registerUser = async (req, res) => {
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Please enter a valid email" })
         }
-        if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+        if (password.length < 6) {
+            return res.json({ success: false, message: "Password must be at least 6 characters long" })
         }
 
         // hashing user password
@@ -72,6 +175,7 @@ const registerUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            isGoogleUser: false
         })
 
         const user = await newUser.save()
@@ -105,14 +209,30 @@ const adminLogin = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const { _id } = req.user
-        const { name, email } = req.body;
+        const { name, email, avatar } = req.body
+        
         let user = await userModel.findById(_id)
         if (!user) {
             return res.json({ success: false, message: "User not found" })
         }
-        user.name = name;
-        user.email = email;
-        user = await user.save();
+        
+        // Update user fields
+        user.name = name
+        if (avatar !== undefined) {
+            user.avatar = avatar
+        }
+        
+        // Note: Email update might require additional validation in production
+        if (email && email !== user.email) {
+            // Check if new email already exists
+            const existingUser = await userModel.findOne({ email, _id: { $ne: _id } })
+            if (existingUser) {
+                return res.json({ success: false, message: "Email already exists" })
+            }
+            user.email = email
+        }
+        
+        user = await user.save()
         res.json({ success: true, message: "User updated successfully", user })
     } catch (error) {
         console.log(error)
@@ -148,7 +268,8 @@ const updateAddress = async (req, res) => {
     try {
         const { _id } = req.user
         const { addressId, address } = req.body
-        const { type, name, number, pincode, house, area, city, state, landmark, latitude, longitude } = address;
+        const { type, name, number, pincode, house, area, city, state, landmark, latitude, longitude } = address
+        
         let user = await userModel.findById(_id)
         if (!user) {
             return res.json({ success: false, message: "User not found" })
@@ -262,7 +383,7 @@ const updatePaymentMethod = async (req, res) => {
             return res.json({ success: false, message: "Payment method not found" })
         }
 
-        paymentToUpdate.set({ type, cardNumber, holderNamecardHolder, expiry })
+        paymentToUpdate.set({ type, cardNumber, holderName, expiry })
         await user.save()
 
         res.json({ success: true, message: "Payment method updated successfully", paymentMethods: user.paymentMethods })
@@ -340,6 +461,11 @@ const resetPassword = async (req, res) => {
             return res.json({ success: false, message: "User not found" });
         }
 
+        // Check if it's a Google user
+        if (user.isGoogleUser && !user.password) {
+            return res.json({ success: false, message: "Cannot reset password for Google users. Please use Google Sign-In." });
+        }
+
         // Hash new password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
@@ -355,6 +481,7 @@ const resetPassword = async (req, res) => {
 };
 
 export {
+    googleAuth,
     resetPassword,
     loginUser,
     registerUser,
