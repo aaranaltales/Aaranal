@@ -221,7 +221,64 @@ const sendSupportReply = async (to, message) => {
     });
 };
 
+const sendOrderDelivered = async (to, orderId) => {
+    // Email HTML with placeholders replaced
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8" />
+      <title>Aaranal - Order Delivered</title>
+    </head>
+    <body style="margin:0; font-family:Arial, sans-serif; background:#fafafa; color:#333;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td align="center" style="padding:30px;">
+            <h1 style="color:#d6336c; margin:0;">Aaranal</h1>
+
+            <!-- Card -->
+            <table width="100%" cellpadding="0" cellspacing="0" 
+              style="max-width:600px; background:linear-gradient(to right,#fff0f6,#fff5f7); border-radius:20px; padding:40px; margin-top:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+              <tr>
+                <td align="center">
+                  <h2 style="color:#d6336c; font-weight:normal;">Your Order Has Been Delivered ✅</h2>
+                  <p style="font-size:16px; color:#555;">
+                    We hope you love your handcrafted piece! 
+                    Your order <strong>#${orderId}</strong> has been successfully delivered.
+                  </p>
+
+                  <p style="font-size:15px; color:#444; margin-top:20px;">
+                    Don’t forget to check out our 
+                    <a href="https://aaranaltales.shop/careguide" style="color:#d6336c; text-decoration:none;">
+                      Care Guide
+                    </a> 
+                    to keep your bag beautiful for years.
+                  </p>
+
+                  
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin-top:30px; color:#999; font-size:13px;">Made with ❤ by Aaranal</p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+    `;
+
+    return sendMail({
+        to,
+        subject: `Order Delivered – Order #${orderId}`,
+        html,
+        fromAlias: 'no-reply@aaranaltales.shop',
+    });
+};
+
+
 export default {
+    sendOrderDelivered,
     sendOtpEmail,
     sendOrderConfirmation,
     sendOrderStatus,
