@@ -5,7 +5,6 @@ import axios from "axios";
 import { getProductsData } from "@/services/products";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
-
 import {
   ArrowLeft,
   Package,
@@ -35,8 +34,7 @@ const OrderDetailsPage = () => {
   const router = useRouter();
   const { id } = params;
   const [order, setOrder] = useState(null);
-  const { loading, setLoading } = useLoading()
-  const [productsLoading, setProductsLoading] = useState(true);
+  const { setLoading } = useLoading();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
@@ -44,20 +42,26 @@ const OrderDetailsPage = () => {
   const { token } = useUser();
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [allProducts, setAllProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
-      const products = await getProductsData(setLoading);
-      setAllProducts(products);
-      setProductsLoading(false);
+      try {
+        const products = await getProductsData(setLoading);
+        setAllProducts(products);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
     };
     fetchProducts();
-  }, []);
+  }, [setLoading]);
 
+  // Fetch order details
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        setLoading(true)
+        setIsLoading(true);
         const response = await axios.post(
           `${dbUri}/api/order/orderdetails`,
           { orderId: id },
@@ -72,22 +76,23 @@ const OrderDetailsPage = () => {
           error.response?.data?.message || error.message
         );
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-    if (id && token) fetchOrderDetails();
+    if (id && token) {
+      fetchOrderDetails();
+    }
   }, [id, token]);
 
+  // Enrich order items with product data
   useEffect(() => {
     if (order && allProducts.length > 0) {
-      const alreadyEnriched = order.items.every((item) => item.image); // check for enrichment
+      const alreadyEnriched = order.items.every((item) => item.image);
       if (!alreadyEnriched) {
         const enrichedItems = order.items.map((item) => {
           const product = allProducts.find((p) => p._id === item.productId);
           return product ? { ...product, quantity: item.quantity } : item;
         });
-
-        // ✅ only update if different
         setOrder((prev) => {
           if (JSON.stringify(prev.items) === JSON.stringify(enrichedItems)) {
             return prev;
@@ -98,6 +103,7 @@ const OrderDetailsPage = () => {
     }
   }, [order, allProducts]);
 
+  // Active step animation
   useEffect(() => {
     if (!order) return;
     const statusToIndex = {
@@ -117,6 +123,7 @@ const OrderDetailsPage = () => {
     return () => clearInterval(interval);
   }, [order]);
 
+  // Update step UI
   useEffect(() => {
     if (activeStep > 0 && stepsRef.current.length > 0) {
       stepsRef.current.forEach((step, index) => {
@@ -127,6 +134,40 @@ const OrderDetailsPage = () => {
       });
     }
   }, [activeStep]);
+
+  // Loading state UI
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <Package className="w-8 h-8 text-gray-400 animate-pulse" />
+          </div>
+          <h3 className="text-2xl font-light text-gray-900 mb-2">Loading Order Details...</h3>
+          <p className="text-gray-600 font-light">Please wait while we fetch your order information</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Order not found
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <Package className="w-12 h-12 text-gray-400" />
+          </div>
+          <h3 className="text-2xl font-light text-gray-900 mb-2">
+            Order Not Found
+          </h3>
+          <p className="text-gray-600 font-light">
+            The order you are looking for does not exist.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -175,10 +216,11 @@ const OrderDetailsPage = () => {
               className="p-1 transition-all duration-300 hover:scale-110"
             >
               <Star
-                className={`w-8 h-8 md:w-10 md:h-10 ${star <= rating
-                  ? "text-yellow-400 fill-current"
-                  : "text-gray-300"
-                  }`}
+                className={`w-8 h-8 md:w-10 md:h-10 ${
+                  star <= rating
+                    ? "text-yellow-400 fill-current"
+                    : "text-gray-300"
+                }`}
               />
             </button>
           ))}
@@ -205,48 +247,21 @@ const OrderDetailsPage = () => {
     </div>
   );
 
-  if (loading || productsLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading order details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!order) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-2xl font-light text-gray-900 mb-2">
-            Order Not Found
-          </h3>
-          <p className="text-gray-600 font-light">
-            The order you are looking for does not exist.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-start justify-between w-full">
+            <div className="flex items-center space-x-3 sm:space-x-4 flex-1">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300"
+                className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300 flex-shrink-0"
               >
-                <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-600" />
               </button>
-              <div>
-                <div className="flex items-center space-x-3 mb-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
                   <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-xs font-medium rounded-full tracking-wide">
                     Order Details
                   </span>
@@ -256,30 +271,33 @@ const OrderDetailsPage = () => {
                     </span>
                   )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 mb-2">
+                <div className="flex items-end justify-between">
+                  <div className="min-w-0 flex-1 pr-4">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-light text-gray-900 mb-2">
                       {"ORD-" + order._id.toString().slice(-6)}
                     </h1>
-                    <div className="text-gray-600 font-light text-sm sm:text-base">
+                    <div className="text-gray-600 font-light text-xs sm:text-sm lg:text-base">
                       Placed on {formatDate(order.date)}
                     </div>
                   </div>
-                  <div className="sm:text-right">
-                    <div className="text-2xl sm:text-3xl font-light text-gray-900 mb-1.5">
+                  {/* Price section - always on the right */}
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-light text-gray-900 mb-2">
                       ₹{order.amount}
                     </div>
-                    <div className="text-gray-600 font-light text-sm sm:text-base">
+                    <div className="text-gray-600 font-light text-xs sm:text-sm lg:text-base">
                       Expected delivery:{" "}
-                      {order.status === "Delivered"
-                        ? "Delivered"
-                        : order.status === "Cancelled"
+                      <span className="block sm:inline whitespace-nowrap">
+                        {order.status === "Delivered"
+                          ? "Delivered"
+                          : order.status === "Cancelled"
                           ? "Cancelled"
                           : formatDate(
-                            new Date(order.date).setDate(
-                              new Date(order.date).getDate() + 7
-                            )
-                          )}
+                              new Date(order.date).setDate(
+                                new Date(order.date).getDate() + 7
+                              )
+                            )}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -291,9 +309,9 @@ const OrderDetailsPage = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-          {/* Left Column - Order Items */}
-          <div className="space-y-8 md:space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
+          {/* Left Column - Order Items (takes 2 columns) */}
+          <div className="lg:col-span-2 space-y-8 md:space-y-12">
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-6">
                 Your Handcrafted
@@ -400,7 +418,7 @@ const OrderDetailsPage = () => {
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between py-1.5">
-                  <span className="text-gray-600 font-light text-sm md:text-base">
+                  <span className="text-gray-700 font-light text-sm md:text-base">
                     Subtotal
                   </span>
                   <span className="font-light text-gray-900 text-sm md:text-base">
@@ -429,8 +447,8 @@ const OrderDetailsPage = () => {
             </div>
           </div>
 
-          {/* Right Column - Tracking & Details */}
-          <div className="space-y-8 md:space-y-12">
+          {/* Right Column - Tracking & Details (takes 1 column) */}
+          <div className="lg:col-span-1 space-y-8 md:space-y-12">
             {/* Tracking Section */}
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-6">
@@ -484,21 +502,23 @@ const OrderDetailsPage = () => {
                     <div key={index} className="relative flex items-start">
                       <div
                         ref={(el) => (stepsRef.current[index] = el)}
-                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isActive
-                          ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
-                          : isCompleted
+                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+                          isActive
+                            ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
+                            : isCompleted
                             ? "bg-rose-100 text-rose-600"
                             : "bg-gray-100 text-gray-400"
-                          }`}
+                        }`}
                       >
                         {step.icon}
                       </div>
                       <div className="pl-3 md:pl-4">
                         <h4
-                          className={`text-base md:text-lg font-medium ${isActive || isCompleted
-                            ? "text-rose-600"
-                            : "text-gray-400"
-                            }`}
+                          className={`text-base md:text-lg font-medium ${
+                            isActive || isCompleted
+                              ? "text-rose-600"
+                              : "text-gray-400"
+                          }`}
                         >
                           {step.status}
                         </h4>
@@ -591,7 +611,7 @@ const OrderDetailsPage = () => {
         </div>
 
         {/* Guarantee Section */}
-        <div className="mt-16 border-t border-gray-200 pt-12 ">
+        <div className="mt-16 border-t border-gray-200 pt-12">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-16">
             <div className="flex items-center space-x-3">
               <Shield className="w-5 h-5 text-rose-600" />
@@ -606,8 +626,10 @@ const OrderDetailsPage = () => {
               </span>
             </div>
             <div className="flex items-center space-x-3">
-              <i className="ri-award-line w-5 h-5 flex items-center justify-center text-rose-600"></i>
-              <span className="text-gray-700">Crafted to Perfection</span>
+              <Shield className="w-5 h-5 text-rose-600" />
+              <span className="text-gray-700">
+                100% Handcrafted with Love
+              </span>
             </div>
           </div>
         </div>
