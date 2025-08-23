@@ -13,7 +13,7 @@ export default function ProductsPage() {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/product/list`);
       if (res.data.products) {
-        setProducts(res.data.products);
+        setProducts(res.data.products.reverse());
       } else {
         toast.error(res.data.message);
       }

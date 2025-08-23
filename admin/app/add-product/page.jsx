@@ -245,9 +245,9 @@ export default function AddProductPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-xl"
             >
               <option>Tote Bag</option>
-              <option>Pouch</option>
-              <option>Money Pouch</option>
+              <option>Pouch and Purse</option>
               <option>Crochet</option>
+              <option>Others</option>
             </select>
           </div>
           <div>
