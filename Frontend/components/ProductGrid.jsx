@@ -4,15 +4,24 @@ import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useLoading } from '@/context/LoadingContext';
 
 export default function ProductGrid() {
   const { addToCart, wishlist, toggleWishlist } = useUser();
+  const { setLoading } = useLoading();
   const [bestSellers, setBestSellers] = useState([]);
 
   const fetchProducts = async () => {
-    const allProducts = await getProductsData();
-    const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
-    setBestSellers(bestSellersOnly);
+    try {
+      setLoading(true);
+      const allProducts = await getProductsData();
+      const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
+      setBestSellers(bestSellersOnly);
+    } catch (error) {
+      toast.error('Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -39,10 +48,10 @@ export default function ProductGrid() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-           These are the pieces closest to our heart.
-From the first brushstroke to the final stitch,
-our signature collection celebrates craftsmanship,
-bringing you artful accessories that stand out with elegance.
+            These are the pieces closest to our heart.
+            From the first brushstroke to the final stitch,
+            our signature collection celebrates craftsmanship,
+            bringing you artful accessories that stand out with elegance.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">

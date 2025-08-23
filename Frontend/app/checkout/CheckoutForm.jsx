@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Loading from '@/components/Loading';
 import CheckoutStepper from './CheckoutStepper';
 import ShippingStep from './ShippingStep';
 import { useCheckoutContext } from '@/context/CheckoutContext';
@@ -9,6 +8,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
+import { useLoading } from '@/context/LoadingContext';
 
 export default function CheckoutForm({ assets }) {
   const {
@@ -27,12 +27,13 @@ export default function CheckoutForm({ assets }) {
     handleSubmit,
   } = useCheckoutContext();
 
-  const { token, getUserCart, } = useUser();
-
+  const { token, getUserCart } = useUser();
+  const { setLoading } = useLoading();
   const router = useRouter();
   const [method, setMethod] = useState('razorpay');
   const [isRzpLoaded, setIsRzpLoaded] = useState(false);
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
   // ✅ Load Razorpay SDK once
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -48,23 +49,27 @@ export default function CheckoutForm({ assets }) {
       toast.error('Failed to load Razorpay. Try COD or refresh the page.');
     document.body.appendChild(script);
   }, []);
+
   const [cartItems, setCartItems] = useState({});
 
+  // ✅ Load initial cart
   useEffect(() => {
     const fetchCart = async () => {
       try {
+        setLoading(true);
         const cart = await getUserCart();
         setCartItems(cart);
       } catch (err) {
         console.error("Failed to fetch user cart:", err);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchCart();
-  }, []);
+  }, [getUserCart, setLoading]);
 
-
-  if (!user) return <Loading />;
+  // ✅ Exit early if user not loaded yet
+  if (!user) return null;
 
   // ✅ Razorpay popup
   const initPay = (order) => {
@@ -82,14 +87,13 @@ export default function CheckoutForm({ assets }) {
       receipt: order.receipt,
       handler: async (response) => {
         try {
+          setLoading(true);
           const { data } = await axios.post(
             `${backendUrl}/api/order/verifyRazorpay`,
             { response },
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            },
+              headers: { Authorization: `Bearer ${token}` }
+            }
           );
           if (data.success) {
             setCartItems({});
@@ -100,6 +104,8 @@ export default function CheckoutForm({ assets }) {
         } catch (err) {
           console.error(err);
           toast.error('Payment verification error.');
+        } finally {
+          setLoading(false);
         }
       },
     };
@@ -109,18 +115,17 @@ export default function CheckoutForm({ assets }) {
 
   // ✅ Handle placing order depending on payment method
   const handlePayment = async () => {
+    setLoading(true);
+
     try {
       handleSubmit();
       // build order items
       const cartItems = await getUserCart();
       const orderItems = [];
-      for (const productId in cartItems) {
-        const qty = cartItems[productId];
-        if (qty > 0) {
-          orderItems.push({
-            productId,
-            quantity: qty,
-          });
+
+      for (const productId in currentCart) {
+        if (currentCart[productId] > 0) {
+          orderItems.push({ productId, quantity: currentCart[productId] });
         }
       }
 
@@ -129,22 +134,17 @@ export default function CheckoutForm({ assets }) {
         items: orderItems,
         amount: subtotal + shipping,
       };
-      // console.log(orderData)
+
       if (method === 'cod') {
         const res = await axios.post(
           `${backendUrl}/api/order/place`,
           { orderData },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (res.data.success) {
           setCartItems({});
           router.push('/orders');
         } else {
-          console.log(res.data.message)
           toast.error(res.data.message || 'Failed to place COD order.');
         }
       }
@@ -157,11 +157,7 @@ export default function CheckoutForm({ assets }) {
         const res = await axios.post(
           `${backendUrl}/api/order/razorpay`,
           { orderData },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (res.data.success) {
           initPay(res.data.order);
@@ -172,6 +168,8 @@ export default function CheckoutForm({ assets }) {
     } catch (error) {
       console.error(error);
       toast.error(error.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
     }
   };
 

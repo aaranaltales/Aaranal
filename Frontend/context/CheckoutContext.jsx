@@ -5,25 +5,18 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
+import { useLoading } from "@/context/LoadingContext";   // ✅ import
 
 const CheckoutContext = createContext(null);
 
 export const CheckoutProvider = ({ children }) => {
     const { user, setUser, token, cartData } = useUser();
+    const { setLoading } = useLoading();                  // ✅ init
     const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const [currentStep, setCurrentStep] = useState(1);
     const [showAddressSelector, setShowAddressSelector] = useState(false);
-
     const [showCardSelector, setShowCardSelector] = useState(false);
-
-    const selectCard = (card) => {
-        setPaymentData(prev => ({
-            ...prev,
-            ...card
-        }));
-        setShowCardSelector(false);
-    };
 
     const [formData, setFormData] = useState({
         name: '',
@@ -47,6 +40,7 @@ export const CheckoutProvider = ({ children }) => {
         savePayment: false
     });
 
+    // get default address/payment
     useEffect(() => {
         const defaultAddress = user?.addresses?.find(addr => addr.default);
         if (defaultAddress) {
@@ -57,13 +51,12 @@ export const CheckoutProvider = ({ children }) => {
                 saveAddress: false,
             }));
         }
-
         const defaultPayment = user?.paymentMethods?.find(payment => payment.default)
         if (defaultPayment) {
             setPaymentData(prev => ({
                 ...prev,
                 ...defaultPayment,
-                saveAddress: false,
+                savePayment: false,
             }));
         }
     }, [user]);
@@ -92,21 +85,25 @@ export const CheckoutProvider = ({ children }) => {
         setShowAddressSelector(false);
     };
 
+    // ✅ <--- Wrapped with global loading context
     const handleSubmitNewAddress = async (newAddress) => {
         try {
+            setLoading(true);
             const response = await axios.post(`${dbUri}/api/user/address`, newAddress, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
             if (response.data.success) {
-                setUser(prevUser => ({
-                    ...prevUser,
+                setUser(prev => ({
+                    ...prev,
                     addresses: response.data.addresses,
                 }));
             }
         } catch (error) {
             toast.error(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -154,7 +151,10 @@ export const CheckoutProvider = ({ children }) => {
         setPaymentData,
         showCardSelector,
         setShowCardSelector,
-        selectCard,
+        selectCard: (card) => {
+            setPaymentData(prev => ({ ...prev, ...card }));
+            setShowCardSelector(false);
+        },
         handleCardChange
     };
 
