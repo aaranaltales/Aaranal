@@ -430,7 +430,7 @@ const OrdersPage = () => {
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-light text-gray-900 mb-4">
               Need
-              <span className="block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
+              <span className="ml-1 sm:ml-2 block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
                 Help?
               </span>
             </h2>
