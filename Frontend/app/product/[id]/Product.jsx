@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { getProductsData } from "@/services/products";
 import { useUser } from "@/context/UserContext";
+import { useLoading } from "@/context/LoadingContext";
 
 // This would typically come from your database or API
 
@@ -23,9 +24,10 @@ export default function DynamicProductPage() {
   const productId = params.id;
   const { refreshUser, token, addToCart, toggleWishlist, wishlist } = useUser();
   const [productsData, setAllProducts] = useState([]);
+  const { setLoading } = useLoading()
   useEffect(() => {
     const fetchProducts = async () => {
-      const Products = await getProductsData();
+      const Products = await getProductsData(setLoading);
       setAllProducts(Products);
     };
     fetchProducts();
@@ -96,11 +98,10 @@ export default function DynamicProductPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                    selectedImage === index
+                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImage === index
                       ? "border-rose-500"
                       : "border-transparent hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   <img
                     src={image}
@@ -232,11 +233,10 @@ export default function DynamicProductPage() {
                   toggleWishlist(product._id);
                   setIsWishlisted(!isWishlisted);
                 }}
-                className={`w-full py-3 rounded-full border-2 transition-all flex items-center justify-center space-x-2 ${
-                  isWishlisted
+                className={`w-full py-3 rounded-full border-2 transition-all flex items-center justify-center space-x-2 ${isWishlisted
                     ? "border-rose-500 text-rose-700 bg-rose-50"
                     : "border-gray-300 hover:border-gray-400"
-                }`}
+                  }`}
               >
                 <Heart
                   className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`}
@@ -352,11 +352,10 @@ export default function DynamicProductPage() {
                     className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                   >
                     <Heart
-                      className={`w-5 h-5 ${
-                        wishlist.includes(similarProduct._id)
+                      className={`w-5 h-5 ${wishlist.includes(similarProduct._id)
                           ? "fill-rose-500 text-rose-500"
                           : "text-gray-600"
-                      }`}
+                        }`}
                     />
                   </button>
 

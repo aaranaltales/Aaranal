@@ -22,6 +22,7 @@ import {
   ShoppingBag
 } from "lucide-react";
 import { getProductsData } from "@/services/products";
+import { useLoading } from '@/context/LoadingContext';
 
 const OrdersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,10 +32,11 @@ const OrdersPage = () => {
   const { user, token } = useUser();
   const [allProducts, setAllProducts] = useState([]);
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const { setLoading } = useLoading()
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const products = await getProductsData();
+      const products = await getProductsData(setLoading);
       setAllProducts(products);
     };
     fetchProducts();

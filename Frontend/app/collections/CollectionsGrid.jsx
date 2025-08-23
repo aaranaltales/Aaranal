@@ -1,16 +1,18 @@
 'use client';
+import { useLoading } from '@/context/LoadingContext';
 import { useUser } from '@/context/UserContext';
 import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+
 export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
   const { addToCart, wishlist, toggleWishlist } = useUser();
-
+  const { setLoading } = useLoading()
   useEffect(() => {
     const fetchProducts = async () => {
-      const products = await getProductsData();
+      const products = await getProductsData(setLoading);
       setAllProducts(products);
     };
     fetchProducts();

@@ -26,12 +26,13 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
+import { useLoading } from "@/context/LoadingContext";
 
 const OrderDetailsPage = () => {
   const params = useParams();
   const { id } = params;
   const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { loading, setLoading } = useLoading()
   const [productsLoading, setProductsLoading] = useState(true);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rating, setRating] = useState(0);
@@ -43,7 +44,7 @@ const OrderDetailsPage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const products = await getProductsData();
+      const products = await getProductsData(setLoading);
       setAllProducts(products);
       setProductsLoading(false);
     };
@@ -53,6 +54,7 @@ const OrderDetailsPage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
+        setLoading(true)
         const response = await axios.post(
           `${dbUri}/api/order/orderdetails`,
           { orderId: id },
@@ -170,11 +172,10 @@ const OrderDetailsPage = () => {
               className="p-1 transition-all duration-300 hover:scale-110"
             >
               <Star
-                className={`w-8 h-8 md:w-10 md:h-10 ${
-                  star <= rating
-                    ? "text-yellow-400 fill-current"
-                    : "text-gray-300"
-                }`}
+                className={`w-8 h-8 md:w-10 md:h-10 ${star <= rating
+                  ? "text-yellow-400 fill-current"
+                  : "text-gray-300"
+                  }`}
               />
             </button>
           ))}
@@ -269,8 +270,8 @@ const OrderDetailsPage = () => {
                       {order.status === "Delivered"
                         ? "Delivered"
                         : order.status === "Cancelled"
-                        ? "Cancelled"
-                        : formatDate(
+                          ? "Cancelled"
+                          : formatDate(
                             new Date(order.date).setDate(
                               new Date(order.date).getDate() + 7
                             )
@@ -399,7 +400,7 @@ const OrderDetailsPage = () => {
                     Subtotal
                   </span>
                   <span className="font-light text-gray-900 text-sm md:text-base">
-                    ₹{order.amount - ( order.shippingCost === 0 ? 0 : 45)}
+                    ₹{order.amount - (order.shippingCost === 0 ? 0 : 45)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1.5">
@@ -479,23 +480,21 @@ const OrderDetailsPage = () => {
                     <div key={index} className="relative flex items-start">
                       <div
                         ref={(el) => (stepsRef.current[index] = el)}
-                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
-                          isActive
-                            ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
-                            : isCompleted
+                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isActive
+                          ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
+                          : isCompleted
                             ? "bg-rose-100 text-rose-600"
                             : "bg-gray-100 text-gray-400"
-                        }`}
+                          }`}
                       >
                         {step.icon}
                       </div>
                       <div className="pl-3 md:pl-4">
                         <h4
-                          className={`text-base md:text-lg font-medium ${
-                            isActive || isCompleted
-                              ? "text-rose-600"
-                              : "text-gray-400"
-                          }`}
+                          className={`text-base md:text-lg font-medium ${isActive || isCompleted
+                            ? "text-rose-600"
+                            : "text-gray-400"
+                            }`}
                         >
                           {step.status}
                         </h4>

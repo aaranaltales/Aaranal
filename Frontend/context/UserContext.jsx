@@ -53,7 +53,7 @@ export const UserProvider = ({ children }) => {
 
     const fetchProducts = async () => {
         try {
-            const data = await getProductsData();
+            const data = await getProductsData(setLoading);
             setAllProducts(data || []);
         } catch (err) { }
     };

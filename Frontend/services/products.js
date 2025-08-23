@@ -1,12 +1,10 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-// import { useLoading } from "@/context/LoadingContext";
 
 const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // ⬇️ pass setLoading as argument
 export const getProductsData = async (setLoading) => {
-    // const { setLoading } = useLoading();
     try {
         if (setLoading) setLoading(true);
         const response = await axios.get(dbUri + "/api/product/list");

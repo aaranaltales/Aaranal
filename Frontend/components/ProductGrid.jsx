@@ -14,7 +14,7 @@ export default function ProductGrid() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const allProducts = await getProductsData();
+      const allProducts = await getProductsData(setLoading);
       const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
       setBestSellers(bestSellersOnly);
     } catch (error) {
