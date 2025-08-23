@@ -269,6 +269,7 @@ const OrdersPage = () => {
                 key={order._id}
                 className="group bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-rose-200 transition-all duration-300 cursor-pointer"
               >
+              <Link href={`/orders/${order._id}`} passHref>
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   {/* Order Info */}
                   <div className="flex-1">
@@ -309,7 +310,7 @@ const OrdersPage = () => {
                               • Expected by{" "}
                               {formatDate(
                                 new Date(order.date).setDate(
-                                  new Date(order.date).getDate() + 5
+                                  new Date(order.date).getDate() + 9
                                 )
                               )}
                             </span>
@@ -408,17 +409,17 @@ const OrdersPage = () => {
                       )}
                     </div>
                   </div>
+                  
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <Link href={`/orders/${order._id}`} passHref>
                       <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-rose-300 text-rose-600 rounded-full hover:bg-rose-50 transition-all duration-300 font-light">
                         <Eye className="w-4 h-4" />
                         <span>View Details</span>
                       </button>
-                    </Link>
                   </div>
                 </div>
+              </Link>
               </div>
             ))
           )}

@@ -256,7 +256,7 @@ const OrderDetailsPage = () => {
                     </span>
                   )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col sm:flex-row justify-between">
                   <div>
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 mb-2">
                       {"ORD-" + order._id.toString().slice(-6)}

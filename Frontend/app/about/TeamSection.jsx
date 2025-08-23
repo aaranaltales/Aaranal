@@ -1,22 +1,27 @@
 'use client';
 
+import { type } from "os";
+
 const team = [
   {
     name: "Alokhya Vedurupaka",
+    type: "Visionary",
     role: "Founder",
     image: "assests/alokhya.jpeg",
     bio: "The founder of Aaranal, created the brand to blend elegance and utility through timeless, handcrafted essentials."
   },
   {
     name: "Archana Vedurupaka",
+    type:"Supervisor",
     role: "Master Craftsman",
-    image: "https://readdy.ai/api/search-image?query=Professional%20portrait%20of%20elegant%20female%20leather%20artisan%20in%20her%2050s%2C%20sophisticated%20woman%20with%20warm%20smile%20wearing%20apron%20in%20luxury%20workshop%20setting%2C%20confident%20master%20craftsperson%20with%20silver%20hair%20and%20kind%20eyes%2C%20premium%20portrait%20photography&width=400&height=500&seq=team-elena&orientation=portrait",
+    image: "assests/archana.jpg",
     bio: "With over 20 years of boutique experience, plays a key role in crafting each Aaranal bag with care and precision."
   },
   {
     name: "Aparna Lekkala",
+    type:"Creative",
     role: "Artist",
-    image: "https://readdy.ai/api/search-image?query=Professional%20portrait%20of%20Scandinavian%20woman%20in%20her%2030s%20with%20blonde%20hair%2C%20quality%20control%20specialist%20with%20keen%20attention%20to%20detail%2C%20elegant%20professional%20in%20minimalist%20setting%2C%20premium%20portrait%20photography&width=400&height=500&seq=team-sofia&orientation=portrait",
+    image: "assests/aparna.jpeg",
     bio: "A talented artist, adds a unique touch to Aaranal by hand-painting select bags with expressive and elegant designs."
   }
 ];
@@ -58,7 +63,7 @@ crafting timeless pieces that carry stories of art and care.
                   <div className="bg-white px-6 py-3 rounded-full shadow-lg border border-rose-100">
                     <div className="flex items-center space-x-2">
                       <i className="ri-award-line w-4 h-4 flex items-center justify-center text-rose-600"></i>
-                      <span className="text-sm font-medium text-gray-800">Expert</span>
+                      <span className="text-sm font-medium text-gray-800">{member.type}</span>
                     </div>
                   </div>
                 </div>
