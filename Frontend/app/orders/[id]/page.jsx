@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { getProductsData } from "@/services/products";
 import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
+
 import {
   ArrowLeft,
   Package,
@@ -30,6 +32,7 @@ import { useLoading } from "@/context/LoadingContext";
 
 const OrderDetailsPage = () => {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
   const [order, setOrder] = useState(null);
   const { loading, setLoading } = useLoading()
@@ -236,11 +239,12 @@ const OrderDetailsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
-              <Link href="/orders">
-                <button className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300">
-                  <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
-                </button>
-              </Link>
+              <button
+                onClick={() => router.back()}
+                className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300"
+              >
+                <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+              </button>
               <div>
                 <div className="flex items-center space-x-3 mb-3">
                   <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-xs font-medium rounded-full tracking-wide">

@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+
 import {
   ArrowLeft,
   Package,
@@ -26,6 +29,7 @@ import { useLoading } from '@/context/LoadingContext';
 
 const OrdersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const pathname = usePathname();
   const [statusFilter, setStatusFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -33,6 +37,7 @@ const OrdersPage = () => {
   const [allProducts, setAllProducts] = useState([]);
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { setLoading } = useLoading()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -137,6 +142,18 @@ const OrdersPage = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const searchParams = useSearchParams();
+  const handleBack = () => {
+    const placed = searchParams.get('placed')
+    console.log(placed)
+    if (placed) {
+      router.push("/");
+    } else {
+      router.back();
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -144,7 +161,10 @@ const OrdersPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300">
+              <button
+                onClick={handleBack}
+                className="p-2 hover:bg-gray-50 rounded-full transition-colors duration-300"
+              >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
               </button>
               <div>

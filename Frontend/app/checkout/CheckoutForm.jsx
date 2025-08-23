@@ -66,7 +66,7 @@ export default function CheckoutForm({ assets }) {
       }
     };
     fetchCart();
-  }, [getUserCart, setLoading]);
+  }, [setLoading]);
 
   // ✅ Exit early if user not loaded yet
   if (!user) return null;
@@ -97,7 +97,7 @@ export default function CheckoutForm({ assets }) {
           );
           if (data.success) {
             setCartItems({});
-            router.push('/orders');
+            router.push('/orders?placed=true');
           } else {
             toast.error('Payment verification failed.');
           }
@@ -123,9 +123,9 @@ export default function CheckoutForm({ assets }) {
       const cartItems = await getUserCart();
       const orderItems = [];
 
-      for (const productId in currentCart) {
-        if (currentCart[productId] > 0) {
-          orderItems.push({ productId, quantity: currentCart[productId] });
+      for (const productId in cartItems) {
+        if (cartItems[productId] > 0) {
+          orderItems.push({ productId, quantity: cartItems[productId] });
         }
       }
 

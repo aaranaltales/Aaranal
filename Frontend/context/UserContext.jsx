@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { userDetails } from "@/services/user";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { getProductsData } from "@/services/products";
 import { useLoading } from "./LoadingContext";
 
@@ -13,6 +13,8 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
     const router = useRouter();
+    const pathname = usePathname();
+
     const { setLoading } = useLoading();
 
     const [user, setUser] = useState(null);
@@ -28,6 +30,7 @@ export const UserProvider = ({ children }) => {
 
     const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
     const shipping = 25;
+
 
     // --- API FUNCTIONS ---------------------------------------------------
 
@@ -59,12 +62,18 @@ export const UserProvider = ({ children }) => {
     };
 
     const getUserCart = async () => {
+        if (!token) {
+            return
+        }
         try {
             const response = await axios.post(
                 `${dbUri}/api/cart/get`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            if (response.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
             if (response.data.success) {
                 const cartData = response.data.cartData;
                 setCartItems(cartData);
@@ -78,17 +87,19 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-
-
     const getUserWishlist = async () => {
-        if (!token) return;
-
+        if (!token) {
+            return
+        }
         try {
             const response = await axios.post(
                 `${dbUri}/api/wishlist/get`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
-            );
+            )
+            if (response.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
             if (response.data.success) {
                 setWishlist(response.data.wishlist);
                 setWishlistCount(response.data.wishlist.length);
@@ -99,47 +110,58 @@ export const UserProvider = ({ children }) => {
     };
 
     const addToCart = async (itemId) => {
+        if (!token) {
+            // toast.warning("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+        }
         let cartData = structuredClone(cartItems);
         cartData[itemId] = (cartData[itemId] || 0) + 1;
         setCartItems(cartData);
-
-        if (!token) {
-            router.push("/auth");
-            return;
-        }
-
         try {
-            await axios.post(
+            const response = await axios.post(
                 `${dbUri}/api/cart/add`,
                 { itemId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            toast.success("Item added to cart");
+            if (response.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
+            if (response.data.success) {
+                toast.success("Item added to cart");
+            }
         } catch (error) {
             toast.error(error.message);
         }
     };
 
     const updateQuantity = async (itemId, quantity) => {
+        if (!token) {
+            // toast.warning("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+        }
         let temp = structuredClone(cartItems);
         temp[itemId] = quantity;
         setCartItems(temp);
-
-        if (token) {
-            try {
-                await axios.post(
-                    `${dbUri}/api/cart/update`,
-                    { itemId, quantity },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-            } catch (error) {
-                toast.error(error.message);
+        try {
+            const response = await axios.post(
+                `${dbUri}/api/cart/update`,
+                { itemId, quantity },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (response.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
             }
+        } catch (error) {
+            toast.error(error.message);
         }
+
     };
 
     const toggleWishlist = async (itemId) => {
-        if (!token) return router.push("/auth");
+        if (!token) {
+            // toast.warning("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+        }
 
         try {
             const response = await axios.post(
@@ -147,6 +169,9 @@ export const UserProvider = ({ children }) => {
                 { itemId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            if (response.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
             if (response.data.success) {
                 setWishlist(response.data.wishList || []);
                 setWishlistCount(response.data.wishList.length);
@@ -157,6 +182,8 @@ export const UserProvider = ({ children }) => {
     };
 
     const refreshUser = () => {
+        setUser(null)
+        setWishlist([])
         setToken(Cookies.get("token"));
     };
 
@@ -181,14 +208,15 @@ export const UserProvider = ({ children }) => {
     // --- USE EFFECTS -----------------------------------------------------
 
     // Wrapped loader for user + products + wishlist + addresses
+    const loadAll = async () => {
+        setLoading(true);
+        await fetchUser();
+        await fetchProducts();
+        await getUserWishlist();
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const loadAll = async () => {
-            setLoading(true);
-            await fetchUser();
-            await fetchProducts();
-            await getUserWishlist();
-            setLoading(false);
-        };
         loadAll();
     }, [token]);
 

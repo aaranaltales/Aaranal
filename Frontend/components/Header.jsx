@@ -15,7 +15,7 @@ export default function Header() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
-  const { user, setUser, loading, cartCount, setCartData, setCartCount, wishlistCount } = useUser();
+  const { user, setUser, refreshUser, loading, cartCount, setCartData, setCartCount, wishlistCount } = useUser();
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -31,6 +31,8 @@ export default function Header() {
   const handleLogout = () => {
     Cookies.remove('token');
     setUser(null);
+    refreshUser()
+    router.refresh()
     setIsProfileOpen(false);
     setCartData([]);
     setCartCount(0);
@@ -97,22 +99,28 @@ export default function Header() {
             {/* Right side icons and profile */}
             <div className="flex items-center space-x-1 sm:space-x-6">
               {/* Wishlist Button */}
-              <button
-                onClick={() => setIsWishlistOpen(true)}
-                className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50 relative group"
-              >
-                <i className="ri-heart-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">{wishlistCount}</span>
-              </button>
+              {
+                user &&
+                <>
+                  <button
+                    onClick={() => setIsWishlistOpen(true)}
+                    className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50 relative group"
+                  >
+                    <i className="ri-heart-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">{wishlistCount}</span>
+                  </button>
 
-              {/* Cart Button */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50 relative group"
-              >
-                <i className="ri-shopping-bag-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">{cartCount}</span>
-              </button>
+                  {/* Cart Button */}
+                  <button
+                    onClick={() => setIsCartOpen(true)}
+                    className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50 relative group"
+                  >
+                    <i className="ri-shopping-bag-line w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform"></i>
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-xs text-white flex items-center justify-center">{cartCount}</span>
+                  </button>
+                </>
+              }
+
 
               {/* User Profile or Login */}
               {loading ? (
@@ -164,95 +172,93 @@ export default function Header() {
       </header>
 
       {/* Mobile Menu Overlay and Slide-in Panel */}
-<div className="lg:hidden">
-  {/* Backdrop overlay */}
-  <div
-    className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] transition-opacity duration-300 ease-in-out ${
-      isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-    }`}
-    onClick={handleMobileMenuClose}
-    aria-hidden="true"
-  />
-
-  {/* Slide-in menu panel */}
-  <div
-    className={`fixed top-0 right-0 h-full w-[90%] max-w-[85vw] bg-white/90 backdrop-blur-md shadow-xl z-[70] transform transition-transform duration-300 ease-in-out ${
-      isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}
-  >
-    {/* Menu header */}
-    <div className="flex justify-between items-center p-6 border-b border-rose-100/30">
-      <Link
-        href="/"
-        className="flex items-center text-2xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent"
-        onClick={handleMobileMenuClose}
-      >
-        <Image
-          alt="Aaranal logo"
-          src="/assests/logo.png"
-          width={32}
-          height={32}
-          className="h-8 mr-2 w-auto drop-shadow-lg"
-        />
-        Aaranal
-      </Link>
-      <button
-        onClick={handleMobileMenuClose}
-        className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50/50"
-        aria-label="Close mobile menu"
-      >
-        <i className="ri-close-line w-6 h-6 flex items-center justify-center" />
-      </button>
-    </div>
-
-      <hr className="border-t border-2 border-grey-800" />
-
-    {/* Navigation links */}
-    <nav className="flex flex-col p-6 space-y-1">
-      <Link
-        href="/"
-        className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
-        onClick={handleMobileMenuClose}
-      >
-        Home
-      </Link>
-      <Link
-        href="/collections"
-        className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
-        onClick={handleMobileMenuClose}
-      >
-        Collections
-      </Link>
-      <Link
-        href="/customize"
-        className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
-        onClick={handleMobileMenuClose}
-      >
-        Customize
-      </Link>
-      <Link
-        href="/about"
-        className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
-        onClick={handleMobileMenuClose}
-      >
-        About
-      </Link>
-    </nav>
-
-    {/* User section for mobile */}
-    {!user && (
-      <div className="px-6 py-4 border-t border-rose-100/30 mt-auto">
-        <Link
-          href="/auth"
-          className="block w-full text-center px-4 py-3 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 text-white hover:from-rose-700 hover:to-pink-600 transition-all duration-300 text-sm font-medium shadow-sm hover:shadow-md"
+      <div className="lg:hidden">
+        {/* Backdrop overlay */}
+        <div
+          className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] transition-opacity duration-300 ease-in-out ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+            }`}
           onClick={handleMobileMenuClose}
+          aria-hidden="true"
+        />
+
+        {/* Slide-in menu panel */}
+        <div
+          className={`fixed top-0 right-0 h-full w-[90%] max-w-[85vw] bg-white/90 backdrop-blur-md shadow-xl z-[70] transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
         >
-          Login
-        </Link>
+          {/* Menu header */}
+          <div className="flex justify-between items-center p-6 border-b border-rose-100/30">
+            <Link
+              href="/"
+              className="flex items-center text-2xl font-pacifico bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent"
+              onClick={handleMobileMenuClose}
+            >
+              <Image
+                alt="Aaranal logo"
+                src="/assests/logo.png"
+                width={32}
+                height={32}
+                className="h-8 mr-2 w-auto drop-shadow-lg"
+              />
+              Aaranal
+            </Link>
+            <button
+              onClick={handleMobileMenuClose}
+              className="text-gray-800 hover:text-rose-600 cursor-pointer transition-all duration-300 p-2 rounded-full hover:bg-rose-50/50"
+              aria-label="Close mobile menu"
+            >
+              <i className="ri-close-line w-6 h-6 flex items-center justify-center" />
+            </button>
+          </div>
+
+          <hr className="border-t border-2 border-grey-800" />
+
+          {/* Navigation links */}
+          <nav className="flex flex-col p-6 space-y-1">
+            <Link
+              href="/"
+              className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
+              onClick={handleMobileMenuClose}
+            >
+              Home
+            </Link>
+            <Link
+              href="/collections"
+              className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
+              onClick={handleMobileMenuClose}
+            >
+              Collections
+            </Link>
+            <Link
+              href="/customize"
+              className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
+              onClick={handleMobileMenuClose}
+            >
+              Customize
+            </Link>
+            <Link
+              href="/about"
+              className="text-gray-800 hover:text-rose-600 hover:bg-rose-50/50 cursor-pointer transition-all duration-300 font-medium text-lg tracking-wide uppercase py-3 px-3 rounded-lg"
+              onClick={handleMobileMenuClose}
+            >
+              About
+            </Link>
+          </nav>
+
+          {/* User section for mobile */}
+          {!user && (
+            <div className="px-6 py-4 border-t border-rose-100/30 mt-auto">
+              <Link
+                href="/auth"
+                className="block w-full text-center px-4 py-3 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 text-white hover:from-rose-700 hover:to-pink-600 transition-all duration-300 text-sm font-medium shadow-sm hover:shadow-md"
+                onClick={handleMobileMenuClose}
+              >
+                Login
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <WishlistSidebar isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
     </>

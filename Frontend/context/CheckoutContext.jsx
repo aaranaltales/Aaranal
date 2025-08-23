@@ -5,13 +5,13 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
-import { useLoading } from "@/context/LoadingContext";   // ✅ import
+import { useLoading } from "@/context/LoadingContext";
 
 const CheckoutContext = createContext(null);
 
 export const CheckoutProvider = ({ children }) => {
     const { user, setUser, token, cartData } = useUser();
-    const { setLoading } = useLoading();                  // ✅ init
+    const { setLoading } = useLoading();
     const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const [currentStep, setCurrentStep] = useState(1);
@@ -87,6 +87,10 @@ export const CheckoutProvider = ({ children }) => {
 
     // ✅ <--- Wrapped with global loading context
     const handleSubmitNewAddress = async (newAddress) => {
+        if (!token) {
+            // toast.warning("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+        }
         try {
             setLoading(true);
             const response = await axios.post(`${dbUri}/api/user/address`, newAddress, {
@@ -94,6 +98,9 @@ export const CheckoutProvider = ({ children }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            if (response.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
             if (response.data.success) {
                 setUser(prev => ({
                     ...prev,
