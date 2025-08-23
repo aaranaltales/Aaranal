@@ -2,12 +2,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import { getProductsData } from '@/services/products';
+import { getProductsData } from "@/services/products";
 import { useUser } from "@/context/UserContext";
 import {
-  ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin,
-  CreditCard, Phone, Mail, Download, RotateCw, MessageCircle,
-  Star, Shield, Heart, ChevronRight, Eye, Calendar, ShoppingBag
+  ArrowLeft,
+  Package,
+  Truck,
+  CheckCircle,
+  Clock,
+  MapPin,
+  CreditCard,
+  Phone,
+  Mail,
+  Download,
+  RotateCw,
+  MessageCircle,
+  Star,
+  Shield,
+  Heart,
+  ChevronRight,
+  Eye,
+  Calendar,
+  ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,7 +62,10 @@ const OrderDetailsPage = () => {
           setOrder(response.data.order);
         }
       } catch (error) {
-        console.error("Error fetching order details:", error.response?.data?.message || error.message);
+        console.error(
+          "Error fetching order details:",
+          error.response?.data?.message || error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -118,11 +137,16 @@ const OrderDetailsPage = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Delivered": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "Shipped": return "bg-blue-50 text-blue-700 border-blue-200";
-      case "Order Placed": return "bg-amber-50 text-amber-700 border-amber-200";
-      case "Cancelled": return "bg-red-50 text-red-700 border-red-200";
-      default: return "bg-gray-50 text-gray-700 border-gray-200";
+      case "Delivered":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "Shipped":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "Order Placed":
+        return "bg-amber-50 text-amber-700 border-amber-200";
+      case "Cancelled":
+        return "bg-red-50 text-red-700 border-red-200";
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200";
     }
   };
 
@@ -146,7 +170,11 @@ const OrderDetailsPage = () => {
               className="p-1 transition-all duration-300 hover:scale-110"
             >
               <Star
-                className={`w-8 h-8 md:w-10 md:h-10 ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+                className={`w-8 h-8 md:w-10 md:h-10 ${
+                  star <= rating
+                    ? "text-yellow-400 fill-current"
+                    : "text-gray-300"
+                }`}
               />
             </button>
           ))}
@@ -189,8 +217,12 @@ const OrderDetailsPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-2xl font-light text-gray-900 mb-2">Order Not Found</h3>
-          <p className="text-gray-600 font-light">The order you are looking for does not exist.</p>
+          <h3 className="text-2xl font-light text-gray-900 mb-2">
+            Order Not Found
+          </h3>
+          <p className="text-gray-600 font-light">
+            The order you are looking for does not exist.
+          </p>
         </div>
       </div>
     );
@@ -222,7 +254,7 @@ const OrderDetailsPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-900 mb-2">
-                      Order {order._id}
+                      {"ORD-" + order._id.toString().slice(-6)}
                     </h1>
                     <div className="text-gray-600 font-light text-sm sm:text-base">
                       Placed on {formatDate(order.date)}
@@ -234,7 +266,15 @@ const OrderDetailsPage = () => {
                     </div>
                     <div className="text-gray-600 font-light text-sm sm:text-base">
                       Expected delivery:{" "}
-                      {order.status === "Delivered" ? "Delivered" : order.status === "Cancelled" ? "Cancelled" : formatDate(new Date(order.date).setDate(new Date(order.date).getDate() + 7))}
+                      {order.status === "Delivered"
+                        ? "Delivered"
+                        : order.status === "Cancelled"
+                        ? "Cancelled"
+                        : formatDate(
+                            new Date(order.date).setDate(
+                              new Date(order.date).getDate() + 7
+                            )
+                          )}
                     </div>
                   </div>
                 </div>
@@ -287,7 +327,8 @@ const OrderDetailsPage = () => {
                           <span>Qty: 1</span>
                         </div>
                         <p className="text-sm text-gray-600 font-light mt-1">
-                          {order.designDescription || "Custom design as per your specifications"}
+                          {order.designDescription ||
+                            "Custom design as per your specifications"}
                         </p>
                       </div>
                       <div className="w-full md:w-auto text-right md:mt-0">
@@ -302,7 +343,10 @@ const OrderDetailsPage = () => {
                 ) : (
                   // Non-Customized Order
                   order.items.map((item, index) => (
-                    <div key={index} className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300">
+                    <div
+                      key={index}
+                      className="group cursor-pointer border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:shadow-md transition-all duration-300"
+                    >
                       <div className="flex flex-col md:flex-row items-start space-y-4 md:space-y-0 md:space-x-6">
                         <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
                           {item.image ? (
@@ -344,23 +388,36 @@ const OrderDetailsPage = () => {
               </div>
             </div>
 
-
             {/* Order Summary */}
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
-              <h3 className="text-xl md:text-2xl font-light text-gray-900 mb-6">Order Summary</h3>
+              <h3 className="text-xl md:text-2xl font-light text-gray-900 mb-6">
+                Order Summary
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between py-1.5">
-                  <span className="text-gray-600 font-light text-sm md:text-base">Subtotal</span>
-                  <span className="font-light text-gray-900 text-sm md:text-base">₹{order.amount - (25 || 0)}</span>
+                  <span className="text-gray-600 font-light text-sm md:text-base">
+                    Subtotal
+                  </span>
+                  <span className="font-light text-gray-900 text-sm md:text-base">
+                    ₹{order.amount - ( order.shippingCost === 0 ? 0 : 45)}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1.5">
-                  <span className="text-gray-600 font-light text-sm md:text-base">Shipping</span>
-                  <span className="font-light text-green-600 text-sm md:text-base">{order.shippingCost === 0 ? "Free" : `₹25`}</span>
+                  <span className="text-gray-600 font-light text-sm md:text-base">
+                    Shipping
+                  </span>
+                  <span className="font-light text-green-600 text-sm md:text-base">
+                    {order.shippingCost === 0 ? "Free" : `₹45`}
+                  </span>
                 </div>
                 <div className="border-t border-gray-200 pt-3 mt-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-xl md:text-2xl font-light text-gray-900">Total</span>
-                    <span className="text-2xl md:text-3xl font-light text-gray-900">₹{order.amount}</span>
+                    <span className="text-xl md:text-2xl font-light text-gray-900">
+                      Total
+                    </span>
+                    <span className="text-2xl md:text-3xl font-light text-gray-900">
+                      ₹{order.amount}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -387,7 +444,9 @@ const OrderDetailsPage = () => {
                     )}
                   </div>
                   <div>
-                    <p className="text-lg font-medium text-rose-900 capitalize">{order.status}</p>
+                    <p className="text-lg font-medium text-rose-900 capitalize">
+                      {order.status}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -397,10 +456,22 @@ const OrderDetailsPage = () => {
                   style={{ height: `${(activeStep / 3) * 100}%` }}
                 />
                 {[
-                  { status: "Order Placed", icon: <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> },
-                  { status: "Shipped", icon: <Truck className="w-4 h-4 md:w-5 md:h-5" /> },
-                  { status: "In Transit", icon: <Clock className="w-4 h-4 md:w-5 md:h-5" /> },
-                  { status: "Delivered", icon: <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> },
+                  {
+                    status: "Order Placed",
+                    icon: <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />,
+                  },
+                  {
+                    status: "Shipped",
+                    icon: <Truck className="w-4 h-4 md:w-5 md:h-5" />,
+                  },
+                  {
+                    status: "In Transit",
+                    icon: <Clock className="w-4 h-4 md:w-5 md:h-5" />,
+                  },
+                  {
+                    status: "Delivered",
+                    icon: <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />,
+                  },
                 ].map((step, index) => {
                   const isActive = index === activeStep;
                   const isCompleted = index < activeStep;
@@ -408,12 +479,24 @@ const OrderDetailsPage = () => {
                     <div key={index} className="relative flex items-start">
                       <div
                         ref={(el) => (stepsRef.current[index] = el)}
-                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110" : isCompleted ? "bg-rose-100 text-rose-600" : "bg-gray-100 text-gray-400"}`}
+                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
+                          isActive
+                            ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
+                            : isCompleted
+                            ? "bg-rose-100 text-rose-600"
+                            : "bg-gray-100 text-gray-400"
+                        }`}
                       >
                         {step.icon}
                       </div>
                       <div className="pl-3 md:pl-4">
-                        <h4 className={`text-base md:text-lg font-medium ${isActive || isCompleted ? "text-rose-600" : "text-gray-400"}`}>
+                        <h4
+                          className={`text-base md:text-lg font-medium ${
+                            isActive || isCompleted
+                              ? "text-rose-600"
+                              : "text-gray-400"
+                          }`}
+                        >
                           {step.status}
                         </h4>
                       </div>
@@ -425,15 +508,27 @@ const OrderDetailsPage = () => {
 
             {/* Shipping Address */}
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
-              <h3 className="text-xl md:text-2xl font-light text-gray-900 mb-4">Delivery Address</h3>
+              <h3 className="text-xl md:text-2xl font-light text-gray-900 mb-4">
+                Delivery Address
+              </h3>
               <div className="flex items-start space-x-3">
                 <div className="p-2.5 bg-gray-50 rounded-full">
                   <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                 </div>
                 <div className="text-gray-600 font-light text-sm md:text-base leading-relaxed">
                   <p>{order.shippingAddress?.name || "N/A"}</p>
-                  <p>{order.shippingAddress?.house || order.shippingAddress?.street || "N/A"}, {order.shippingAddress?.city || "N/A"}</p>
-                  <p>{order.shippingAddress?.state || "N/A"} {order.shippingAddress?.pincode || order.shippingAddress?.zipcode || "N/A"}</p>
+                  <p>
+                    {order.shippingAddress?.house ||
+                      order.shippingAddress?.street ||
+                      "N/A"}
+                    , {order.shippingAddress?.city || "N/A"}
+                  </p>
+                  <p>
+                    {order.shippingAddress?.state || "N/A"}{" "}
+                    {order.shippingAddress?.pincode ||
+                      order.shippingAddress?.zipcode ||
+                      "N/A"}
+                  </p>
                   <p>Phone: {order.shippingAddress?.phone || "N/A"}</p>
                 </div>
               </div>
@@ -451,7 +546,8 @@ const OrderDetailsPage = () => {
               </span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light">
-              Our artisan care team is here to help with any questions about your handcrafted pieces.
+              Our artisan care team is here to help with any questions about
+              your handcrafted pieces.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -464,8 +560,12 @@ const OrderDetailsPage = () => {
                   <Star className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-rose-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-1 text-sm md:text-base">Write Review</h3>
-                  <p className="text-xs md:text-sm text-gray-600 font-light">Share your experience</p>
+                  <h3 className="font-medium text-gray-900 mb-1 text-sm md:text-base">
+                    Write Review
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-600 font-light">
+                    Share your experience
+                  </p>
                 </div>
               </div>
             </button>
@@ -475,8 +575,12 @@ const OrderDetailsPage = () => {
                   <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-rose-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-1 text-sm md:text-base">Contact Support</h3>
-                  <p className="text-xs md:text-sm text-gray-600 font-light">Get help from our team</p>
+                  <h3 className="font-medium text-gray-900 mb-1 text-sm md:text-base">
+                    Contact Support
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-600 font-light">
+                    Get help from our team
+                  </p>
                 </div>
               </div>
             </button>
@@ -484,11 +588,23 @@ const OrderDetailsPage = () => {
         </div>
 
         {/* Guarantee Section */}
-        <div className="mt-16 border-t border-gray-200 pt-12">
-          <div className="flex flex-col md:flex-row justify-center md:gap-16 md:items-center space-y-4 md:space-y-0">
-            <div className="flex items-center space-x-2.5">
-              <Truck className="w-4 h-4 md:w-5 md:h-5 text-rose-600" />
-              <span className="text-gray-700 font-light text-sm md:text-base">Free Shipping & White Glove Delivery</span>
+        <div className="mt-16 border-t border-gray-200 pt-12 ">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-16">
+            <div className="flex items-center space-x-3">
+              <Shield className="w-5 h-5 text-rose-600" />
+              <span className="text-gray-700">
+                Right on Time, Fast & Reliable.
+              </span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Truck className="w-5 h-5 text-rose-600" />
+              <span className="text-gray-700">
+                Free Shipping & White Glove Delivery
+              </span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <i className="ri-award-line w-5 h-5 flex items-center justify-center text-rose-600"></i>
+              <span className="text-gray-700">Crafted to Perfection</span>
             </div>
           </div>
         </div>

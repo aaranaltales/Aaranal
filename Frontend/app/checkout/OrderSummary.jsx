@@ -5,7 +5,7 @@ import { useCheckoutContext } from "@/context/CheckoutContext";
 
 export default function OrderSummary() {
   const { cartData } = useUser();
-  const { subtotal, tax, shipping, total } = useCheckoutContext();
+  const { subtotal, shipping, total } = useCheckoutContext();
 
   return (
     <div className="bg-gradient-to-br from-white to-rose-50/50 rounded-3xl shadow-xl p-8 border border-rose-100 sticky top-24">
@@ -40,11 +40,7 @@ export default function OrderSummary() {
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
-          <span className="font-medium text-gray-900">₹{shipping}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Tax (21%)</span>
-          <span className="font-medium text-gray-900">₹{tax}</span>
+          <span className="font-medium text-gray-900">{(shipping > 0)? '₹'+shipping: 'Free'}</span>
         </div>
         <div className="border-t border-rose-200 pt-4">
           <div className="flex justify-between">
@@ -59,8 +55,8 @@ export default function OrderSummary() {
           <div className="flex items-center space-x-3">
             <i className="ri-truck-line w-5 h-5 flex items-center justify-center text-rose-600"></i>
             <div>
-              <p className="font-medium text-gray-900 text-sm">Free Returns</p>
-              <p className="text-xs text-gray-600">30-day return policy</p>
+              <p className="font-medium text-gray-900 text-sm">Right on Time</p>
+              <p className="text-xs text-gray-600">Fast & Reliable Delivery</p>
             </div>
           </div>
         </div>
@@ -69,8 +65,8 @@ export default function OrderSummary() {
           <div className="flex items-center space-x-3">
             <i className="ri-award-line w-5 h-5 flex items-center justify-center text-rose-600"></i>
             <div>
-              <p className="font-medium text-gray-900 text-sm">Lifetime Warranty</p>
-              <p className="text-xs text-gray-600">Craftsmanship guarantee</p>
+              <p className="font-medium text-gray-900 text-sm">Flawless Quality</p>
+              <p className="text-xs text-gray-600">Crafted to Perfection</p>
             </div>
           </div>
         </div>

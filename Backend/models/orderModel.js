@@ -14,6 +14,7 @@ const orderSchema = new mongoose.Schema({
     customImage: { type: String },
     customPrice: { type: Number },
     image: { type: String },
+    shippingCost: { type: Number, default: 0 }, // ✅ Added shipping cost field
 });
 
 const orderModel = mongoose.models.order || mongoose.model('order', orderSchema);

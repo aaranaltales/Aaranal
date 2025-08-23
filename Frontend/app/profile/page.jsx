@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserProfile from "./useUserProfile";
@@ -19,6 +19,8 @@ import {
   Calendar,
   ShoppingBag,
   Eye,
+  Camera,
+  Upload,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -36,24 +38,34 @@ export default function ProfilePage() {
     newAddress,
     showAddAddressForm,
     setShowAddAddressForm,
-    editAddressId
+    editAddressId,
+    handleUploadAvatar
   } = useUserProfile();
   const router = useRouter();
   const [addresses, setAddresses] = useState([]);
+  const[allOrders,setAllOrders]=useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [currentEditingAddress, setCurrentEditingAddress] = useState(null);
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     email: user?.email || "",
+    avatar: user?.avatar || "",
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (user) {
       setProfileData({
         name: user.name || "",
         email: user.email || "",
+        avatar: user.avatar || "",
       });
+      setAvatarPreview(user.avatar || "");
     }
   }, [user]);
 
@@ -73,10 +85,12 @@ export default function ProfilePage() {
           }
         );
         if (response.data.success) {
+          const orders = response.data.orders;
           const sortedOrders = response.data.orders
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 3);
           setRecentOrders(sortedOrders);
+          setAllOrders(orders);
         }
       } catch (error) {
         console.error("Error fetching recent orders:", error);
@@ -94,22 +108,48 @@ export default function ProfilePage() {
   }, [user?.addresses]);
 
   const handleEditAddressLocal = (address) => {
-    handleEditAddress(address._id)
-    setIsAddingNew(false);
+    setCurrentEditingAddress({ ...address });
+    setIsEditingAddress(true);
   };
 
   const handleCancelEdit = () => {
-    setEditingAddress(null);
     setIsAddingNew(false);
+    setShowAddAddressForm(false);
+    setIsEditingAddress(false);
+    setCurrentEditingAddress(null);
   };
 
   const handleEditProfile = () => {
     setIsEditingProfile(true);
   };
 
-  const handleSaveProfile = () => {
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    let avatarUrl = profileData.avatar;
+    
+    if (avatarFile) {
+      try {
+        avatarUrl = await handleUploadAvatar(avatarFile);
+      } catch (error) {
+        console.error("Error uploading avatar:", error);
+        return;
+      }
+    }
+
     setIsEditingProfile(false);
-    handleProfileUpdate(profileData.name, profileData.email)
+    handleProfileUpdate(profileData.name, profileData.email, avatarUrl);
+    setAvatarFile(null);
   };
 
   const handleCancelProfileEdit = () => {
@@ -117,7 +157,23 @@ export default function ProfilePage() {
     setProfileData({
       name: user?.name || "",
       email: user?.email || "",
+      avatar: user?.avatar || "",
     });
+    setAvatarPreview(user?.avatar || "");
+    setAvatarFile(null);
+  };
+
+  const handleEditAddressChange = (field, value) => {
+    setCurrentEditingAddress(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSaveEditAddress = () => {
+    handleSubmitEditAddress(currentEditingAddress);
+    setIsEditingAddress(false);
+    setCurrentEditingAddress(null);
   };
 
   const navigateToOrder = (orderId) => {
@@ -161,17 +217,275 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      {/* Add Address Modal */}
+      {showAddAddressForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Add New Address</h3>
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-rose-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
+                <select
+                  value={newAddress.type}
+                  onChange={(e) => handleNewAddressChange("type", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                >
+                  <option value="Home">Home</option>
+                  <option value="Work">Work</option>
+                  <option value="Other">Other</option>
+                </select>
+                
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={newAddress.name}
+                  onChange={(e) => handleNewAddressChange("name", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Mobile Number"
+                  value={newAddress.number}
+                  onChange={(e) => handleNewAddressChange("number", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Pincode"
+                  value={newAddress.pincode}
+                  onChange={(e) => handleNewAddressChange("pincode", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="House No./Building Name"
+                  value={newAddress.house}
+                  onChange={(e) => handleNewAddressChange("house", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Area/Street"
+                  value={newAddress.area}
+                  onChange={(e) => handleNewAddressChange("area", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={newAddress.city}
+                    onChange={(e) => handleNewAddressChange("city", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                  />
+                  <input
+                    type="text"
+                    placeholder="State"
+                    value={newAddress.state}
+                    onChange={(e) => handleNewAddressChange("state", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                  />
+                </div>
+                
+                <input
+                  type="text"
+                  placeholder="Landmark (Optional)"
+                  value={newAddress.landmark}
+                  onChange={(e) => handleNewAddressChange("landmark", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-100">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-6 py-3 rounded-xl border border-gray-300 hover:border-gray-400 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    handleSubmitNewAddress();
+                    setIsAddingNew(false);
+                    setShowAddAddressForm(false);
+                  }}
+                  className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all"
+                >
+                  Save Address
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Address Modal */}
+      {isEditingAddress && currentEditingAddress && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">Edit Address</h3>
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-rose-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
+                <select
+                  value={currentEditingAddress.type}
+                  onChange={(e) => handleEditAddressChange("type", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                >
+                  <option value="Home">Home</option>
+                  <option value="Work">Work</option>
+                  <option value="Other">Other</option>
+                </select>
+                
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={currentEditingAddress.name}
+                  onChange={(e) => handleEditAddressChange("name", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Mobile Number"
+                  value={currentEditingAddress.number}
+                  onChange={(e) => handleEditAddressChange("number", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Pincode"
+                  value={currentEditingAddress.pincode}
+                  onChange={(e) => handleEditAddressChange("pincode", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="House No./Building Name"
+                  value={currentEditingAddress.house}
+                  onChange={(e) => handleEditAddressChange("house", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <input
+                  type="text"
+                  placeholder="Area/Street"
+                  value={currentEditingAddress.area}
+                  onChange={(e) => handleEditAddressChange("area", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={currentEditingAddress.city}
+                    onChange={(e) => handleEditAddressChange("city", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                  />
+                  <input
+                    type="text"
+                    placeholder="State"
+                    value={currentEditingAddress.state}
+                    onChange={(e) => handleEditAddressChange("state", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                  />
+                </div>
+                
+                <input
+                  type="text"
+                  placeholder="Landmark (Optional)"
+                  value={currentEditingAddress.landmark}
+                  onChange={(e) => handleEditAddressChange("landmark", e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-100">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-6 py-3 rounded-xl border border-gray-300 hover:border-gray-400 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEditAddress}
+                  className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {/* Profile Header Card */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8 relative">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
             <div className="relative">
-              <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg">
-                <User className="w-8 h-8 md:w-12 md:h-12 text-white" />
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl overflow-hidden bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg">
+                {(avatarPreview || (profileData.avatar && profileData.avatar.trim() !== '')) ? (
+                  <img
+                    src={avatarPreview || profileData.avatar}
+                    alt=""
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
+                <div className={`w-full h-full flex items-center justify-center ${(avatarPreview || (profileData.avatar && profileData.avatar.trim() !== '')) ? 'hidden' : 'flex'}`}>
+                  <User className="w-8 h-8 md:w-12 md:h-12 text-white" />
+                </div>
               </div>
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
+              {isEditingProfile && (
+                <>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-black bg-opacity-50 flex items-center justify-center transition-all duration-200"
+                  >
+                    <Camera className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </>
+              )}
+              {!isEditingProfile && (
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              )}
             </div>
             <div className="flex-1 w-full">
               {isEditingProfile ? (
@@ -182,18 +496,13 @@ export default function ProfilePage() {
                     onChange={(e) =>
                       setProfileData({ ...profileData, name: e.target.value })
                     }
-                    className="text-2xl md:text-3xl font-light text-gray-900 bg-transparent border-b-2 border-rose-300 focus:border-rose-500 focus:outline-none transition-colors w-full max-w-md"
+                    className="text-lg md:text-xl font-semibold text-gray-900 bg-transparent border-b-2 border-rose-300 focus:border-rose-500 focus:outline-none transition-colors w-full max-w-md"
                   />
                   <div className="flex items-center space-x-2">
                     <Mail className="w-5 h-5 text-rose-600 flex-shrink-0" />
-                    <input
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) =>
-                        setProfileData({ ...profileData, email: e.target.value })
-                      }
-                      className="text-base md:text-lg text-gray-600 bg-transparent border-b border-gray-300 focus:border-rose-500 focus:outline-none transition-colors w-full"
-                    />
+                    <span className="text-sm text-gray-400">
+                      {profileData.email} (Email cannot be changed)
+                    </span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <button
@@ -226,7 +535,7 @@ export default function ProfilePage() {
                       <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl border border-rose-100">
                         <Package className="w-4 h-4 text-rose-600" />
                         <span className="text-sm font-medium text-rose-700">
-                          {recentOrders.length} Orders
+                          {allOrders.length} Orders
                         </span>
                       </div>
                       <div className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl border border-rose-100">
@@ -240,7 +549,7 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
-            {/* Edit button - Top-right corner for both mobile and desktop */}
+            {/* Edit button */}
             {!isEditingProfile && (
               <button
                 onClick={handleEditProfile}
@@ -254,7 +563,7 @@ export default function ProfilePage() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8">
-          {/* Saved Addresses - Full width on mobile */}
+          {/* Saved Addresses */}
           <div className="lg:col-span-2 col-span-1">
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
               <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -279,120 +588,7 @@ export default function ProfilePage() {
                   <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
               </div>
-              <div className="max-h-80 overflow-y-auto space-y-2 md:space-y-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
-                {/* New Address Form */}
-                {isAddingNew && showAddAddressForm && (
-                  <div className="border-2 border-dashed border-rose-200 rounded-xl md:rounded-2xl p-3 md:p-4 bg-rose-50">
-                    <h3 className="text-base md:text-lg font-medium text-gray-900 mb-3 md:mb-4">
-                      New Address
-                    </h3>
-                    <div className="space-y-2 md:space-y-3">
-                      <select
-                        value={newAddress.type}
-                        onChange={(e) =>
-                          handleNewAddressChange("type", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      >
-                        <option value="Home">Home</option>
-                        <option value="Work">Work</option>
-                        <option value="Other">Other</option>
-                      </select>
-                      <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={newAddress.name}
-                        onChange={(e) =>
-                          handleNewAddressChange("name", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Mobile Number"
-                        value={newAddress.number}
-                        onChange={(e) =>
-                          handleNewAddressChange("number", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Pincode"
-                        value={newAddress.pincode}
-                        onChange={(e) =>
-                          handleNewAddressChange("pincode", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="House No./Building Name"
-                        value={newAddress.house}
-                        onChange={(e) =>
-                          handleNewAddressChange("house", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Area/Street"
-                        value={newAddress.area}
-                        onChange={(e) =>
-                          handleNewAddressChange("area", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-                        <input
-                          type="text"
-                          placeholder="City"
-                          value={newAddress.city}
-                          onChange={(e) =>
-                            handleNewAddressChange("city", e.target.value)
-                          }
-                          className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                        />
-                        <input
-                          type="text"
-                          placeholder="State"
-                          value={newAddress.state}
-                          onChange={(e) =>
-                            handleNewAddressChange("state", e.target.value)
-                          }
-                          className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                        />
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Landmark (Optional)"
-                        value={newAddress.landmark}
-                        onChange={(e) =>
-                          handleNewAddressChange("landmark", e.target.value)
-                        }
-                        className="w-full px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-2 mt-3 md:mt-4">
-                      <button
-                        onClick={handleCancelEdit}
-                        className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl border border-gray-300 hover:border-gray-400 transition-all text-xs md:text-sm"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleSubmitNewAddress();
-                          setIsAddingNew(false);
-                          setShowAddAddressForm(false);
-                        }}
-                        className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all text-xs md:text-sm"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                )}
+              <div className="max-h-80 overflow-y-auto space-y-2 md:space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
                 {/* Address List or No Addresses Message */}
                 {addresses.length === 0 ? (
                   <div className="text-center py-6 md:py-8">
@@ -404,202 +600,63 @@ export default function ProfilePage() {
                       key={address._id}
                       className="group border border-gray-200 rounded-xl md:rounded-2xl p-3 md:p-4 hover:border-rose-300 hover:bg-rose-50 transition-all cursor-pointer"
                     >
-                      {editAddressId === address._id ? (
-                        <div className="space-y-2 md:space-y-3">
-                          <select
-                            value={address.type}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "type",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          >
-                            <option value="Home">Home</option>
-                            <option value="Work">Work</option>
-                            <option value="Other">Other</option>
-                          </select>
-                          <input
-                            type="text"
-                            placeholder="Full Name"
-                            value={address.name}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "name",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          />
-                          <input
-                            type="text"
-                            placeholder="Mobile Number"
-                            value={address.number}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "number",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          />
-                          <input
-                            type="text"
-                            placeholder="Pincode"
-                            value={address.pincode}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "pincode",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          />
-                          <input
-                            type="text"
-                            placeholder="House No./Building Name"
-                            value={address.house}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "house",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          />
-                          <input
-                            type="text"
-                            placeholder="Area/Street"
-                            value={address.area}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "area",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          />
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <input
-                              type="text"
-                              placeholder="City"
-                              value={address.city}
-                              onChange={(e) =>
-                                handleChangeAddress(
-                                  address._id,
-                                  "city",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                            />
-                            <input
-                              type="text"
-                              placeholder="State"
-                              value={address.state}
-                              onChange={(e) =>
-                                handleChangeAddress(
-                                  address._id,
-                                  "state",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                            />
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Landmark (Optional)"
-                            value={address.landmark}
-                            onChange={(e) =>
-                              handleChangeAddress(
-                                address._id,
-                                "landmark",
-                                e.target.value
-                              )
-                            }
-                            className="w-full px-2.5 py-2 md:px-3 md:py-2 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors text-xs md:text-sm"
-                          />
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={handleCancelEdit}
-                              className="px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg border border-gray-300 hover:border-gray-400 transition-all text-xs md:text-sm"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={() => handleSubmitEditAddress(address)}
-                              className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all text-xs md:text-sm"
-                            >
-                              Save
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col md:flex-row items-start justify-between">
-                          <div className="flex-1 w-full md:w-auto mb-3 md:mb-0">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <span className="inline-flex items-center space-x-1.5 px-2 py-1 md:px-2.5 md:py-1 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg group-hover:border-rose-300">
-                                {getAddressIcon(address.type)}
-                                <span className="text-xs">{address.type}</span>
+                      <div className="flex flex-col md:flex-row items-start justify-between">
+                        <div className="flex-1 w-full md:w-auto mb-3 md:mb-0">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="inline-flex items-center space-x-1.5 px-2 py-1 md:px-2.5 md:py-1 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg group-hover:border-rose-300">
+                              {getAddressIcon(address.type)}
+                              <span className="text-xs">{address.type}</span>
+                            </span>
+                            {address.default && (
+                              <span className="inline-flex items-center space-x-1.5 px-2 py-1 md:px-2.5 md:py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium rounded-lg">
+                                Default
                               </span>
-                              {address.default && (
-                                <span className="inline-flex items-center space-x-1.5 px-2 py-1 md:px-2.5 md:py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium rounded-lg">
-                                  Default
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm font-medium text-gray-900 mb-1">
-                              {address.name}
-                            </p>
-                            <p className="text-xs md:text-sm text-gray-600 mb-1">
-                              {address.house}, {address.area}
-                            </p>
-                            <p className="text-xs md:text-sm text-gray-600 mb-1">
-                              {address.city}, {address.state} {address.pincode}
-                            </p>
-                            <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">
-                              Phone: {address.number}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-1.5 md:space-x-2">
-                            {!address.default && (
-                              <button
-                                onClick={() => handleSetDefaultAddress(address._id)}
-                                className="text-xs text-rose-600 hover:text-rose-800"
-                              >
-                                Set as Default
-                              </button>
                             )}
-                            <button
-                              onClick={() => handleEditAddressLocal(address)}
-                              className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
-                            >
-                              <Edit2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-rose-600" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteAddress(address._id)}
-                              className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
-                            >
-                              <X className="w-3 h-3 md:w-3.5 md:h-3.5 text-red-600" />
-                            </button>
                           </div>
+                          <p className="text-sm font-medium text-gray-900 mb-1">
+                            {address.name}
+                          </p>
+                          <p className="text-xs md:text-sm text-gray-600 mb-1">
+                            {address.house}, {address.area}
+                          </p>
+                          <p className="text-xs md:text-sm text-gray-600 mb-1">
+                            {address.city}, {address.state} {address.pincode}
+                          </p>
+                          <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">
+                            Phone: {address.number}
+                          </p>
                         </div>
-                      )}
+                        <div className="flex items-center space-x-1.5 md:space-x-2">
+                          {!address.default && (
+                            <button
+                              onClick={() => handleSetDefaultAddress(address._id)}
+                              className="text-xs text-rose-600 hover:text-rose-800"
+                            >
+                              Set as Default
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleEditAddressLocal(address)}
+                            className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
+                          >
+                            <Edit2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-rose-600" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAddress(address._id)}
+                            className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
+                          >
+                            <X className="w-3 h-3 md:w-3.5 md:h-3.5 text-red-600" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}
               </div>
             </div>
           </div>
-          {/* Recent Orders - Full width on mobile */}
+          
+          {/* Recent Orders */}
           <div className="lg:col-span-3 col-span-1">
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
               <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -614,12 +671,8 @@ export default function ProfilePage() {
                     <p className="text-xs md:text-sm text-gray-500">Track your recent purchases</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  <span className="text-xs md:text-sm text-gray-500">Live updates</span>
-                </div>
               </div>
-              <div className="max-h-80 overflow-y-auto space-y-3 md:space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
+              <div className="max-h-80 overflow-y-auto space-y-3 md:space-y-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
                 {recentOrders.length === 0 ? (
                   <div className="text-center py-6 md:py-8">
                     <p className="text-gray-500 text-sm md:text-base">No recent orders found.</p>
@@ -699,6 +752,39 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      
+      {/* Custom Scrollbar Styles */}
+      <style jsx>{`
+        .scrollbar-thin {
+          scrollbar-width: thin;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: #fda4af;
+          border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: #fb7185;
+        }
+        .scrollbar-thumb-rose-300::-webkit-scrollbar-thumb {
+          background: #fda4af;
+        }
+        .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+        }
+        .scrollbar-track-gray-100::-webkit-scrollbar-track {
+          background: #f3f4f6;
+        }
+        .scrollbar-thumb-rounded-full::-webkit-scrollbar-thumb {
+          border-radius: 9999px;
+        }
+      `}</style>
     </div>
   );
 }

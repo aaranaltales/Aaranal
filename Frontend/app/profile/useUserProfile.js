@@ -14,6 +14,8 @@ export default function useUserProfile() {
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
 
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const cloudinaryUploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  const cloudinaryCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
   const [newCard, setNewCard] = useState({
     type: "",
@@ -23,7 +25,7 @@ export default function useUserProfile() {
   });
 
   const [newAddress, setNewAddress] = useState({
-    type: "",
+    type: "Home",
     name: "",
     number: "",
     pincode: "",
@@ -36,22 +38,6 @@ export default function useUserProfile() {
 
   const { user, token, setUser } = useUser();
 
-  const [orders] = useState([
-    {
-      id: "#ORD-2024-001",
-      date: "Jan 15, 2024",
-      items: 2,
-      total: "$485.00",
-      status: "Delivered",
-    },
-    {
-      id: "#ORD-2024-002",
-      date: "Jan 8, 2024",
-      items: 1,
-      total: "$185.00",
-      status: "Shipped",
-    },
-  ]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -86,13 +72,35 @@ export default function useUserProfile() {
     setEditPaymentId(null);
   };
 
-  const handleProfileUpdate = async (name, email) => {
+  // Upload avatar to Cloudinary
+  const handleUploadAvatar = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', cloudinaryUploadPreset);
+      formData.append('folder', 'user-avatars');
+
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`,
+        formData
+      );
+
+      return response.data.secure_url;
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
+      toast.error('Failed to upload avatar');
+      throw error;
+    }
+  };
+
+  const handleProfileUpdate = async (name, email, avatar) => {
     try {
       const response = await axios.put(
         `${dbUri}/api/user/update`,
         {
           name,
           email,
+          avatar,
         },
         {
           headers: {
@@ -105,13 +113,14 @@ export default function useUserProfile() {
         setUser((prevUser) => ({
           ...prevUser,
           name: response.data.user.name,
-          eamil: response.data.user.email,
+          email: response.data.user.email,
+          avatar: response.data.user.avatar,
         }));
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
-  }
+  };
 
   const handleChangePayment = (id, field, value) => {
     setUser((prevUser) => ({
@@ -146,9 +155,9 @@ export default function useUserProfile() {
       }
       handleSavePayment(paymentMethodId);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
-  }
+  };
 
   const handleEditAddress = (id) => {
     setEditAddressId(id);
@@ -190,11 +199,12 @@ export default function useUserProfile() {
         }));
       }
       handleSaveAddress();
+      setEditAddressId(null);
     } catch (error) {
-      console.log(error)
-      toast.error(error.message);
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
     }
-  }
+  };
 
   const handleSetDefaultAddress = async (addressId) => {
     try {
@@ -214,9 +224,8 @@ export default function useUserProfile() {
           addresses: response.data.addresses
         }));
       }
-
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -227,7 +236,7 @@ export default function useUserProfile() {
           Authorization: `Bearer ${token}`,
         },
         data: {
-          addressId, // include the ID here
+          addressId,
         },
       });
 
@@ -263,7 +272,7 @@ export default function useUserProfile() {
         }));
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -288,7 +297,7 @@ export default function useUserProfile() {
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
     }
-  }
+  };
 
   const handleAddCard = () => {
     setShowAddCardForm(true);
@@ -320,9 +329,9 @@ export default function useUserProfile() {
         }));
       }
       setShowAddCardForm(false);
-      setNewCard({ type: "", last4: "", expiry: "" });
+      setNewCard({ type: "", cardNumber: "", holderName: "", expiry: "" });
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -390,7 +399,6 @@ export default function useUserProfile() {
     mobileMenuOpen,
     setMobileMenuOpen,
     user,
-    orders,
     editMode,
     setEditMode,
     editPaymentId,
@@ -409,6 +417,7 @@ export default function useUserProfile() {
     handleSave,
     handleChange,
     handleProfileUpdate,
+    handleUploadAvatar,
     handleEditPayment,
     handleSavePayment,
     handleChangePayment,

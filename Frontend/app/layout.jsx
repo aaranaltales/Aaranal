@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono, Pacifico } from "next/font/google";
+import Script from 'next/script'; // Add this import
 import LayoutWrapper from "./LayoutWrapper";
+import Poster from "../components/poster";
 import "./globals.css";
 
 const pacifico = Pacifico({
@@ -27,11 +29,20 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
+      <head>
+        {/* Remove the script from here */}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${pacifico.variable} antialiased`}
       >
+        {/* Add the Script component here */}
+        <Script 
+          src="https://accounts.google.com/gsi/client" 
+          strategy="beforeInteractive"
+        />
         <LayoutWrapper>
           {children}
+          <Poster />
         </LayoutWrapper>
       </body>
     </html>

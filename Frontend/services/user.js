@@ -27,17 +27,30 @@ export const signin = async (email, password) => {
     }
 };
 
-export const signup = async ({ name, email, password }) => {
+export const signup = async ({ name, email, password, otp }) => {
     try {
         const response = await axios.post(`${dbUri}/api/user/register`, {
             name,
             email,
             password,
+            otp,
         });
         return response.data;
     } catch (error) {
         console.log(error);
         throw new Error(error.response?.data?.message || "Signup failed");
+    }
+};
+
+export const googleSignin = async (googleToken) => {
+    try {
+        const response = await axios.post(`${dbUri}/api/user/google`, {
+            token: googleToken,
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw new Error(error.response?.data?.message || "Google authentication failed");
     }
 };
 

@@ -13,8 +13,6 @@ const deliveryCharge = 10
 
 // gateway initialize
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-// console.log(process.env.RAZORPAY_KEY_ID)
-// console.log(process.env.RAZORPAY_KEY_SECRET)
 
 const razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -26,6 +24,10 @@ const placeOrder = async (req, res) => {
     try {
         const { items, amount, address } = req.body.orderData;
         const { user } = req
+        
+        // ✅ Calculate shipping cost based on address shipping method
+        const shippingCost = address.shippingMethod === 'express' ? 45 : 0;
+        
         const orderData = {
             userId: user._id,
             items,
@@ -33,7 +35,8 @@ const placeOrder = async (req, res) => {
             amount,
             paymentMethod: "COD",
             payment: false,
-            date: Date.now()
+            date: Date.now(),
+            shippingCost: shippingCost // ✅ Added shipping cost
         }
         const newOrder = new orderModel(orderData)
         await newOrder.save()
@@ -51,6 +54,9 @@ const placeOrderStripe = async (req, res) => {
         const { userId, items, amount, address } = req.body
         const { origin } = req.headers;
 
+        // ✅ Calculate shipping cost based on address shipping method
+        const shippingCost = address.shippingMethod === 'express' ? 45 : 0;
+
         const orderData = {
             userId,
             items,
@@ -58,7 +64,8 @@ const placeOrderStripe = async (req, res) => {
             amount,
             paymentMethod: "Stripe",
             payment: false,
-            date: Date.now()
+            date: Date.now(),
+            shippingCost: shippingCost // ✅ Added shipping cost
         }
 
         const newOrder = new orderModel(orderData)
@@ -75,16 +82,19 @@ const placeOrderStripe = async (req, res) => {
             quantity: item.quantity
         }))
 
-        line_items.push({
-            price_data: {
-                currency: currency,
-                product_data: {
-                    name: 'Delivery Charges'
+        // Use the calculated shipping cost instead of fixed delivery charge
+        if (shippingCost > 0) {
+            line_items.push({
+                price_data: {
+                    currency: currency,
+                    product_data: {
+                        name: 'Express Shipping'
+                    },
+                    unit_amount: shippingCost * 100
                 },
-                unit_amount: deliveryCharge * 100
-            },
-            quantity: 1
-        })
+                quantity: 1
+            })
+        }
 
         const session = await stripe.checkout.sessions.create({
             success_url: `${origin}/verify?success=true&orderId=${newOrder._id}`,
@@ -129,8 +139,10 @@ const placeOrderRazorpay = async (req, res) => {
         const { items, amount, address } = req.body.orderData;
         const { user } = req;
 
+        // ✅ Calculate shipping cost based on address shipping method
+        const shippingCost = address.shippingMethod === 'express' ? 45 : 0;
+
         // 1. Fetch product details
-        // assuming you have a Product model
         const products = await productModel.find({
             _id: { $in: items.map((i) => i.productId) }
         });
@@ -158,7 +170,8 @@ const placeOrderRazorpay = async (req, res) => {
             paymentMethod: "Razorpay",
             payment: false,
             date: Date.now(),
-            image: highestItem?.image || null
+            image: highestItem?.image || null,
+            shippingCost: shippingCost // ✅ Added shipping cost
         };
 
         const newOrder = new orderModel(orderData);
@@ -190,8 +203,6 @@ const verifyRazorpay = async (req, res) => {
 
         const { razorpay_order_id } = req.body.response
         const userId = req.user._id
-        // console.log(userId)
-        // console.log(razorpay_order_id)
         const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
         if (orderInfo.status === 'paid') {
             await orderModel.findByIdAndUpdate(orderInfo.receipt, { payment: true });
@@ -205,8 +216,6 @@ const verifyRazorpay = async (req, res) => {
                 address: order.address
             };
             const user = await userModel.findById(userId);
-
-            // console.log(orderSummary)
 
             await sendOrderConfirmation(user.email, orderSummary)
             res.json({ success: true, message: "Payment Successful" })

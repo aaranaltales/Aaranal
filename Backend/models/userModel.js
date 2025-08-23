@@ -30,10 +30,14 @@ const userSchema = new mongoose.Schema(
         name: { type: String, required: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
+        googleId: { type: String, sparse: true, unique: true },
+    avatar: { type: String },
+    isGoogleUser: { type: Boolean, default: false },
         cartData: { type: Object, default: {} },
         wishListData: { type: [String], default: [] },
         addresses: [addressSchema],
         paymentMethods: [paymentMethodSchema],
+         dateAdded: { type: Date, default: Date.now }
     },
     { minimize: false },
 )

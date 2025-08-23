@@ -1,5 +1,6 @@
 import express from "express"
 import {
+    googleAuth,
     loginUser,
     registerUser,
     adminLogin,
@@ -21,6 +22,7 @@ const router = express.Router()
 
 router.post("/register", registerUser)
 router.post("/login", loginUser)
+router.post("/google", googleAuth)
 router.post("/admin", adminLogin)
 router.post("/resetpassword", resetPassword)
 
