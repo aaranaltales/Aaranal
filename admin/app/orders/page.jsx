@@ -210,7 +210,7 @@ export default function OrdersPage() {
                       {order.address.country}
                     </p>
                     <p className="text-sm text-gray-700 mt-2">
-                      📞 {order.address.phone}
+                      📞 {order.address.number}
                     </p>
                   </div>
                 </div>
@@ -272,9 +272,8 @@ export default function OrdersPage() {
                     className="px-4 py-2 rounded-xl border border-gray-300 text-sm text-gray-800 focus:ring-2 focus:ring-rose-400"
                   >
                     <option value="Order Placed">Order Placed</option>
-                    <option value="Packing">Packing</option>
                     <option value="Shipped">Shipped</option>
-                    <option value="Out for delivery">Out for delivery</option>
+                    <option value="In Transit">In Transit</option>
                     <option value="Delivered">Delivered</option>
                   </select>
                 </div>

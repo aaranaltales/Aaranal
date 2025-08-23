@@ -57,6 +57,7 @@ const OrdersPage = () => {
         if (response.data.success) {
           let fetchedOrders = response.data.orders;
           fetchedOrders = fetchedOrders.filter((order) => order.payment === true);
+          fetchedOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
           // 2. Enrich orders (only if products available)
           if (allProducts.length > 0) {
             fetchedOrders = fetchedOrders.map((order) => {

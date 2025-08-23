@@ -5,7 +5,7 @@ import Stripe from 'stripe'
 import razorpay from 'razorpay'
 import mailer from './mailController.js';
 
-const { sendOrderConfirmation } = mailer;
+const { sendOrderConfirmation,sendOrderDelivered } = mailer;
 
 // global variables
 const currency = 'inr'
@@ -276,7 +276,11 @@ const updateStatus = async (req, res) => {
     try {
 
         const { orderId, status } = req.body
-
+        if (status == "Delivered") {
+            const order = await orderModel.findById(orderId);
+            const user = await userModel.findById(order.userId)
+            await sendOrderDelivered(user.email, orderId)
+        }
         await orderModel.findByIdAndUpdate(orderId, { status })
         res.json({ success: true, message: 'Status Updated' })
 

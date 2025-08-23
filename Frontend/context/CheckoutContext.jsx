@@ -27,7 +27,7 @@ export const CheckoutProvider = ({ children }) => {
 
     const [formData, setFormData] = useState({
         name: '',
-        phone: '',
+        number: '',
         house: '',
         area: '',
         landmark: '',
