@@ -1,37 +1,29 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import CollectionsFilter from './CollectionsFilter';
 import CollectionsGrid from './CollectionsGrid';
 import CollectionsHero from './CollectionsHero';
 
 function CollectionsContent() {
   const searchParams = useSearchParams();
-  const [heroVisible, setHeroVisible] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('Featured');
 
-  // Handle hero visibility
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setHeroVisible(false);
-    }, 1600);
-    return () => clearTimeout(timer);
-  }, []);
+  const filterRef = useRef(null);
 
-  // Handle search debounce
+  // 🔎 Debounce search
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-    }, 300); // 300ms delay
+    }, 300);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // Handle category from URL query
+  // 🏷️ Handle category from URL
   useEffect(() => {
     const category = searchParams.get('category');
     if (category && ['Tote Bag', 'Pouch', 'Money Purse', 'Crochet'].includes(category)) {
@@ -39,30 +31,42 @@ function CollectionsContent() {
     }
   }, [searchParams]);
 
+  // ⬇️ Auto-scroll smoothly to filter/grid after delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!filterRef.current) return;
+
+      const targetY = filterRef.current.getBoundingClientRect().top + window.scrollY;
+      const startY = window.scrollY;
+      const duration = 1600; // 2s smooth scroll
+      const startTime = performance.now();
+
+      const easeInOutQuad = (t) =>
+        t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+      const step = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = easeInOutQuad(progress);
+
+        window.scrollTo(0, startY + (targetY - startY) * ease);
+
+        if (progress < 1) requestAnimationFrame(step);
+      };
+
+      requestAnimationFrame(step);
+    }, 1200); // wait before starting scroll
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen overflow-hidden">
-      <AnimatePresence mode="wait">
-        {heroVisible && (
-          <motion.div
-            key="hero-wrapper"
-            initial={{ height: 'auto' }}
-            animate={{ height: 'auto' }}
-            exit={{ height: 0 }}
-            transition={{ duration: 1.5, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <motion.div
-              initial={{ opacity: 1, y: 0 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -100 }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-            >
-              <CollectionsHero />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <div className="relative z-10">
+    <div className="min-h-screen">
+      {/* Hero stays, not hidden */}
+      <CollectionsHero />
+
+      {/* Filter + Grid (scroll target) */}
+      <div ref={filterRef} className="relative z-10">
         <CollectionsFilter
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
