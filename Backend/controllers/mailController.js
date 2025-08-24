@@ -16,36 +16,36 @@ dotenv.config();
 // });
 
 const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp.zoho.in",
-    port: parseInt(process.env.EMAIL_PORT) || 465,
-    secure: true,
-    auth: {
-        user: process.env.ZOHO_EMAIL,
-        pass: process.env.ZOHO_EMAIL_PASS,
-    },
+  host: process.env.EMAIL_HOST || "smtp.zoho.in",
+  port: parseInt(process.env.EMAIL_PORT) || 465,
+  secure: true,
+  auth: {
+    user: process.env.ZOHO_EMAIL,
+    pass: process.env.ZOHO_EMAIL_PASS,
+  },
 });
 
 // ✅ Generic sendMail function
 const sendMail = async ({ to, subject, html, fromAlias }) => {
-    const from = `"${process.env.FROM_NAME}" <${fromAlias || process.env.FROM_EMAIL}>`;
+  const from = `"${process.env.FROM_NAME}" <${fromAlias || process.env.FROM_EMAIL}>`;
 
-    return transporter.sendMail({ from, to, subject, html });
+  return transporter.sendMail({ from, to, subject, html });
 };
 
 // ✅ 1. Send OTP Email
 const sendOtpEmail = async (to, otp, method = "signup") => {
-    let titleText = "";
-    let descText = "";
+  let titleText = "";
+  let descText = "";
 
-    if (method === "signup") {
-        titleText = "Verify Your Email";
-        descText = "Use the OTP below to complete your signup:";
-    } else if (method === "forgot") {
-        titleText = "Reset Your Password";
-        descText = "Use the OTP below to reset your password:";
-    }
+  if (method === "signup") {
+    titleText = "Verify Your Email";
+    descText = "Use the OTP below to complete your signup:";
+  } else if (method === "forgot") {
+    titleText = "Reset Your Password";
+    descText = "Use the OTP below to reset your password:";
+  }
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -84,21 +84,21 @@ const sendOtpEmail = async (to, otp, method = "signup") => {
     </html>
     `;
 
-    return sendMail({
-        to,
-        subject: `Your OTP for Aaranal Tales - ${method === "signup" ? "Signup" : "Password Reset"}`,
-        html: htmlContent,
-        fromAlias: 'no-reply@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `Your OTP for Aaranal Tales - ${method === "signup" ? "Signup" : "Password Reset"}`,
+    html: htmlContent,
+    fromAlias: 'no-reply@aaranaltales.shop',
+  });
 };
 
 
 // ✅ 2. Order Confirmation
 const sendOrderConfirmation = async (to, orderSummary) => {
-    const { orderId, itemsCount, totalCost, address } = orderSummary;
+  const { orderId, itemsCount, totalCost, address } = orderSummary;
 
-    // Build address string
-    const customerAddress = `
+  // Build address string
+  const customerAddress = `
         <div>
             <strong>${address.name}</strong> (${address.type})<br/>
             ${address.phone}<br/>
@@ -109,8 +109,8 @@ const sendOrderConfirmation = async (to, orderSummary) => {
         </div>
     `;
 
-    // Email HTML with placeholders replaced
-    const html = `
+  // Email HTML with placeholders replaced
+  const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -166,64 +166,65 @@ const sendOrderConfirmation = async (to, orderSummary) => {
     </html>
     `;
 
-    return sendMail({
-        to,
-        subject: `Order Confirmation – Order #${orderId}`,
-        html,
-        fromAlias: 'no-reply@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `Order Confirmation – Order #${orderId}`,
+    html,
+    fromAlias: 'no-reply@aaranaltales.shop',
+  });
 };
 
 
 // ✅ 3. Order Status Update
 const sendOrderStatus = async (to, orderId, status) => {
-    return sendMail({
-        to,
-        subject: `Order Update – Order #${orderId}`,
-        html: `<p>Your order status is now: <strong>${status}</strong>.</p>`,
-        fromAlias: 'orders@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `Order Update – Order #${orderId}`,
+    html: `<p>Your order status is now: <strong>${status}</strong>.</p>`,
+    fromAlias: 'orders@aaranaltales.shop',
+  });
 };
 
 // ✅ 4. Payment Confirmation
 const sendPaymentConfirmation = async (to, payment) => {
-    const html = `
+  const html = `
     <h3>Payment Received</h3>
     <p><strong>Order ID:</strong> ${payment.orderId}</p>
     <p><strong>Amount:</strong> ₹${payment.amount}</p>
     <p><strong>Method:</strong> ${payment.method}</p>
   `;
-    return sendMail({
-        to,
-        subject: `Payment Confirmation – Order #${payment.orderId}`,
-        html,
-        fromAlias: 'orders@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `Payment Confirmation – Order #${payment.orderId}`,
+    html,
+    fromAlias: 'orders@aaranaltales.shop',
+  });
 };
 
 // ✅ 5. Refund Email
 const sendRefundStatus = async (to, refund) => {
-    return sendMail({
-        to,
-        subject: `Refund Processed – Order #${refund.orderId}`,
-        html: `<p>Refund of ₹${refund.amount} has been initiated to your ${refund.method} account. It may take up to 7 working days.</p>`,
-        fromAlias: 'support@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `Refund Processed – Order #${refund.orderId}`,
+    html: `<p>Refund of ₹${refund.amount} has been initiated to your ${refund.method} account. It may take up to 7 working days.</p>`,
+    fromAlias: 'support@aaranaltales.shop',
+  });
 };
 
 // ✅ 6. Customer Support Reply
 const sendSupportReply = async (to, message) => {
-    return sendMail({
-        to,
-        subject: `We Received Your Query`,
-        html: `<p>Thank you for reaching out. Here is our response:</p><p>${message}</p>`,
-        fromAlias: 'support@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `We Received Your Query`,
+    html: `<p>Thank you for reaching out. Here is our response:</p><p>${message}</p>`,
+    fromAlias: 'support@aaranaltales.shop',
+  });
 };
 
 const sendOrderDelivered = async (to, orderId) => {
-    // Email HTML with placeholders replaced
-    const html = `
+  // Email HTML with placeholders replaced
+  const feedbackLink = `https://aaranaltales.shop/orders/${orderId}?q=true`;
+  const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -254,8 +255,10 @@ const sendOrderDelivered = async (to, orderId) => {
                     </a> 
                     to keep your bag beautiful for years.
                   </p>
-
-                  
+                <a href="${feedbackLink}" 
+                    style="display:inline-block; margin-top:25px; background:linear-gradient(to right,#d6336c,#f06595); color:#fff; text-decoration:none; padding:12px 30px; border-radius:30px; font-size:15px;">
+                    Share Feedback
+                  </a>
                 </td>
               </tr>
             </table>
@@ -268,22 +271,22 @@ const sendOrderDelivered = async (to, orderId) => {
     </html>
     `;
 
-    return sendMail({
-        to,
-        subject: `Order Delivered – Order #${orderId}`,
-        html,
-        fromAlias: 'no-reply@aaranaltales.shop',
-    });
+  return sendMail({
+    to,
+    subject: `Order Delivered – Order #${orderId}`,
+    html,
+    fromAlias: 'no-reply@aaranaltales.shop',
+  });
 };
 
 
 export default {
-    sendOrderDelivered,
-    sendOtpEmail,
-    sendOrderConfirmation,
-    sendOrderStatus,
-    sendPaymentConfirmation,
-    sendRefundStatus,
-    sendSupportReply,
+  sendOrderDelivered,
+  sendOtpEmail,
+  sendOrderConfirmation,
+  sendOrderStatus,
+  sendPaymentConfirmation,
+  sendRefundStatus,
+  sendSupportReply,
 };
 

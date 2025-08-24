@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { getProductsData } from "@/services/products";
 import { useUser } from "@/context/UserContext";
@@ -94,9 +94,8 @@ const ReviewModal = ({
               className="p-1 transition-all duration-300 hover:scale-110 disabled:cursor-not-allowed"
             >
               <Star
-                className={`w-8 h-8 md:w-10 md:h-10 ${
-                  star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                }`}
+                className={`w-8 h-8 md:w-10 md:h-10 ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                  }`}
               />
             </button>
           ))}
@@ -160,6 +159,27 @@ const OrderDetailsPage = () => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [checkingReviewStatus, setCheckingReviewStatus] = useState(false);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!token) {
+      // build current URL (pathname + search params)
+      const queryString = searchParams.toString();
+      const fullPath = queryString ? `${pathname}?${queryString}` : pathname;
+
+      router.push(`/auth?redirect=${encodeURIComponent(fullPath)}`);
+    }
+  }, [token, pathname, searchParams, router]);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q === "true") {
+      setShowReviewModal(true);
+    } else {
+      setShowReviewModal(false);
+    }
+  }, [searchParams]);
 
   // Fetch products
   useEffect(() => {
@@ -199,13 +219,13 @@ const OrderDetailsPage = () => {
     if (id && token) {
       fetchOrderDetails();
     }
-  }, [id, token, setLoading]);
+  }, [id, token, setLoading, dbUri]);
 
   // Check review status
   useEffect(() => {
     const checkReviewStatus = async () => {
       if (!order || !token) return;
-      
+
       try {
         setCheckingReviewStatus(true);
         const response = await axios.post(
@@ -213,7 +233,7 @@ const OrderDetailsPage = () => {
           { orderId: id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
+
         if (response.data.success) {
           setCanReview(response.data.canReview);
           setHasReviewed(false);
@@ -234,7 +254,7 @@ const OrderDetailsPage = () => {
     };
 
     checkReviewStatus();
-  }, [order, id, token]);
+  }, [order, id, token, dbUri]);
 
   // Enrich order items with product data
   useEffect(() => {
@@ -279,7 +299,7 @@ const OrderDetailsPage = () => {
   useEffect(() => {
     if (activeStep > 0 && stepsRef.current.length > 0) {
       stepsRef.current.forEach((step, index) => {
-        if (index <= activeStep) {
+        if (step && index <= activeStep) {
           step.classList.add("bg-rose-100", "text-rose-600");
           step.classList.remove("bg-gray-100", "text-gray-400");
         }
@@ -293,7 +313,7 @@ const OrderDetailsPage = () => {
       alert("Please select a rating");
       return;
     }
-    
+
     if (!reviewComment.trim()) {
       alert("Please write a comment");
       return;
@@ -424,8 +444,8 @@ const OrderDetailsPage = () => {
                         {order.status === "Delivered"
                           ? "Delivered"
                           : order.status === "Cancelled"
-                          ? "Cancelled"
-                          : formatDate(
+                            ? "Cancelled"
+                            : formatDate(
                               new Date(order.date).setDate(
                                 new Date(order.date).getDate() + 7
                               )
@@ -460,8 +480,8 @@ const OrderDetailsPage = () => {
                       <div className="aspect-square w-full md:w-24 h-40 md:h-24 rounded-xl md:rounded-2xl overflow-hidden bg-gray-50">
                         {order.customImage ? (
                           <img
-                            src={order.image}
-                            alt={order.items[0].name}
+                            src={order.customImage}
+                            alt={order.items[0]?.name || "Custom order"}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -477,7 +497,7 @@ const OrderDetailsPage = () => {
                           </span>
                         </div>
                         <h3 className="text-lg font-medium text-gray-900 group-hover:text-rose-600 transition-colors">
-                          {order.items[0].name}
+                          {order.items[0]?.name || "Custom Order"}
                         </h3>
                         <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
                           <span>Qty: 1</span>
@@ -490,7 +510,7 @@ const OrderDetailsPage = () => {
                       <div className="w-full md:w-auto text-right md:mt-0">
                         <div className="flex items-center space-x-3 justify-end">
                           <span className="text-xl font-light text-gray-900">
-                            ₹{order.customPrice}
+                            ₹{order.customPrice || order.amount}
                           </span>
                         </div>
                       </div>
@@ -635,23 +655,21 @@ const OrderDetailsPage = () => {
                     <div key={index} className="relative flex items-start">
                       <div
                         ref={(el) => (stepsRef.current[index] = el)}
-                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
-                          isActive
-                            ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
-                            : isCompleted
+                        className={`z-10 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isActive
+                          ? "bg-rose-500 text-white ring-4 ring-rose-200 scale-110"
+                          : isCompleted
                             ? "bg-rose-100 text-rose-600"
                             : "bg-gray-100 text-gray-400"
-                        }`}
+                          }`}
                       >
                         {step.icon}
                       </div>
                       <div className="pl-3 md:pl-4">
                         <h4
-                          className={`text-base md:text-lg font-medium ${
-                            isActive || isCompleted
-                              ? "text-rose-600"
-                              : "text-gray-400"
-                          }`}
+                          className={`text-base md:text-lg font-medium ${isActive || isCompleted
+                            ? "text-rose-600"
+                            : "text-gray-400"
+                            }`}
                         >
                           {step.status}
                         </h4>
@@ -711,56 +729,51 @@ const OrderDetailsPage = () => {
             <button
               onClick={() => setShowReviewModal(true)}
               disabled={checkingReviewStatus || (!canReview && !hasReviewed)}
-              className={`w-full group p-4 md:p-6 rounded-xl md:rounded-2xl border transition-all duration-300 ${
-                hasReviewed || reviewSubmitted
-                  ? "border-pink-200 bg-pink-50"
-                  : canReview
+              className={`w-full group p-4 md:p-6 rounded-xl md:rounded-2xl border transition-all duration-300 ${hasReviewed || reviewSubmitted
+                ? "border-pink-200 bg-pink-50"
+                : canReview
                   ? "border-gray-200 hover:border-rose-300 hover:bg-rose-50"
                   : "border-gray-200 bg-gray-50 cursor-not-allowed opacity-50"
-              }`}
+                }`}
             >
               <div className="flex flex-col items-center text-center space-y-3">
-                <div className={`p-3 md:p-4 rounded-full transition-colors duration-300 ${
-                  hasReviewed || reviewSubmitted
-                    ? "bg-pink-100"
-                    : canReview
+                <div className={`p-3 md:p-4 rounded-full transition-colors duration-300 ${hasReviewed || reviewSubmitted
+                  ? "bg-pink-100"
+                  : canReview
                     ? "bg-gray-50 group-hover:bg-white"
                     : "bg-gray-100"
-                }`}>
+                  }`}>
                   {hasReviewed || reviewSubmitted ? (
                     <Check className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
                   ) : (
-                    <Star className={`w-5 h-5 md:w-6 md:h-6 ${
-                      canReview
-                        ? "text-gray-600 group-hover:text-rose-600"
-                        : "text-gray-400"
-                    }`} />
+                    <Star className={`w-5 h-5 md:w-6 md:h-6 ${canReview
+                      ? "text-gray-600 group-hover:text-rose-600"
+                      : "text-gray-400"
+                      }`} />
                   )}
                 </div>
                 <div>
-                  <h3 className={`font-medium mb-1 text-sm md:text-base ${
-                    hasReviewed || reviewSubmitted
-                      ? "text-pink-900"
-                      : canReview
+                  <h3 className={`font-medium mb-1 text-sm md:text-base ${hasReviewed || reviewSubmitted
+                    ? "text-pink-900"
+                    : canReview
                       ? "text-gray-900"
                       : "text-gray-500"
-                  }`}>
+                    }`}>
                     {hasReviewed || reviewSubmitted ? "Review Submitted" : "Write Review"}
                   </h3>
-                  <p className={`text-xs md:text-sm font-light ${
-                    hasReviewed || reviewSubmitted
-                      ? "text-pink-600"
-                      : canReview
+                  <p className={`text-xs md:text-sm font-light ${hasReviewed || reviewSubmitted
+                    ? "text-pink-600"
+                    : canReview
                       ? "text-gray-600"
                       : "text-gray-400"
-                  }`}>
+                    }`}>
                     {hasReviewed || reviewSubmitted
                       ? "Thank you for your feedback!"
                       : canReview
-                      ? "Share your experience"
-                      : order.status.toLowerCase() === "delivered"
-                      ? "Already reviewed"
-                      : "Available after delivery"
+                        ? "Share your experience"
+                        : order.status.toLowerCase() === "delivered"
+                          ? "Already reviewed"
+                          : "Available after delivery"
                     }
                   </p>
                 </div>
@@ -812,18 +825,18 @@ const OrderDetailsPage = () => {
       </div>
 
       {showReviewModal && (
-  <ReviewModal
-    reviewSubmitted={reviewSubmitted}
-    hasReviewed={hasReviewed}
-    isSubmittingReview={isSubmittingReview}
-    rating={rating}
-    setRating={setRating}
-    reviewComment={reviewComment}
-    setReviewComment={setReviewComment}
-    handleSubmitReview={handleSubmitReview}
-    setShowReviewModal={setShowReviewModal}
-  />
-)}
+        <ReviewModal
+          reviewSubmitted={reviewSubmitted}
+          hasReviewed={hasReviewed}
+          isSubmittingReview={isSubmittingReview}
+          rating={rating}
+          setRating={setRating}
+          reviewComment={reviewComment}
+          setReviewComment={setReviewComment}
+          handleSubmitReview={handleSubmitReview}
+          setShowReviewModal={setShowReviewModal}
+        />
+      )}
     </div>
   );
 };
