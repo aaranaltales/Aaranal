@@ -25,9 +25,120 @@ import {
   Eye,
   Calendar,
   ShoppingBag,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import { useLoading } from "@/context/LoadingContext";
+
+const ReviewModal = ({
+  reviewSubmitted,
+  hasReviewed,
+  isSubmittingReview,
+  rating,
+  setRating,
+  reviewComment,
+  setReviewComment,
+  handleSubmitReview,
+  setShowReviewModal,
+}) => {
+  if (reviewSubmitted || hasReviewed) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-2">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-pink-100 rounded-full flex items-center justify-center">
+              <Check className="w-8 h-8 text-pink-600" />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-light text-gray-900 mb-2">
+              Review
+              <span className="block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
+                Submitted!
+              </span>
+            </h2>
+            <p className="text-lg text-gray-600 font-light mb-6">
+              Thank you for sharing your experience with us.
+            </p>
+            <button
+              onClick={() => setShowReviewModal(false)}
+              className="w-full py-3 px-4 bg-gradient-to-r from-rose-600 to-pink-500 text-white rounded-full hover:from-rose-700 hover:to-pink-600 transition-all duration-300 font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal form
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-2">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-2">
+          Share Your
+          <span className="block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
+            Experience
+          </span>
+        </h2>
+        <p className="text-lg text-gray-600 font-light mb-6">
+          How would you rate your handcrafted pieces?
+        </p>
+
+        {/* Stars */}
+        <div className="flex justify-center space-x-2 mb-6">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              onClick={() => setRating(star)}
+              disabled={isSubmittingReview}
+              className="p-1 transition-all duration-300 hover:scale-110 disabled:cursor-not-allowed"
+            >
+              <Star
+                className={`w-8 h-8 md:w-10 md:h-10 ${
+                  star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Textarea */}
+        <textarea
+          value={reviewComment}
+          onChange={(e) => setReviewComment(e.target.value)}
+          placeholder="Tell us about your experience with these handcrafted pieces..."
+          className="w-full h-32 p-4 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-700 font-light"
+          disabled={isSubmittingReview}
+        />
+
+        <div className="flex space-x-4 mt-6">
+          <button
+            onClick={() => setShowReviewModal(false)}
+            disabled={isSubmittingReview}
+            className="flex-1 py-3 px-4 border-2 border-gray-300 rounded-full text-gray-700 hover:border-gray-400 transition-all duration-300 font-light disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmitReview}
+            disabled={isSubmittingReview || rating === 0}
+            className="flex-1 py-3 px-4 bg-gradient-to-r from-rose-600 to-pink-500 text-white rounded-full hover:from-rose-700 hover:to-pink-600 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {isSubmittingReview ? (
+              <>
+                <RotateCw className="w-4 h-4 mr-2 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Review"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const OrderDetailsPage = () => {
   const params = useParams();
@@ -37,12 +148,18 @@ const OrderDetailsPage = () => {
   const { setLoading } = useLoading();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rating, setRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
   const [activeStep, setActiveStep] = useState(0);
   const stepsRef = useRef([]);
   const { token } = useUser();
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [allProducts, setAllProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Review states
+  const [canReview, setCanReview] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [checkingReviewStatus, setCheckingReviewStatus] = useState(false);
 
   // Fetch products
   useEffect(() => {
@@ -61,7 +178,7 @@ const OrderDetailsPage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         const response = await axios.post(
           `${dbUri}/api/order/orderdetails`,
           { orderId: id },
@@ -76,13 +193,48 @@ const OrderDetailsPage = () => {
           error.response?.data?.message || error.message
         );
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
     if (id && token) {
       fetchOrderDetails();
     }
-  }, [id, token]);
+  }, [id, token, setLoading]);
+
+  // Check review status
+  useEffect(() => {
+    const checkReviewStatus = async () => {
+      if (!order || !token) return;
+      
+      try {
+        setCheckingReviewStatus(true);
+        const response = await axios.post(
+          `${dbUri}/api/reviews/can-review`,
+          { orderId: id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (response.data.success) {
+          setCanReview(response.data.canReview);
+          setHasReviewed(false);
+        } else {
+          // If can't review due to already reviewed or other reasons
+          setCanReview(false);
+          if (response.data.message === "You have already reviewed this order") {
+            setHasReviewed(true);
+            setReviewSubmitted(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking review status:", error);
+        setCanReview(false);
+      } finally {
+        setCheckingReviewStatus(false);
+      }
+    };
+
+    checkReviewStatus();
+  }, [order, id, token]);
 
   // Enrich order items with product data
   useEffect(() => {
@@ -135,20 +287,51 @@ const OrderDetailsPage = () => {
     }
   }, [activeStep]);
 
-  // Loading state UI
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-            <Package className="w-8 h-8 text-gray-400 animate-pulse" />
-          </div>
-          <h3 className="text-2xl font-light text-gray-900 mb-2">Loading Order Details...</h3>
-          <p className="text-gray-600 font-light">Please wait while we fetch your order information</p>
-        </div>
-      </div>
-    );
-  }
+  // Submit review function
+  const handleSubmitReview = async () => {
+    if (rating === 0) {
+      alert("Please select a rating");
+      return;
+    }
+    
+    if (!reviewComment.trim()) {
+      alert("Please write a comment");
+      return;
+    }
+
+    try {
+      setIsSubmittingReview(true);
+      const response = await axios.post(
+        `${dbUri}/api/reviews/submit`,
+        {
+          orderId: id,
+          rating: rating,
+          comment: reviewComment.trim()
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        setReviewSubmitted(true);
+        setHasReviewed(true);
+        setCanReview(false);
+        // Reset form
+        setRating(0);
+        setReviewComment("");
+        // Close modal after a short delay to show success
+        setTimeout(() => {
+          setShowReviewModal(false);
+        }, 2000);
+      } else {
+        alert(response.data.message || "Failed to submit review");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("Failed to submit review. Please try again.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   // Order not found
   if (!order) {
@@ -196,56 +379,6 @@ const OrderDetailsPage = () => {
     }
   };
 
-  const ReviewModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-2">
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-900 mb-2">
-          Share Your
-          <span className="block font-normal bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
-            Experience
-          </span>
-        </h2>
-        <p className="text-lg text-gray-600 font-light mb-6">
-          How would you rate your handcrafted pieces?
-        </p>
-        <div className="flex justify-center space-x-2 mb-6">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              onClick={() => setRating(star)}
-              className="p-1 transition-all duration-300 hover:scale-110"
-            >
-              <Star
-                className={`w-8 h-8 md:w-10 md:h-10 ${
-                  star <= rating
-                    ? "text-yellow-400 fill-current"
-                    : "text-gray-300"
-                }`}
-              />
-            </button>
-          ))}
-        </div>
-        <textarea
-          placeholder="Tell us about your experience with these handcrafted pieces..."
-          className="w-full h-32 p-4 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-700 font-light"
-        />
-        <div className="flex space-x-4 mt-6">
-          <button
-            onClick={() => setShowReviewModal(false)}
-            className="flex-1 py-3 px-4 border-2 border-gray-300 rounded-full text-gray-700 hover:border-gray-400 transition-all duration-300 font-light"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => setShowReviewModal(false)}
-            className="flex-1 py-3 px-4 bg-gradient-to-r from-rose-600 to-pink-500 text-white rounded-full hover:from-rose-700 hover:to-pink-600 transition-all duration-300 font-medium"
-          >
-            Submit Review
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -552,7 +685,7 @@ const OrderDetailsPage = () => {
                       order.shippingAddress?.zipcode ||
                       "N/A"}
                   </p>
-                  <p>Phone: {order.shippingAddress?.phone || "N/A"}</p>
+                  <p>Phone: {order.shippingAddress?.number || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -574,24 +707,67 @@ const OrderDetailsPage = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Review Button */}
             <button
               onClick={() => setShowReviewModal(true)}
-              className="w-full group p-4 md:p-6 rounded-xl md:rounded-2xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-300"
+              disabled={checkingReviewStatus || (!canReview && !hasReviewed)}
+              className={`w-full group p-4 md:p-6 rounded-xl md:rounded-2xl border transition-all duration-300 ${
+                hasReviewed || reviewSubmitted
+                  ? "border-pink-200 bg-pink-50"
+                  : canReview
+                  ? "border-gray-200 hover:border-rose-300 hover:bg-rose-50"
+                  : "border-gray-200 bg-gray-50 cursor-not-allowed opacity-50"
+              }`}
             >
               <div className="flex flex-col items-center text-center space-y-3">
-                <div className="p-3 md:p-4 bg-gray-50 group-hover:bg-white rounded-full transition-colors duration-300">
-                  <Star className="w-5 h-5 md:w-6 md:h-6 text-gray-600 group-hover:text-rose-600" />
+                <div className={`p-3 md:p-4 rounded-full transition-colors duration-300 ${
+                  hasReviewed || reviewSubmitted
+                    ? "bg-pink-100"
+                    : canReview
+                    ? "bg-gray-50 group-hover:bg-white"
+                    : "bg-gray-100"
+                }`}>
+                  {hasReviewed || reviewSubmitted ? (
+                    <Check className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
+                  ) : (
+                    <Star className={`w-5 h-5 md:w-6 md:h-6 ${
+                      canReview
+                        ? "text-gray-600 group-hover:text-rose-600"
+                        : "text-gray-400"
+                    }`} />
+                  )}
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-1 text-sm md:text-base">
-                    Write Review
+                  <h3 className={`font-medium mb-1 text-sm md:text-base ${
+                    hasReviewed || reviewSubmitted
+                      ? "text-pink-900"
+                      : canReview
+                      ? "text-gray-900"
+                      : "text-gray-500"
+                  }`}>
+                    {hasReviewed || reviewSubmitted ? "Review Submitted" : "Write Review"}
                   </h3>
-                  <p className="text-xs md:text-sm text-gray-600 font-light">
-                    Share your experience
+                  <p className={`text-xs md:text-sm font-light ${
+                    hasReviewed || reviewSubmitted
+                      ? "text-pink-600"
+                      : canReview
+                      ? "text-gray-600"
+                      : "text-gray-400"
+                  }`}>
+                    {hasReviewed || reviewSubmitted
+                      ? "Thank you for your feedback!"
+                      : canReview
+                      ? "Share your experience"
+                      : order.status.toLowerCase() === "delivered"
+                      ? "Already reviewed"
+                      : "Available after delivery"
+                    }
                   </p>
                 </div>
               </div>
             </button>
+
+            {/* Contact Support Button */}
             <button className="w-full group p-4 md:p-6 rounded-xl md:rounded-2xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-300">
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="p-3 md:p-4 bg-gray-50 group-hover:bg-white rounded-full transition-colors duration-300">
@@ -635,8 +811,19 @@ const OrderDetailsPage = () => {
         </div>
       </div>
 
-      {/* Review Modal */}
-      {showReviewModal && <ReviewModal />}
+      {showReviewModal && (
+  <ReviewModal
+    reviewSubmitted={reviewSubmitted}
+    hasReviewed={hasReviewed}
+    isSubmittingReview={isSubmittingReview}
+    rating={rating}
+    setRating={setRating}
+    reviewComment={reviewComment}
+    setReviewComment={setReviewComment}
+    handleSubmitReview={handleSubmitReview}
+    setShowReviewModal={setShowReviewModal}
+  />
+)}
     </div>
   );
 };

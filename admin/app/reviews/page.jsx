@@ -8,188 +8,9 @@ import {
   Search,
   MessageCircle,
   User,
-  Package
+  Package,
+  ShoppingBag
 } from 'lucide-react';
-
-// Dummy data for testing
-const dummyReviews = [
-  {
-    _id: "1",
-    customerName: "Priya Sharma",
-    rating: 5,
-    comment: "Amazing quality! The fabric is so soft and comfortable. Delivered on time and packaging was excellent. Will definitely order again!",
-    orderId: "64a5f8b2c3d4e5f6789012ab",
-    orderDate: "2024-03-15T10:30:00Z",
-    createdAt: "2024-03-18T14:20:00Z",
-    orderAmount: 1299,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Cotton Kurta Set",
-        productImage: ["https://images.unsplash.com/photo-1583391733956-6c78276477e1?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "M",
-        productPrice: 899,
-        price: 899
-      },
-      {
-        productName: "Palazzo Pants",
-        productImage: ["https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "L",
-        productPrice: 400,
-        price: 400
-      }
-    ]
-  },
-  {
-    _id: "2",
-    customerName: "Rajesh Kumar",
-    rating: 4,
-    comment: "Good product overall. The quality is decent for the price. Shipping was a bit delayed but customer service was helpful.",
-    orderId: "64a5f8b2c3d4e5f6789012cd",
-    orderDate: "2024-03-10T16:45:00Z",
-    createdAt: "2024-03-14T09:15:00Z",
-    orderAmount: 799,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Casual T-Shirt",
-        productImage: ["https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop"],
-        quantity: 2,
-        size: "L",
-        productPrice: 399,
-        price: 399
-      }
-    ]
-  },
-  {
-    _id: "3",
-    customerName: "Anita Patel",
-    rating: 5,
-    comment: "Absolutely love this dress! Perfect fit and the color is exactly as shown in the pictures. Fast delivery too!",
-    orderId: "64a5f8b2c3d4e5f6789012ef",
-    orderDate: "2024-03-08T12:20:00Z",
-    createdAt: "2024-03-12T11:30:00Z",
-    orderAmount: 1599,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Floral Summer Dress",
-        productImage: ["https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "S",
-        productPrice: 1599,
-        price: 1599
-      }
-    ]
-  },
-  {
-    _id: "4",
-    customerName: "Mohammed Ali",
-    rating: 3,
-    comment: "The product is okay but not as described. The material feels cheaper than expected. However, the delivery was prompt.",
-    orderId: "64a5f8b2c3d4e5f6789012gh",
-    orderDate: "2024-03-05T08:15:00Z",
-    createdAt: "2024-03-08T17:45:00Z",
-    orderAmount: 699,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Formal Shirt",
-        productImage: ["https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "XL",
-        productPrice: 699,
-        price: 699
-      }
-    ]
-  },
-  {
-    _id: "5",
-    customerName: "Deepika Reddy",
-    rating: 5,
-    comment: "Excellent quality saree! The embroidery work is beautiful and the fabric is premium. Highly recommended for special occasions.",
-    orderId: "64a5f8b2c3d4e5f6789012ij",
-    orderDate: "2024-03-01T14:30:00Z",
-    createdAt: "2024-03-05T13:20:00Z",
-    orderAmount: 2499,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Silk Embroidered Saree",
-        productImage: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "Free Size",
-        productPrice: 2499,
-        price: 2499
-      }
-    ]
-  },
-  {
-    _id: "6",
-    customerName: "Vikram Singh",
-    rating: 4,
-    comment: "Good value for money. The jeans fit well and the quality is satisfactory. Would buy again.",
-    orderId: "64a5f8b2c3d4e5f6789012kl",
-    orderDate: "2024-02-28T11:45:00Z",
-    createdAt: "2024-03-03T10:15:00Z",
-    orderAmount: 899,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Slim Fit Jeans",
-        productImage: ["https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "32",
-        productPrice: 899,
-        price: 899
-      }
-    ]
-  },
-  {
-    _id: "7",
-    customerName: "Sneha Gupta",
-    rating: 2,
-    comment: "Not satisfied with the purchase. The color was different from what was shown online and the size was smaller than expected.",
-    orderId: "64a5f8b2c3d4e5f6789012mn",
-    orderDate: "2024-02-25T15:20:00Z",
-    createdAt: "2024-02-28T09:30:00Z",
-    orderAmount: 599,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Printed Top",
-        productImage: ["https://images.unsplash.com/photo-1583391733956-6c78276477e1?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "M",
-        productPrice: 599,
-        price: 599
-      }
-    ]
-  },
-  {
-    _id: "8",
-    customerName: "Arjun Nair",
-    rating: 5,
-    comment: "Outstanding quality! The leather jacket is exactly what I was looking for. Great craftsmanship and perfect fit.",
-    orderId: "64a5f8b2c3d4e5f6789012op",
-    orderDate: "2024-02-20T13:10:00Z",
-    createdAt: "2024-02-24T16:45:00Z",
-    orderAmount: 3999,
-    orderStatus: "Delivered",
-    orderItems: [
-      {
-        productName: "Leather Jacket",
-        productImage: ["https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop"],
-        quantity: 1,
-        size: "L",
-        productPrice: 3999,
-        price: 3999
-      }
-    ]
-  }
-];
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState([]);
@@ -198,8 +19,6 @@ export default function ReviewsPage() {
 
   const fetchReviews = async () => {
     try {
-      // Comment out the API call and use dummy data instead
-      /*
       const token = localStorage.getItem("token");
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/reviews/list`,
@@ -207,15 +26,11 @@ export default function ReviewsPage() {
         { headers: { token } }
       );
       if (res.data.success) {
-        setReviews(res.data.reviews.reverse());
+        setReviews(res.data.reviews);
+        toast.success("Reviews loaded successfully!");
       } else {
         toast.error(res.data.message);
       }
-      */
-      
-      // Use dummy data
-      setReviews(dummyReviews);
-      toast.success("Reviews loaded successfully!");
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
     }
@@ -241,6 +56,10 @@ export default function ReviewsPage() {
         className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
       />
     ));
+  };
+
+  const formatDate = (timestamp) => {
+    return new Date(timestamp).toLocaleDateString();
   };
 
   return (
@@ -284,11 +103,11 @@ export default function ReviewsPage() {
                   </div>
                   <div>
                     <h2 className="text-lg font-medium text-gray-800">
-                      {review.customerName || 'Anonymous Customer'}
+                      {review.customerName}
                     </h2>
                     <div className="flex items-center space-x-2 mt-1">
                       <div className="flex space-x-1">
-                        {renderStars(review.rating || 0)}
+                        {renderStars(review.rating)}
                       </div>
                       <span className="text-sm text-gray-500">
                         {review.rating}/5
@@ -298,10 +117,10 @@ export default function ReviewsPage() {
                 </div>
                 <div className="text-right text-sm text-gray-500">
                   <div className="mb-1">
-                    {new Date(review.createdAt).toLocaleDateString()}
+                    {formatDate(review.date)}
                   </div>
                   <div>
-                    Order: {"ORD-" + (review.orderId?.slice(-6) || 'N/A')}
+                    Order: {"ORD-" + review.orderId.slice(-6)}
                   </div>
                 </div>
               </div>
@@ -309,44 +128,118 @@ export default function ReviewsPage() {
               {/* Review Content */}
               <div className="mb-6">
                 <p className="text-gray-700 leading-relaxed">
-                  {review.comment || 'No comment provided'}
+                  {review.comment}
                 </p>
               </div>
 
-              {/* Order Items */}
+              {/* Order Items - Enhanced with better display */}
               {review.orderItems && review.orderItems.length > 0 && (
+  <div className="mb-4">
+    <div className="flex items-center space-x-2 mb-4">
+      <Package className="w-5 h-5 text-gray-400" />
+      <span className="text-lg font-medium text-gray-800">Products Reviewed:</span>
+    </div>
+    <div className="space-y-3">
+      {review.orderItems.map((item, index) => (
+        <div
+          key={index}
+          className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100"
+        >
+          <div className="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
+            {item.productId?.image && item.productId.image.length > 0 ? (
+              <img
+                src={item.productId.image[0]}
+                alt={item.productId.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-gray-400" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 pr-4">
+                <h3 className="font-medium text-gray-900 mb-1">
+                  {item.productId?.name}
+                </h3>
+                {item.productId?.category && (
+                  <span className="inline-block px-2 py-1 bg-rose-100 text-rose-700 text-xs font-medium rounded-full mb-2">
+                    {item.productId.category}
+                  </span>
+                )}
+                <div className="text-sm text-gray-600">
+                  <span>Quantity: {item.quantity}</span>
+                  {item.productId?.description && (
+                    <p className="mt-1 text-gray-500 text-xs line-clamp-2">
+                      {item.productId.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <span className="font-semibold text-gray-900 text-lg">
+                  ₹{item.productId?.price}
+                </span>
+                {item.quantity > 1 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    ₹{(item.productId.price / item.quantity).toFixed(2)} each
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+
+              {/* Custom Order Display */}
+              {review.isCustomOrder && (
                 <div className="mb-4">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <Package className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-600">Products reviewed:</span>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Package className="w-5 h-5 text-gray-400" />
+                    <span className="text-lg font-medium text-gray-800">Custom Order:</span>
                   </div>
-                  <div className="space-y-2">
-                    {review.orderItems.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          {item.productImage && item.productImage[0] && (
-                            <img
-                              src={item.productImage[0]}
-                              alt={item.productName}
-                              className="w-12 h-12 object-cover rounded-lg"
-                            />
-                          )}
+                  <div className="p-4 bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl border border-rose-100">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0 w-16 h-16 bg-rose-100 rounded-lg overflow-hidden">
+                        {review.customImage ? (
+                          <img 
+                            src={review.customImage} 
+                            alt="Custom Design"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-rose-200 to-pink-200 flex items-center justify-center">
+                            <ShoppingBag className="w-6 h-6 text-rose-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
                           <div>
-                            <span className="font-medium text-gray-800">
-                              {item.productName || item.name} × {item.quantity}
+                            <h3 className="font-medium text-gray-900 mb-1">
+                              {review.customItemName || 'Custom Tote Bag'}
+                            </h3>
+                            <span className="inline-block px-2 py-1 bg-rose-200 text-rose-800 text-xs font-medium rounded-full mb-2">
+                              Custom Design
                             </span>
-                            {item.size && (
-                              <span className="text-xs text-gray-500 ml-2">
-                                ({item.size})
-                              </span>
+                            {review.designDescription && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                {review.designDescription}
+                              </p>
                             )}
                           </div>
+                          <span className="font-semibold text-gray-900 text-lg">
+                            ₹{review.customPrice || review.orderAmount}
+                          </span>
                         </div>
-                        <span className="font-medium text-gray-800">
-                          ₹{item.productPrice || item.price}
-                        </span>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -357,12 +250,12 @@ export default function ReviewsPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Order Date:</span>
                     <span className="font-medium">
-                      {new Date(review.orderDate || review.createdAt).toLocaleDateString()}
+                      {formatDate(review.orderDate)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Order Amount:</span>
-                    <span className="font-medium">₹{review.orderAmount || 'N/A'}</span>
+                    <span className="font-medium">₹{review.orderAmount}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Order Status:</span>
@@ -370,7 +263,7 @@ export default function ReviewsPage() {
                       review.orderStatus === 'Delivered' ? 'text-green-600' : 
                       review.orderStatus === 'Shipped' ? 'text-blue-600' : 'text-gray-600'
                     }`}>
-                      {review.orderStatus || 'N/A'}
+                      {review.orderStatus}
                     </span>
                   </div>
                 </div>
