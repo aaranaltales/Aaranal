@@ -1,45 +1,47 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import ContactForm from './ContactForm';
 import ContactHero from './ContactHero';
 
 export default function ContactPage() {
-  const [heroVisible, setHeroVisible] = useState(true);
+  const formRef = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setHeroVisible(false);
-    }, 1600); // slight delay before starting the animation
+      if (!formRef.current) return;
+
+      const targetY = formRef.current.getBoundingClientRect().top + window.scrollY;
+      const startY = window.scrollY;
+      const duration = 1600; // 2 seconds for smoother scroll
+      const startTime = performance.now();
+
+      const easeInOutQuad = (t) =>
+        t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+      const step = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = easeInOutQuad(progress);
+
+        window.scrollTo(0, startY + (targetY - startY) * ease);
+
+        if (progress < 1) requestAnimationFrame(step);
+      };
+
+      requestAnimationFrame(step);
+    }); // wait before starting scroll
+
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="min-h-screen overflow-hidden">
-      <AnimatePresence mode="wait">
-        {heroVisible && (
-          <motion.div
-            key="contact-hero"
-            initial={{ height: 'auto' }}
-            animate={{ height: 'auto' }}
-            exit={{ height: 0 }}
-            transition={{ duration: 1.5, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <motion.div
-              initial={{ opacity: 1, y: 0 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -120 }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-            >
-              <ContactHero />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <ContactHero />
 
-      <div className="relative z-10">
+      {/* Form Section */}
+      <div ref={formRef} className="relative z-10">
         <ContactForm />
       </div>
     </div>

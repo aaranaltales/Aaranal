@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono, Pacifico } from "next/font/google";
-import Script from 'next/script'; // Add this import
+import Script from 'next/script';
 import LayoutWrapper from "./LayoutWrapper";
 import Poster from "../components/poster";
 import "./globals.css";
@@ -41,8 +41,8 @@ export default function RootLayout({ children }) {
           strategy="beforeInteractive"
         />
         <LayoutWrapper>
-          {children}
-          <Poster />
+            {children}
+            <Poster />
         </LayoutWrapper>
       </body>
     </html>

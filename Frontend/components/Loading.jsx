@@ -11,10 +11,10 @@ export default function LoadingPage() {
                 playsInline
                 className="object-contain"
             >
-                <source src="assests/logo_gif.mp4" type="video/mp4" />
+                <source src="/assests/logo_gif.mp4" type="video/mp4" />
                 {/* Fallback to GIF if MP4 doesn't work */}
                 <Image
-                    src="/loading.gif"
+                    src="loading.png"
                     alt="Loading..."
                     width={100}
                     height={100}
