@@ -2,7 +2,7 @@
 
 export default function ContactHero() {
   return (
-    <section className="relative h-[100vh] py-32 bg-gradient-to-br from-rose-50 via-white to-pink-50">
+    <section className="relative h-[100vh] py-48 md:py-32  bg-gradient-to-br from-rose-50 via-white to-pink-50   overflow-hidden">
       <div className="absolute top-10 right-20 w-80 h-80 bg-gradient-to-br from-rose-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
       <div className="absolute bottom-10 left-20 w-96 h-96 bg-gradient-to-tr from-pink-200/15 to-rose-200/15 rounded-full blur-3xl"></div>
       

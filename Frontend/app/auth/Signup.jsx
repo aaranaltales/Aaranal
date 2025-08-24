@@ -303,8 +303,8 @@ export default function Signup({ onAlreadyHaveAccount }) {
           </p>
 
           {/* Google Sign Up Button Container */}
-          <div className="w-full mb-4 ml-4 lg:ml-[8px]">
-            <div ref={googleButtonContainerRef} id="google-signin-button" className="w-full"></div>
+          <div className="flex justify-center items-center">
+            <div ref={googleButtonContainerRef} id="google-signin-button" className=""></div>
           </div>
 
           {/* Divider */}
