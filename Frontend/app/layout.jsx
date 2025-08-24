@@ -1,8 +1,8 @@
 import { Geist, Geist_Mono, Pacifico } from "next/font/google";
 import Script from 'next/script';
 import LayoutWrapper from "./LayoutWrapper";
-import Poster from "../components/poster";
 import "./globals.css";
+import Poster from "@/components/Poster";
 
 const pacifico = Pacifico({
   weight: '400',

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { X, Sparkles, Heart } from "lucide-react";
 
-export default function BirthdayBanner() {
+export default function Poster() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {

@@ -14,7 +14,7 @@ export default function LoadingPage() {
                 <source src="/assests/logo_gif.mp4" type="video/mp4" />
                 {/* Fallback to GIF if MP4 doesn't work */}
                 <Image
-                    src="loading.png"
+                    src="assests/loading.png"
                     alt="Loading..."
                     width={100}
                     height={100}
