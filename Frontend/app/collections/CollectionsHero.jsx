@@ -20,8 +20,7 @@ export default function CollectionsHero() {
         </h1>
 
         <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-          Explore our complete range of handcrafted leather accessories, each piece representing 
-          the pinnacle of artisanal skill and timeless design.
+          Step into Aaranal’s collection, where every piece is thoughtfully designed with a perfect blend of style, utility, and comfort to complement your everyday lifestyle.
         </p>
       </div>
     </section>

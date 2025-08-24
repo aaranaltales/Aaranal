@@ -26,7 +26,7 @@ function CollectionsContent() {
   // Category from URL
   useEffect(() => {
     const category = searchParams.get('category');
-    if (category && ['Tote Bag', 'Pouch', 'Money Purse', 'Crochet'].includes(category)) {
+    if (category && ['Tote Bag', 'Pouch and Purse', 'Crochet', 'Others'].includes(category)) {
       setActiveCategory(category);
     }
   }, [searchParams]);

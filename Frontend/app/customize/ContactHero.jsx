@@ -19,8 +19,7 @@ export default function ContactHero() {
         </h1>
         
         <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-          Whether you're seeking a custom piece, have questions about our craftsmanship, 
-          or wish to schedule a private consultation, we're here to help.
+         At Aaranal, we believe every tote should tell your story that’s why our customization lets you add names, quotes, and unique designs that reflect your personality.
         </p>
       </div>
     </section>
