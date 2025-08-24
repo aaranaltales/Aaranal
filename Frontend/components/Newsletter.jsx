@@ -36,8 +36,8 @@ export default function Newsletter() {
           </span>
           
           <h2 className="text-4xl lg:text-5xl font-light text-white mb-6">
-            Customize Your
-            <span className="block font-normal text-rose-200">
+            Customize Your <span className='sm:hidden'>Tote</span>
+            <span className="hidden sm:block font-normal text-rose-200">
               Tote
             </span>
           </h2>

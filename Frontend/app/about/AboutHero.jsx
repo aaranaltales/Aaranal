@@ -10,33 +10,36 @@ export default function AboutHero() {
   }, []);
 
   return (
-    <section className="relative h-[90vh] overflow-hidden">
-      {/* Background with gradient overlay */}
+    <section
+      className="relative h-[90vh] flex items-center overflow-hidden
+                 bg-cover bg-center
+                 bg-[url('/assests/about-hero-mobile.png')] lg:bg-[url('/assests/about-hero.png')]"
+    >
+      {/* Elegant overlay for large screens */}
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center
-                   bg-[url('/assests/about-hero-mobile.png')] lg:bg-[url('/assests/about-hero.png')]"
-      >
-        <div className="absolute inset-0 bg-black/60 lg:bg-none hero-gradient-overlay"></div>
-      </div>
+        className="absolute inset-0 z-10 pointer-events-none bg-black/60 lg:bg-none hero-gradient-overlay"
+      ></div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 h-full flex items-center relative z-10">
-        <div className="max-w-2xl w-full pl-4 lg:pl-8 lg:text-left text-center">
-          {/* Tag */}
-          <span className="inline-block px-4 py-2 bg-white/30 text-white lg:text-rose-700 text-sm font-medium rounded-full tracking-wide mb-5">
-            Our Story
-          </span>
-
-          {/* Large Title */}
-          <h1 className="text-5xl lg:text-7xl font-light text-white lg:text-black leading-tight mb-5">
-            Crafting
-            <span className="block font-normal bg-gradient-to-r from-rose-300 to-pink-200 lg:from-rose-600 lg:to-pink-500 bg-clip-text text-transparent drop-shadow-md">
-              Love and Legacy
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center relative z-20">
+        <div className="space-y-6 md:space-y-8 text-center lg:text-left">
+          <div className="space-y-3">
+            {/* Tag */}
+            <span className="inline-block px-4 py-2 bg-white/30 text-white lg:text-rose-700 text-sm font-medium rounded-full tracking-wide">
+              Our Story
             </span>
-          </h1>
+
+            {/* Large Title */}
+            <h1 className="text-7xl font-light text-white lg:text-black leading-[1.02]">
+              Crafting
+              <span className="block font-normal bg-gradient-to-r from-rose-300 to-pink-200 lg:from-rose-600 lg:to-pink-500 bg-clip-text text-transparent drop-shadow-md">
+                Love and Legacy
+              </span>
+            </h1>
+          </div>
 
           {/* Smaller Description */}
-          <p className="text-base lg:text-lg text-white/90 lg:text-black/80 font-light leading-relaxed mb-7 max-w-md mx-auto lg:mx-0">
+          <p className="text-base text-white/90 lg:text-black leading-relaxed max-w-lg mx-auto lg:mx-0 font-light">
             At Aaranal, every tote is more than just a bag—it’s a story stitched with care and painted with passion. We blend tradition with modern artistry to create timeless pieces.
           </p>
 

@@ -291,8 +291,8 @@ export default function Login({ onCreateAccount }) {
               </p>
 
               {/* Google Sign In Button Container */}
-              <div className="w-full mb-4 ml-4 lg:ml-[8px]">
-                <div id="google-signin-button" className="w-full"></div>
+              <div className="flex justify-center items-center">
+                <div id="google-signin-button"></div>
               </div>
 
               {/* Divider */}
