@@ -4,6 +4,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserProfile from "./useUserProfile";
 import { useUser } from "@/context/UserContext";
+import { useToast } from "@/components/ToastContext";
 import {
   Edit2,
   Save,
@@ -39,11 +40,13 @@ export default function ProfilePage() {
     showAddAddressForm,
     setShowAddAddressForm,
     editAddressId,
-    handleUploadAvatar
+    handleUploadAvatar,
   } = useUserProfile();
+
+  const { showSuccess, showError } = useToast();
   const router = useRouter();
   const [addresses, setAddresses] = useState([]);
-  const[allOrders,setAllOrders]=useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -137,18 +140,23 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async () => {
     let avatarUrl = profileData.avatar;
-    
+
     if (avatarFile) {
       try {
         avatarUrl = await handleUploadAvatar(avatarFile);
       } catch (error) {
         console.error("Error uploading avatar:", error);
+        showError("Failed to upload avatar. Please try again.");
         return;
       }
     }
-
     setIsEditingProfile(false);
-    handleProfileUpdate(profileData.name, profileData.email, avatarUrl);
+    try {
+      await handleProfileUpdate(profileData.name, profileData.email, avatarUrl);
+      showSuccess("Profile updated successfully!");
+    } catch (error) {
+      showError("Failed to update profile. Please try again.");
+    }
     setAvatarFile(null);
   };
 
@@ -170,10 +178,44 @@ export default function ProfilePage() {
     }));
   };
 
-  const handleSaveEditAddress = () => {
-    handleSubmitEditAddress(currentEditingAddress);
+  const handleSaveEditAddress = async () => {
+    try {
+      await handleSubmitEditAddress(currentEditingAddress);
+      showSuccess("Address updated successfully!");
+    } catch (error) {
+      showError("Failed to update address. Please try again.");
+    }
     setIsEditingAddress(false);
     setCurrentEditingAddress(null);
+  };
+
+  const handleDeleteAddressLocal = async (addressId) => {
+    try {
+      await handleDeleteAddress(addressId);
+      showSuccess("Address deleted successfully!");
+    } catch (error) {
+      showError("Failed to delete address. Please try again.");
+    }
+  };
+
+  const handleSetDefaultAddressLocal = async (addressId) => {
+    try {
+      await handleSetDefaultAddress(addressId);
+      showSuccess("Default address updated successfully!");
+    } catch (error) {
+      showError("Failed to update default address. Please try again.");
+    }
+  };
+
+  const handleSubmitNewAddressLocal = async () => {
+    try {
+      await handleSubmitNewAddress();
+      showSuccess("New address added successfully!");
+      setIsAddingNew(false);
+      setShowAddAddressForm(false);
+    } catch (error) {
+      showError("Failed to add new address. Please try again.");
+    }
   };
 
   const navigateToOrder = (orderId) => {
@@ -231,7 +273,7 @@ export default function ProfilePage() {
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
-              
+
               <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-rose-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
                 <select
                   value={newAddress.type}
@@ -242,7 +284,7 @@ export default function ProfilePage() {
                   <option value="Work">Work</option>
                   <option value="Other">Other</option>
                 </select>
-                
+
                 <input
                   type="text"
                   placeholder="Full Name"
@@ -250,7 +292,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleNewAddressChange("name", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="Mobile Number"
@@ -258,7 +300,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleNewAddressChange("number", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="Pincode"
@@ -266,7 +308,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleNewAddressChange("pincode", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="House No./Building Name"
@@ -274,7 +316,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleNewAddressChange("house", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="Area/Street"
@@ -282,7 +324,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleNewAddressChange("area", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="text"
@@ -299,7 +341,7 @@ export default function ProfilePage() {
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                   />
                 </div>
-                
+
                 <input
                   type="text"
                   placeholder="Landmark (Optional)"
@@ -308,7 +350,7 @@ export default function ProfilePage() {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
               </div>
-              
+
               <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-100">
                 <button
                   onClick={handleCancelEdit}
@@ -317,11 +359,7 @@ export default function ProfilePage() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => {
-                    handleSubmitNewAddress();
-                    setIsAddingNew(false);
-                    setShowAddAddressForm(false);
-                  }}
+                  onClick={handleSubmitNewAddressLocal}
                   className="bg-gradient-to-r from-rose-500 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all"
                 >
                   Save Address
@@ -346,7 +384,7 @@ export default function ProfilePage() {
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
-              
+
               <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-rose-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
                 <select
                   value={currentEditingAddress.type}
@@ -357,7 +395,7 @@ export default function ProfilePage() {
                   <option value="Work">Work</option>
                   <option value="Other">Other</option>
                 </select>
-                
+
                 <input
                   type="text"
                   placeholder="Full Name"
@@ -365,7 +403,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleEditAddressChange("name", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="Mobile Number"
@@ -373,7 +411,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleEditAddressChange("number", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="Pincode"
@@ -381,7 +419,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleEditAddressChange("pincode", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="House No./Building Name"
@@ -389,7 +427,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleEditAddressChange("house", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <input
                   type="text"
                   placeholder="Area/Street"
@@ -397,7 +435,7 @@ export default function ProfilePage() {
                   onChange={(e) => handleEditAddressChange("area", e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
-                
+
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="text"
@@ -414,7 +452,7 @@ export default function ProfilePage() {
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                   />
                 </div>
-                
+
                 <input
                   type="text"
                   placeholder="Landmark (Optional)"
@@ -423,7 +461,7 @@ export default function ProfilePage() {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-rose-500 focus:outline-none transition-colors"
                 />
               </div>
-              
+
               <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-100">
                 <button
                   onClick={handleCancelEdit}
@@ -443,8 +481,8 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* Profile Header Card */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-        {/* Profile Header Card */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8 relative">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
             <div className="relative">
@@ -589,7 +627,6 @@ export default function ProfilePage() {
                 </button>
               </div>
               <div className="max-h-80 overflow-y-auto space-y-2 md:space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full">
-                {/* Address List or No Addresses Message */}
                 {addresses.length === 0 ? (
                   <div className="text-center py-6 md:py-8">
                     <p className="text-gray-500 text-sm md:text-base">No saved addresses</p>
@@ -629,7 +666,7 @@ export default function ProfilePage() {
                         <div className="flex items-center space-x-1.5 md:space-x-2">
                           {!address.default && (
                             <button
-                              onClick={() => handleSetDefaultAddress(address._id)}
+                              onClick={() => handleSetDefaultAddressLocal(address._id)}
                               className="text-xs text-rose-600 hover:text-rose-800"
                             >
                               Set as Default
@@ -642,7 +679,7 @@ export default function ProfilePage() {
                             <Edit2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-rose-600" />
                           </button>
                           <button
-                            onClick={() => handleDeleteAddress(address._id)}
+                            onClick={() => handleDeleteAddressLocal(address._id)}
                             className="p-1.5 md:p-2 rounded-lg hover:bg-white transition-all opacity-100"
                           >
                             <X className="w-3 h-3 md:w-3.5 md:h-3.5 text-red-600" />
@@ -655,7 +692,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-          
+
           {/* Recent Orders */}
           <div className="lg:col-span-3 col-span-1">
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6">
@@ -752,7 +789,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      
+
       {/* Custom Scrollbar Styles */}
       <style jsx>{`
         .scrollbar-thin {

@@ -15,7 +15,7 @@ function CollectionsContent() {
 
   const filterRef = useRef(null);
 
-  // 🔎 Debounce search
+  // Debounce search
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -23,7 +23,7 @@ function CollectionsContent() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // 🏷️ Handle category from URL
+  // Category from URL
   useEffect(() => {
     const category = searchParams.get('category');
     if (category && ['Tote Bag', 'Pouch', 'Money Purse', 'Crochet'].includes(category)) {
@@ -31,14 +31,14 @@ function CollectionsContent() {
     }
   }, [searchParams]);
 
-  // ⬇️ Auto-scroll smoothly to filter/grid after delay
+  // Auto-scroll (on mount + category change)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!filterRef.current) return;
 
       const targetY = filterRef.current.getBoundingClientRect().top + window.scrollY;
       const startY = window.scrollY;
-      const duration = 1600; // 2s smooth scroll
+      const duration = 2000; // 2s
       const startTime = performance.now();
 
       const easeInOutQuad = (t) =>
@@ -55,18 +55,16 @@ function CollectionsContent() {
       };
 
       requestAnimationFrame(step);
-    }, 1200); // wait before starting scroll
+    }, 600); // slightly longer delay for first load
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [activeCategory]); // 👈 runs on first mount + category changes
 
   return (
     <div className="min-h-screen">
-      {/* Hero stays, not hidden */}
       <CollectionsHero />
 
-      {/* Filter + Grid (scroll target) */}
-      <div ref={filterRef} className="relative z-10">
+      <div ref={filterRef} id="collections-grid" className="relative z-10">
         <CollectionsFilter
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}

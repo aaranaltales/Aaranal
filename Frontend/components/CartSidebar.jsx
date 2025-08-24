@@ -1,10 +1,33 @@
-'use client';
+"use client";
+import { useEffect } from "react";
 import { useUser } from '@/context/UserContext';
+import { useToast } from "@/components/ToastContext";
 import Link from 'next/link';
 
-export default function CartSidebar({ isOpen, onClose }) {
+export default function CartSidebar({ isOpen, onClose, justAddedItem = false }) {
   const { updateQuantity, getCartAmount, cartData } = useUser();
+  const { showSuccess, showError } = useToast();
   const subtotal = getCartAmount();
+
+  // Show toast when cart opens and a new item was just added
+  useEffect(() => {
+    if (isOpen && justAddedItem) {
+      showSuccess("Added to cart successfully!");
+    }
+  }, [isOpen, justAddedItem]);
+
+  const handleUpdateQuantity = async (itemId, newQuantity) => {
+    try {
+      await updateQuantity(itemId, newQuantity);
+      if (newQuantity === 0) {
+        showSuccess("Item removed from cart!");
+      } else {
+        showSuccess("Cart updated!");
+      }
+    } catch (error) {
+      showError("Failed to update cart. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -17,6 +40,7 @@ export default function CartSidebar({ isOpen, onClose }) {
       <div
         className={`fixed right-0 top-0 h-full w-[90%] max-w-md bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
+        {/* Rest of your component remains the same */}
         <div className="flex items-center justify-between p-6 border-b border-rose-100 bg-gradient-to-r from-rose-50 to-pink-50">
           <div className="flex items-center space-x-3">
             <i className="ri-shopping-bag-fill w-6 h-6 flex items-center justify-center text-rose-600" />
@@ -29,7 +53,6 @@ export default function CartSidebar({ isOpen, onClose }) {
             <i className="ri-close-line w-6 h-6 flex items-center justify-center text-gray-600" />
           </button>
         </div>
-
         {cartData.length === 0 ? (
           <div className="flex-1 flex items-center justify-center p-8">
             <div className="text-center space-y-4">
@@ -65,8 +88,9 @@ export default function CartSidebar({ isOpen, onClose }) {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <button
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                            className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors"
+                            onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                            className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <i className="ri-subtract-line w-4 h-4 flex items-center justify-center text-rose-600" />
                           </button>
@@ -74,7 +98,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                            onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
                             className="w-8 h-8 rounded-full border border-rose-300 flex items-center justify-center hover:bg-rose-50 cursor-pointer transition-colors"
                           >
                             <i className="ri-add-line w-4 h-4 flex items-center justify-center text-rose-600" />
@@ -84,7 +108,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                       </div>
                     </div>
                     <button
-                      onClick={() => updateQuantity(item._id, 0)}
+                      onClick={() => handleUpdateQuantity(item._id, 0)}
                       className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer"
                     >
                       <i className="ri-delete-bin-line w-4 h-4 flex items-center justify-center text-gray-400 hover:text-rose-600" />

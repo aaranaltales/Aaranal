@@ -3,12 +3,13 @@ import { useUser } from '@/context/UserContext';
 import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 import { useLoading } from '@/context/LoadingContext';
+import { useToast } from "@/components/ToastContext"; // Import useToast
 
 export default function ProductGrid() {
   const { addToCart, wishlist, toggleWishlist } = useUser();
   const { setLoading } = useLoading();
+  const { showSuccess, showError } = useToast(); // Use the toast hook
   const [bestSellers, setBestSellers] = useState([]);
 
   const fetchProducts = async () => {
@@ -18,7 +19,8 @@ export default function ProductGrid() {
       const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
       setBestSellers(bestSellersOnly);
     } catch (error) {
-      toast.error('Failed to fetch products');
+      showError("Failed to load products. Please try again.");
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -28,10 +30,31 @@ export default function ProductGrid() {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (e, productId) => {
+  const handleAddToCart = async (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(productId);
+    try {
+      await addToCart(productId);
+      showSuccess("Added to cart successfully!");
+    } catch (error) {
+      showError("Failed to add item to cart. Please try again.");
+    }
+  };
+
+  const handleToggleWishlist = async (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await toggleWishlist(productId);
+      const isInWishlist = wishlist.includes(productId);
+      if (isInWishlist) {
+        showSuccess("Removed from wishlist!");
+      } else {
+        showSuccess("Added to wishlist!");
+      }
+    } catch (error) {
+      showError("Failed to update wishlist. Please try again.");
+    }
   };
 
   return (
@@ -75,11 +98,7 @@ export default function ProductGrid() {
                 )}
                 {/* Wishlist Button */}
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleWishlist(product._id);
-                  }}
+                  onClick={(e) => handleToggleWishlist(e, product._id)}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
                   <i

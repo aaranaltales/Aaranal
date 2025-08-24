@@ -53,22 +53,11 @@ Stay connected with Aaranal.
                   <Link
                     href={{
                       pathname: "/collections",
-                      query: { category: "Pouch" },
+                      query: { category: "Pouch and Purse" },
                     }}
                     className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
                   >
-                    Pouch
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={{
-                      pathname: "/collections",
-                      query: { category: "Money Purse" },
-                    }}
-                    className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
-                  >
-                    Money Purse
+                    Pouch and Purse
                   </Link>
                 </li>
                 <li>
@@ -80,6 +69,17 @@ Stay connected with Aaranal.
                     className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
                   >
                     Crochet
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={{
+                      pathname: "/collections",
+                      query: { category: "Others" },
+                    }}
+                    className="text-gray-600 hover:text-rose-600 transition-colors cursor-pointer font-light"
+                  >
+                    Others
                   </Link>
                 </li>
               </ul>
