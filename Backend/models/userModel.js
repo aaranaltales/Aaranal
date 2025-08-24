@@ -29,15 +29,22 @@ const userSchema = new mongoose.Schema(
     {
         name: { type: String, required: true },
         email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
+        // 🔥 FIXED: Make password optional for Google users
+        password: { 
+            type: String, 
+            required: function() {
+                return !this.isGoogleUser; // Only required for non-Google users
+            }
+        },
         googleId: { type: String, sparse: true, unique: true },
-    avatar: { type: String },
-    isGoogleUser: { type: Boolean, default: false },
+        avatar: { type: String },
+        isGoogleUser: { type: Boolean, default: false },
         cartData: { type: Object, default: {} },
         wishListData: { type: [String], default: [] },
-        addresses: [addressSchema],
-        paymentMethods: [paymentMethodSchema],
-         dateAdded: { type: Date, default: Date.now }
+        // 🔥 FIXED: Make sure addresses array is properly defaulted
+        addresses: { type: [addressSchema], default: [] },
+        paymentMethods: { type: [paymentMethodSchema], default: [] },
+        dateAdded: { type: Date, default: Date.now }
     },
     { minimize: false },
 )

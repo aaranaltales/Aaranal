@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { PlusCircle, List, PackageSearch, ChartLine, LogIn, LogOut, SquarePen } from 'lucide-react';
+import { PlusCircle, List, PackageSearch, ChartLine, LogIn, LogOut, SquarePen, Star } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -28,6 +28,7 @@ export default function Sidebar() {
     { href: '/products', label: 'Product List', icon: <List className="w-5 h-5" /> },
     { href: '/orders', label: 'Orders', icon: <PackageSearch className="w-5 h-5" /> },
     { href: '/customizations', label: 'Customizations', icon: <SquarePen className="w-5 h-5" /> },
+    { href: '/reviews', label: 'Reviews', icon: <Star className="w-5 h-5" /> },
   ];
 
   return (

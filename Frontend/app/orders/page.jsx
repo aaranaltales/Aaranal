@@ -323,7 +323,7 @@ const OrdersPage = () => {
                     </div>
 
                     {/* Order Items Preview */}
-                    <div className="flex items-center space-x-3 overflow-x-auto pb-2">
+                    <div className="flex items-center space-x-3 overflow-x-auto pb-2 mb-4">
                       {order.isCustomized ? (
                         // Customized Order Preview
                         <div className="flex-shrink-0 flex items-center space-x-3">
@@ -408,15 +408,14 @@ const OrdersPage = () => {
                         </>
                       )}
                     </div>
-                  </div>
-                  
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Action Buttons - moved to bottom right */}
+                    <div className="flex justify-end">
                       <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-rose-300 text-rose-600 rounded-full hover:bg-rose-50 transition-all duration-300 font-light">
                         <Eye className="w-4 h-4" />
                         <span>View Details</span>
                       </button>
+                    </div>
                   </div>
                 </div>
               </Link>

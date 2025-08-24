@@ -12,7 +12,13 @@ const authUser = async (req, res, next) => {
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        req.user = { _id: decoded.id }; // ✅ FIXED
+        // FIXED: Fetch complete user data instead of just ID
+        const user = await userModel.findById(decoded.id).select("-password");
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'User not found' });
+        }
+
+        req.user = user; // Now contains complete user data including name
 
         next();
     } catch (error) {

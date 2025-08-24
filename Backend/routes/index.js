@@ -6,6 +6,7 @@ import orderRouter from './orderRoute.js'
 import wishlistRouter from './wishlistRoute.js'
 import otpRouter from './otpRoute.js'
 import customizationRouter from './customizationRoute.js'
+import reviewRouter from './reviewRoutes.js'
 
 const router = express.Router()
 
@@ -16,5 +17,6 @@ router.use('/wishlist', wishlistRouter)
 router.use('/order', orderRouter)
 router.use('/otp', otpRouter)
 router.use('/customization', customizationRouter);
+router.use('/reviews', reviewRouter);
 
 export default router;

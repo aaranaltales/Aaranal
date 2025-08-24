@@ -14,6 +14,7 @@ const createToken = (id) => {
 }
 
 // Google Sign In/Up
+// Enhanced Google Sign In/Up with detailed error logging
 const googleAuth = async (req, res) => {
     try {
         const { token } = req.body;
@@ -27,7 +28,6 @@ const googleAuth = async (req, res) => {
         const ticket = await googleClient.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
-            // Add clock tolerance for timing issues
             clockSkew: 300 // 5 minutes tolerance
         });
 
@@ -50,27 +50,61 @@ const googleAuth = async (req, res) => {
         });
 
         if (user) {
-            // Update existing user
+            // Update existing user with Google info if not already set
             if (!user.googleId) {
                 user.googleId = googleId;
                 user.avatar = picture;
                 user.isGoogleUser = true;
-                await user.save();
+                
+                try {
+                    await user.save();
+                    console.log('Successfully updated existing user');
+                } catch (saveError) {
+                    console.error('Error saving existing user:', saveError);
+                    return res.json({ 
+                        success: false, 
+                        message: "Failed to update user: " + saveError.message 
+                    });
+                }
             }
             console.log('Existing user signed in:', user.email);
         } else {
-            // Create new user
-            user = new userModel({
+            // Create new user - explicitly define only the fields we want
+            const userData = {
                 name: name || email.split('@')[0],
                 email,
                 googleId,
                 avatar: picture,
                 isGoogleUser: true,
-                // Don't set a password for Google users
-                password: undefined
-            });
-            await user.save();
-            console.log('New user created:', user.email);
+                // Explicitly set default values for arrays to avoid validation issues
+                cartData: {},
+                wishListData: [],
+                addresses: [], // Empty array, no address validation issues
+                paymentMethods: [], // Empty array
+            };
+
+            console.log('Creating new user with data:', userData);
+
+            try {
+                user = new userModel(userData);
+                await user.save();
+                console.log('New user created successfully:', user.email);
+            } catch (createError) {
+                console.error('Error creating new user:', createError);
+                console.error('Validation errors:', createError.errors);
+                
+                // More detailed error message
+                let errorMessage = "Failed to create user account";
+                if (createError.errors) {
+                    const errorFields = Object.keys(createError.errors);
+                    errorMessage += `. Missing required fields: ${errorFields.join(', ')}`;
+                }
+                
+                return res.json({ 
+                    success: false, 
+                    message: errorMessage + ": " + createError.message 
+                });
+            }
         }
 
         const jwtToken = createToken(user._id);
@@ -79,11 +113,18 @@ const googleAuth = async (req, res) => {
         res.json({ 
             success: true, 
             token: jwtToken,
-            message: "Google authentication successful"
+            message: "Google authentication successful",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar
+            }
         });
 
     } catch (error) {
         console.error('Google auth error:', error);
+        console.error('Error stack:', error.stack);
         
         if (error.message && error.message.includes('Token used too early')) {
             return res.json({ 
