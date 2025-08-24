@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useRef } from 'react';
 import ContactForm from './ContactForm';
 import ContactHero from './ContactHero';
@@ -13,9 +12,10 @@ export default function ContactPage() {
 
       const targetY = formRef.current.getBoundingClientRect().top + window.scrollY;
       const startY = window.scrollY;
-      const duration = 1600; // 2 seconds for smoother scroll
+      const duration = 1600; // 1.2s for a smooth but not too slow scroll
       const startTime = performance.now();
 
+      // Easing function for smooth start and end
       const easeInOutQuad = (t) =>
         t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
@@ -23,14 +23,12 @@ export default function ContactPage() {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const ease = easeInOutQuad(progress);
-
         window.scrollTo(0, startY + (targetY - startY) * ease);
-
         if (progress < 1) requestAnimationFrame(step);
       };
 
       requestAnimationFrame(step);
-    }); // wait before starting scroll
+    }, 600); // Slight delay for the hero to be visible
 
     return () => clearTimeout(timer);
   }, []);
@@ -39,9 +37,8 @@ export default function ContactPage() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <ContactHero />
-
       {/* Form Section */}
-      <div ref={formRef} className="relative z-10">
+      <div ref={formRef} id="contact-form" className="relative z-10">
         <ContactForm />
       </div>
     </div>

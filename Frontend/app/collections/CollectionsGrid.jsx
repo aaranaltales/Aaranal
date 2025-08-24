@@ -4,12 +4,14 @@ import { useUser } from '@/context/UserContext';
 import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-
+import { useToast } from "@/components/ToastContext"; // Import useToast
 
 export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
   const { addToCart, wishlist, toggleWishlist } = useUser();
-  const { setLoading } = useLoading()
+  const { setLoading } = useLoading();
+  const { showSuccess, showError } = useToast(); // Use the toast hook
+
   useEffect(() => {
     const fetchProducts = async () => {
       const products = await getProductsData(setLoading);
@@ -18,10 +20,31 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (e, productId) => {
+  const handleAddToCart = async (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(productId);
+    try {
+      await addToCart(productId);
+      showSuccess("Added to cart successfully!"); // Show success toast
+    } catch (error) {
+      showError("Failed to add item to cart. Please try again."); // Show error toast
+    }
+  };
+
+  const handleToggleWishlist = async (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await toggleWishlist(productId);
+      const isInWishlist = wishlist.includes(productId);
+      if (isInWishlist) {
+        showSuccess("Removed from wishlist!"); // Show success toast
+      } else {
+        showSuccess("Added to wishlist!"); // Show success toast
+      }
+    } catch (error) {
+      showError("Failed to update wishlist. Please try again."); // Show error toast
+    }
   };
 
   const parsePrice = (value) => {
@@ -55,17 +78,14 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
   return (
     <section className="py-16 bg-gradient-to-b from-white via-rose-50/20 to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* ✅ Added items-stretch to keep all cards same height */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 items-stretch">
           {sortedProducts.map((product) => (
             <Link
               key={product._id}
               href={`/product/${product._id}`}
-              className="group cursor-pointer block h-full" // ✅ h-full to stretch height
+              className="group cursor-pointer block h-full"
             >
-              {/* ✅ flex-col + h-full for equal height cards */}
               <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-
                 {/* NEW & SALE Badges */}
                 {product.isNew && (
                   <div className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium">
@@ -79,11 +99,7 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                 )}
                 {/* Wishlist Button */}
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleWishlist(product._id);
-                  }}
+                  onClick={(e) => handleToggleWishlist(e, product._id)}
                   className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300 group-hover:scale-110"
                 >
                   <i
@@ -101,32 +117,16 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
                     className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
-
-                {/* 📝 Product Info */}
-                <div className="p-6 space-y-4 flex flex-col flex-grow"> {/* ✅ flex-grow so bottom section aligns */}
+                {/* Product Info */}
+                <div className="p-6 space-y-4 flex flex-col flex-grow">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">
                       {product.category}
                     </span>
-                    {/* <div className="flex items-center space-x-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <i
-                          key={star}
-                          className={`w-4 h-4 ${star <= Math.floor(product.rating)
-                            ? 'ri-star-fill text-yellow-400'
-                            : 'ri-star-line text-gray-300'
-                            }`}
-                        ></i>
-                      ))}
-                      <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-                    </div> */}
                   </div>
-
-                  {/* ✅ Fixed height product name */}
                   <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors line-clamp-2 min-h-[3.5rem]">
                     {product.name}
                   </h3>
-
                   <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center space-x-2">
                       <span className="text-2xl font-semibold text-gray-900">₹{product.price}</span>

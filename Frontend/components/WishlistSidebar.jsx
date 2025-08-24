@@ -1,31 +1,28 @@
 'use client';
 import { useUser } from '@/context/UserContext';
+import { useToast } from "@/components/ToastContext"; // Import useToast
 import Link from 'next/link';
-
-const wishlistItems = [
-  {
-    id: '2',
-    name: "Paris Tote",
-    price: "$395",
-    image: "assests/paris_bag.jpg",
-    category: "Tote Bags",
-    colors: ["#2F2F2F", "#8B4513", "#4B0082"]
-  },
-  {
-    id: '2',
-    name: "Red Tulips Tote",
-    price: "$225",
-    image: "assests/red_tuplis_bag.jpg",
-    category: "Tote Bags",
-    colors: ["#D2B48C", "#8B4513", "#2F2F2F"]
-  },
-];
 
 export default function WishlistSidebar({ isOpen, onClose }) {
   const { toggleWishlist, wishlistData, addToCart } = useUser();
-  const addCart = (item) => {
-    toggleWishlist(item._id);
-    addToCart(item._id);
+  const { showSuccess, showError } = useToast(); // Use the toast hook
+
+  const handleToggleWishlist = async (itemId) => {
+    try {
+      await toggleWishlist(itemId);
+      showSuccess("Wishlist updated!"); // Show success toast
+    } catch (error) {
+      showError("Failed to update wishlist. Please try again."); // Show error toast
+    }
+  };
+
+  const handleAddToCart = async (item) => {
+    try {
+      await addToCart(item._id);
+      showSuccess("Added to cart successfully!"); // Show success toast
+    } catch (error) {
+      showError("Failed to add item to cart. Please try again."); // Show error toast
+    }
   };
 
   return (
@@ -89,30 +86,24 @@ export default function WishlistSidebar({ isOpen, onClose }) {
                             <h3 className="font-semibold text-gray-900 text-sm">{item.name}</h3>
                           </div>
                           <button
-                            onClick={() => toggleWishlist(item._id)}
+                            onClick={() => handleToggleWishlist(item._id)}
                             className="p-1 hover:bg-rose-100 rounded-full transition-all cursor-pointer"
                           >
                             <i className="ri-heart-fill w-4 h-4 flex items-center justify-center text-rose-500 hover:text-rose-600"></i>
                           </button>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-gray-900 text-sm">{item.price}</span>
+                          <span className="font-semibold text-gray-900 text-sm">₹{item.price}</span>
                           {item.originalPrice && (
-                            <span className="text-xs text-gray-500 line-through">{item.originalPrice}</span>
+                            <span className="text-xs text-gray-500 line-through">₹{item.originalPrice}</span>
                           )}
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex space-x-1">
-                            {/* {item.colors.map((color, index) => (
-                              <div
-                                key={index}
-                                className="w-3 h-3 rounded-full border border-gray-200 cursor-pointer hover:scale-125 transition-transform"
-                                style={{ backgroundColor: color }}
-                              ></div>
-                            ))} */}
+                            {/* Color options can be added here if needed */}
                           </div>
                           <button
-                            onClick={() => addCart(item)}
+                            onClick={() => handleAddToCart(item)}
                             className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-4 py-1.5 rounded-full text-xs hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg"
                           >
                             Add to Cart

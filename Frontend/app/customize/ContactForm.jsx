@@ -2,7 +2,6 @@
 import { useUser } from '@/context/UserContext';
 import axios from 'axios';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
 
 export default function ContactForm() {
   const { user, token } = useUser();
@@ -84,7 +83,7 @@ export default function ContactForm() {
         setTimeout(() => setIsSubmitted(false), 5000);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message ||
+      console.error(err.response?.data?.message ||
                  err.message ||
                  "An error occurred while submitting your request");
     } finally {
