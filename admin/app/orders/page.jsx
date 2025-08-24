@@ -103,7 +103,7 @@ export default function OrdersPage() {
               {/* Order ID and Header */}
               <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100">
                 <h2 className="text-xl font-medium text-gray-800">
-                 {"ORD-" + order._id.toString().slice(-6)}
+                  {"ORD-" + order._id.toString().slice(-6)}
                 </h2>
                 <span
                   className={`px-3 py-1 text-xs font-medium rounded-full ${order.status === "Delivered"
@@ -204,7 +204,7 @@ export default function OrdersPage() {
                     </p>
                     <p className="text-sm text-gray-700">
                       {order.address.city}, {order.address.state} -{" "}
-                      {order.address.zipcode}
+                      {order.address.pincode}
                     </p>
                     <p className="text-sm text-gray-700">
                       {order.address.country}
