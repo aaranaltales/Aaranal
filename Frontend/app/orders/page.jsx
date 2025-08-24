@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import Link from "next/link";
@@ -27,7 +27,8 @@ import {
 import { getProductsData } from "@/services/products";
 import { useLoading } from '@/context/LoadingContext';
 
-const OrdersPage = () => {
+// Create a component that uses useSearchParams
+function OrdersContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const pathname = usePathname();
   const [statusFilter, setStatusFilter] = useState("all");
@@ -38,6 +39,7 @@ const OrdersPage = () => {
   const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
   const { setLoading } = useLoading()
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -142,7 +144,6 @@ const OrdersPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const searchParams = useSearchParams();
   const handleBack = () => {
     const placed = searchParams.get('placed')
     console.log(placed)
@@ -269,156 +270,156 @@ const OrdersPage = () => {
                 key={order._id}
                 className="group bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:border-rose-200 transition-all duration-300 cursor-pointer"
               >
-              <Link href={`/orders/${order._id}`} passHref>
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  {/* Order Info */}
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                      <div className="flex items-center space-x-3 mb-2 sm:mb-0">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {"ORD-" + order._id.toString().slice(-6)}
-                        </h3>
-                        <div
-                          className={`flex items-center space-x-1.5 px-3 py-1 border rounded-full text-xs font-medium ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {getStatusIcon(order.status)}
-                          <span className="capitalize">{order.status}</span>
+                <Link href={`/orders/${order._id}`} passHref>
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    {/* Order Info */}
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                        <div className="flex items-center space-x-3 mb-2 sm:mb-0">
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {"ORD-" + order._id.toString().slice(-6)}
+                          </h3>
+                          <div
+                            className={`flex items-center space-x-1.5 px-3 py-1 border rounded-full text-xs font-medium ${getStatusColor(
+                              order.status
+                            )}`}
+                          >
+                            {getStatusIcon(order.status)}
+                            <span className="capitalize">{order.status}</span>
+                          </div>
+                        </div>
+                        <div className="text-2xl font-light text-gray-900">
+                          ₹{order.amount}
                         </div>
                       </div>
-                      <div className="text-2xl font-light text-gray-900">
-                        ₹{order.amount}
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600 font-light mb-4">
-                      <div>
-                        Placed on {formatDate(order.date)}
-                        {order.status === "Delivered" && (
-                          <span className="block sm:inline sm:ml-2">
-                            • Delivered on {formatDate(order.updatedAt)}
-                          </span>
-                        )}
-                        {order.status === "Cancelled" && (
-                          <span className="block sm:inline sm:ml-2">
-                            • Cancelled on {formatDate(order.updatedAt)}
-                          </span>
-                        )}
-                        {(order.status === "Shipped" ||
-                          order.status === "Order Placed") && (
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600 font-light mb-4">
+                        <div>
+                          Placed on {formatDate(order.date)}
+                          {order.status === "Delivered" && (
                             <span className="block sm:inline sm:ml-2">
-                              • Expected by{" "}
-                              {formatDate(
-                                new Date(order.date).setDate(
-                                  new Date(order.date).getDate() + 9
-                                )
-                              )}
+                              • Delivered on {formatDate(order.updatedAt)}
                             </span>
                           )}
-                      </div>
-                      <div>
-                        {order.items.length}{" "}
-                        {order.items.length === 1 ? "item" : "items"}
-                      </div>
-                    </div>
-
-                    {/* Order Items Preview */}
-                    <div className="flex items-center space-x-3 overflow-x-auto pb-2 mb-4">
-                      {order.isCustomized ? (
-                        // Customized Order Preview
-                        <div className="flex-shrink-0 flex items-center space-x-3">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-                            {order.customImage ? (
-                              <img
-                                src={order.customImage}
-                                alt="Custom design"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                <ShoppingBag className="w-6 h-6 text-gray-400" />
-                              </div>
+                          {order.status === "Cancelled" && (
+                            <span className="block sm:inline sm:ml-2">
+                              • Cancelled on {formatDate(order.updatedAt)}
+                            </span>
+                          )}
+                          {(order.status === "Shipped" ||
+                            order.status === "Order Placed") && (
+                              <span className="block sm:inline sm:ml-2">
+                                • Expected by{" "}
+                                {formatDate(
+                                  new Date(order.date).setDate(
+                                    new Date(order.date).getDate() + 9
+                                  )
+                                )}
+                              </span>
                             )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {order.items[0]?.name || "Custom Tote Bag"}
-                            </p>
-                            <p className="text-xs text-gray-500 font-light">
-                              ₹{order.customPrice}
-                            </p>
-                          </div>
                         </div>
-                      ) : (
-                        // Non-Customized Orders Preview
-                        <>
-                          {order.items.slice(0, 3).map((item, index) => {
-                            // Check if item has product data
-                            if (item.product) {
+                        <div>
+                          {order.items.length}{" "}
+                          {order.items.length === 1 ? "item" : "items"}
+                        </div>
+                      </div>
+
+                      {/* Order Items Preview */}
+                      <div className="flex items-center space-x-3 overflow-x-auto pb-2 mb-4">
+                        {order.isCustomized ? (
+                          // Customized Order Preview
+                          <div className="flex-shrink-0 flex items-center space-x-3">
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                              {order.customImage ? (
+                                <img
+                                  src={order.customImage}
+                                  alt="Custom design"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                  <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {order.items[0]?.name || "Custom Tote Bag"}
+                              </p>
+                              <p className="text-xs text-gray-500 font-light">
+                                ₹{order.customPrice}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          // Non-Customized Orders Preview
+                          <>
+                            {order.items.slice(0, 3).map((item, index) => {
+                              // Check if item has product data
+                              if (item.product) {
+                                return (
+                                  <div key={index} className="flex-shrink-0 flex items-center space-x-3">
+                                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
+                                      {item.product.image && item.product.image[0] ? (
+                                        <img
+                                          src={item.product.image[0]}
+                                          alt={item.product.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                          <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium text-gray-900 truncate">
+                                        {item.product.name || item.name}
+                                      </p>
+                                      <p className="text-xs text-gray-500 font-light">
+                                        ₹{item.product.price || item.price}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              // Fallback for items without product data
                               return (
                                 <div key={index} className="flex-shrink-0 flex items-center space-x-3">
                                   <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-                                    {item.product.image && item.product.image[0] ? (
-                                      <img
-                                        src={item.product.image[0]}
-                                        alt={item.product.name}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                        <ShoppingBag className="w-6 h-6 text-gray-400" />
-                                      </div>
-                                    )}
+                                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                      <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                    </div>
                                   </div>
                                   <div className="min-w-0">
                                     <p className="text-sm font-medium text-gray-900 truncate">
-                                      {item.product.name || item.name}
+                                      {item.name}
                                     </p>
                                     <p className="text-xs text-gray-500 font-light">
-                                      ₹{item.product.price || item.price}
+                                      ₹{item.price}
                                     </p>
                                   </div>
                                 </div>
                               );
-                            }
-                            // Fallback for items without product data
-                            return (
-                              <div key={index} className="flex-shrink-0 flex items-center space-x-3">
-                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-                                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                    <ShoppingBag className="w-6 h-6 text-gray-400" />
-                                  </div>
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-sm font-medium text-gray-900 truncate">
-                                    {item.name}
-                                  </p>
-                                  <p className="text-xs text-gray-500 font-light">
-                                    ₹{item.price}
-                                  </p>
-                                </div>
+                            })}
+                            {order.items.length > 3 && (
+                              <div className="flex-shrink-0 text-sm text-gray-500 font-light">
+                                +{order.items.length - 3} more
                               </div>
-                            );
-                          })}
-                          {order.items.length > 3 && (
-                            <div className="flex-shrink-0 text-sm text-gray-500 font-light">
-                              +{order.items.length - 3} more
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
+                            )}
+                          </>
+                        )}
+                      </div>
 
-                    {/* Action Buttons - moved to bottom right */}
-                    <div className="flex justify-end">
-                      <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-rose-300 text-rose-600 rounded-full hover:bg-rose-50 transition-all duration-300 font-light">
-                        <Eye className="w-4 h-4" />
-                        <span>View Details</span>
-                      </button>
+                      {/* Action Buttons - moved to bottom right */}
+                      <div className="flex justify-end">
+                        <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-rose-300 text-rose-600 rounded-full hover:bg-rose-50 transition-all duration-300 font-light">
+                          <Eye className="w-4 h-4" />
+                          <span>View Details</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
               </div>
             ))
           )}
@@ -459,6 +460,19 @@ const OrdersPage = () => {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+const OrdersPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+      </div>
+    }>
+      <OrdersContent />
+    </Suspense>
   );
 };
 
