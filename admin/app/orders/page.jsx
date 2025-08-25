@@ -9,23 +9,23 @@ export default function OrdersPage() {
   const [products, setProducts] = useState([]);
   const [enrichedOrders, setEnrichedOrders] = useState([]);
 
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/list`,
-        {},
-        { headers: { token } }
-      );
-      if (res.data.success) {
-        setOrders(res.data.orders.reverse());
-      } else {
-        toast.error(res.data.message);
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
+const fetchOrders = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/list`,
+      {},
+      { headers: { token } }
+    );
+    if (res.data.success) {
+      setOrders(res.data.orders.reverse()); // Reverse to show newest first
+    } else {
+      toast.error(res.data.message);
     }
-  };
+  } catch (err) {
+    toast.error(err.response?.data?.message || err.message);
+  }
+};
 
   const fetchProducts = async () => {
     try {
@@ -63,29 +63,43 @@ export default function OrdersPage() {
     fetchProducts();
   }, []);
 
-  // ✅ Enrich orders whenever both orders & products are available
+  // ✅ Enrich orders whenever orders are available
   useEffect(() => {
-    if (orders.length === 0 || products.length === 0) return;
-    const paidOrders = orders.filter((order) => order.payment === true);
-    const merged = paidOrders.map((order) => {
-      const enrichedItems = order.items.map((item) => {
-        const product = products.find(
-          (p) => String(p._id) === String(item.productId) // 🔑 fix: safe compare
-        );
-        return {
+    if (orders.length === 0) return;
+    
+    // ✅ Show ALL orders, not just paid ones
+    const merged = orders.map((order) => {
+      // ✅ Handle customized orders differently
+      if (order.isCustomized) {
+        const enrichedItems = order.items.map((item) => ({
           ...item,
-          productName: product?.name || "Unknown Product",
-          productPrice: product?.price || 0,
-          productImage: product?.image || "",
-        };
-      });
-      return { ...order, items: enrichedItems };
+          productName: item.name || "Custom Tote Bag",
+          productPrice: order.customPrice || item.price || 0,
+          productImage: order.customImage ? [order.customImage] : [""],
+          isCustom: true
+        }));
+        return { ...order, items: enrichedItems };
+      } else {
+        // ✅ Handle regular orders
+        const enrichedItems = order.items.map((item) => {
+          const product = products.find(
+            (p) => String(p._id) === String(item.productId)
+          );
+          return {
+            ...item,
+            productName: product?.name || item.name || "Unknown Product",
+            productPrice: product?.price || item.price || 0,
+            productImage: product?.image || [""],
+            isCustom: false
+          };
+        });
+        return { ...order, items: enrichedItems };
+      }
     });
 
     setEnrichedOrders(merged);
     console.log("✅ Enriched Orders:", merged);
-  }, [orders, products]); // ✅ depend on BOTH
-
+  }, [orders, products]);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -102,18 +116,27 @@ export default function OrdersPage() {
             >
               {/* Order ID and Header */}
               <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100">
-                <h2 className="text-xl font-medium text-gray-800">
-                  {"ORD-" + order._id.toString().slice(-6)}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-medium text-gray-800">
+                    {"ORD-" + order._id.toString().slice(-6)}
+                  </h2>
+                  {/* ✅ Show custom order badge */}
+                  {order.isCustomized && (
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                      Custom
+                    </span>
+                  )}
+                </div>
                 <span
-                  className={`px-3 py-1 text-xs font-medium rounded-full ${order.status === "Delivered"
-                    ? "bg-green-100 text-green-800"
-                    : order.status === "Shipped"
+                  className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    order.status === "Delivered"
+                      ? "bg-green-100 text-green-800"
+                      : order.status === "Shipped"
                       ? "bg-blue-100 text-blue-800"
                       : order.status === "Out for delivery"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
                 >
                   {order.status}
                 </span>
@@ -139,31 +162,34 @@ export default function OrdersPage() {
                     )}
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-800">
-                        {order.items[0].name}
+                        {order.items[0].productName}
                       </h4>
                       <p className="text-sm text-gray-600 mt-1">
                         {order.designDescription ||
                           "Custom design as per specifications"}
                       </p>
                       <p className="text-sm font-medium text-gray-800 mt-2">
-                        ₹{order.customPrice}
+                        ₹{order.customPrice || order.items[0].productPrice}
                       </p>
                     </div>
                   </div>
                 ) : (
-
                   <ul className="text-gray-600 text-sm space-y-2">
-
                     {order.items.map((item, index) => (
-
                       <li key={index} className="p-3 bg-gray-50 rounded-lg flex items-center justify-between">
                         {/* Image */}
                         <div className="flex items-center space-x-3">
-                          <img
-                            src={item.productImage[0]}
-                            alt="Custom design"
-                            className="w-20 h-20 object-cover rounded-lg"
-                          />
+                          {item.productImage && item.productImage[0] ? (
+                            <img
+                              src={item.productImage[0]}
+                              alt="Product"
+                              className="w-20 h-20 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                              <span className="text-gray-500 text-xs">No Image</span>
+                            </div>
+                          )}
                           {/* Product Info */}
                           <div>
                             <span className="font-medium text-gray-800">
@@ -190,28 +216,38 @@ export default function OrdersPage() {
               {/* Address & Order Info */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-3">
-                  <h3 className="text-sm font-medium text-gray-800">
-                    Shipping Address
-                  </h3>
+                  <h3 className="text-sm font-medium text-gray-800">Shipping Address</h3>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     {order.address?.name && (
                       <p className="text-sm font-medium text-gray-800 mb-1">
                         {order.address.name}
                       </p>
                     )}
-                    <p className="text-sm text-gray-700">
-                      {order.address.street}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      {order.address.city}, {order.address.state} -{" "}
-                      {order.address.pincode}
-                    </p>
-                    <p className="text-sm text-gray-700">
-                      {order.address.country}
-                    </p>
-                    <p className="text-sm text-gray-700 mt-2">
-                      📞 {order.address.number}
-                    </p>
+                    {order.address?.house && (
+                      <p className="text-sm text-gray-700">
+                        {order.address.house}, {order.address.area}
+                      </p>
+                    )}
+                    {order.address?.landmark && (
+                      <p className="text-sm text-gray-700">
+                        Landmark: {order.address.landmark}
+                      </p>
+                    )}
+                    {order.address?.city && order.address?.state && order.address?.pincode && (
+                      <p className="text-sm text-gray-700">
+                        {order.address.city}, {order.address.state} - {order.address.pincode}
+                      </p>
+                    )}
+                    {order.address?.country && (
+                      <p className="text-sm text-gray-700">
+                        {order.address.country}
+                      </p>
+                    )}
+                    {order.address?.number && (
+                      <p className="text-sm text-gray-700 mt-2">
+                        📞 {order.address.number}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -223,8 +259,7 @@ export default function OrdersPage() {
                     <div className="flex justify-between text-sm text-gray-700">
                       <span>Customer:</span>
                       <span className="font-medium">
-                        {order.address?.name ||
-                          (order.isCustomized ? order.items[0]?.name : "N/A")}
+                        {order.address?.name || "N/A"}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-700 mt-2">
@@ -234,8 +269,9 @@ export default function OrdersPage() {
                     <div className="flex justify-between text-sm text-gray-700 mt-2">
                       <span>Payment:</span>
                       <span
-                        className={`font-medium ${order.payment ? "text-green-600" : "text-yellow-600"
-                          }`}
+                        className={`font-medium ${
+                          order.payment ? "text-green-600" : "text-yellow-600"
+                        }`}
                       >
                         {order.payment ? "Done" : "Pending"}
                       </span>
