@@ -2,20 +2,10 @@ import customizationModel from '../models/customizationModel.js';
 import orderModel from '../models/orderModel.js';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Submit customization request
+// Submit customization request (REMOVED reference image handling)
 export const submitCustomization = async (req, res) => {
     try {
         const { name, email, phone, type_of_bag, design_description, interest, userId } = req.body;
-
-        // Handle reference image upload if provided
-        let referenceImageUrl = null;
-        if (req.files && req.files.referenceImage) {
-            const result = await cloudinary.uploader.upload(req.files.referenceImage[0].path, {
-                folder: 'customization-references',
-                resource_type: 'image'
-            });
-            referenceImageUrl = result.secure_url;
-        }
 
         const newCustomization = new customizationModel({
             userId,
@@ -25,8 +15,8 @@ export const submitCustomization = async (req, res) => {
             type_of_bag,
             design_description,
             interest,
-            referenceImage: referenceImageUrl,
             status: 'Pending'
+            // Removed referenceImage field
         });
 
         await newCustomization.save();
@@ -60,7 +50,7 @@ export const updateCustomizationStatus = async (req, res) => {
     }
 };
 
-// Convert customization to order
+// Convert customization to order (Keep admin's custom image upload functionality)
 export const convertToOrder = async (req, res) => {
     try {
         const { customizationId, userId, address, paymentMethod, customPrice } = req.body;
@@ -68,7 +58,7 @@ export const convertToOrder = async (req, res) => {
         // Parse address from JSON string
         const addressObj = typeof address === 'string' ? JSON.parse(address) : address;
 
-        // Handle custom design image upload
+        // Handle custom design image upload (admin side only)
         let customImageUrl = null;
         if (req.files && req.files.customImage) {
             const result = await cloudinary.uploader.upload(req.files.customImage[0].path, {
@@ -87,7 +77,7 @@ export const convertToOrder = async (req, res) => {
             userId: userId || customization.userId,
             items: [{ name: customization.type_of_bag || "Custom Tote Bag", price: customPrice, quantity: 1 }],
             amount: customPrice,
-            address: addressObj,  // Now includes name
+            address: addressObj,
             status: "Order Placed",
             paymentMethod,
             payment: paymentMethod === "COD" ? false : true,
