@@ -69,11 +69,9 @@ export default function CustomizationsPage() {
     const { name, value, files } = e.target;
     if (name === 'customImage' && files && files.length > 0) {
       const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, [name]: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      // Create preview URL instead of base64 to avoid payload size issues
+      const previewUrl = URL.createObjectURL(file);
+      setFormData(prev => ({ ...prev, [name]: previewUrl }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -107,78 +105,94 @@ export default function CustomizationsPage() {
     }
   };
 
-  // Place order
-const handlePlaceOrder = async (customization) => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/admin/login');
-      return;
-    }
-
-    // Validate required fields
-    const requiredFields = ['name', 'house', 'area', 'city', 'state', 'pincode', 'phone', 'customPrice'];
-    const missingFields = requiredFields.filter(field => !formData[field]);
-    if (missingFields.length > 0) {
-      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
-    const submissionData = new FormData();
-    submissionData.append('customizationId', customization._id);
-    submissionData.append('userId', customization.userId);
-
-    // Append address fields with ALL required fields
-    // Map 'phone' to 'number' for the backend
-    submissionData.append('address', JSON.stringify({
-      name: formData.name || customization.name,
-      house: formData.house,
-      area: formData.area,
-      street: formData.street,
-      city: formData.city,
-      state: formData.state,
-      country: formData.country,
-      pincode: formData.pincode,
-      number: formData.phone || customization.phone, // Map 'phone' to 'number'
-    }));
-
-    submissionData.append('paymentMethod', formData.paymentMethod);
-    submissionData.append('customPrice', formData.customPrice);
-
-    // Append the image file if it exists
-    if (fileInputRef.current?.files[0]) {
-      submissionData.append('customImage', fileInputRef.current.files[0]);
-    }
-
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
-      submissionData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          token,
-        },
+  // Place order - FIXED: Send data as JSON instead of FormData
+  const handlePlaceOrder = async (customization) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/admin/login');
+        return;
       }
-    );
 
-    if (res.data.success) {
-      toast.success('Order placed successfully!');
-      setExpandedId(null);
-      fetchCustomizations(); // Refresh customizations list
-      // Add this line to refresh orders list if you're on the orders page
-      if (typeof window !== 'undefined' && window.location.pathname.includes('orders')) {
-        window.location.reload(); // Force refresh to see the new order
+      // Validate required fields
+      const requiredFields = ['name', 'house', 'area', 'city', 'state', 'pincode', 'phone', 'customPrice'];
+      const missingFields = requiredFields.filter(field => !formData[field]);
+      if (missingFields.length > 0) {
+        toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+        return;
+      }
+
+      // Use FormData to work with your existing multer setup
+      const submissionData = new FormData();
+      submissionData.append('customizationId', customization._id);
+      submissionData.append('userId', customization.userId);
+      
+      // Append address fields with ALL required fields
+      submissionData.append('address', JSON.stringify({
+        name: formData.name || customization.name,
+        house: formData.house,
+        area: formData.area,
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        pincode: formData.pincode,
+        number: formData.phone || customization.phone, // Map 'phone' to 'number'
+      }));
+
+      submissionData.append('paymentMethod', formData.paymentMethod);
+      submissionData.append('customPrice', formData.customPrice);
+
+      // Append the actual file (this will work with your multer setup)
+      if (fileInputRef.current?.files[0]) {
+        submissionData.append('customImage', fileInputRef.current.files[0]);
+      }
+
+      console.log('Submitting order data as FormData');
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
+        submissionData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            token,
+          },
+        }
+      );
+
+      if (res.data.success) {
+        toast.success('Order placed successfully!');
+        setExpandedId(null);
+        fetchCustomizations(); // Refresh customizations list
+        // Reset form
+        setFormData({
+          name: '',
+          house: '',
+          area: '',
+          street: '',
+          city: '',
+          state: '',
+          country: 'India',
+          pincode: '',
+          phone: '',
+          paymentMethod: 'COD',
+          customImage: null,
+          customPrice: '',
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to place order');
+      console.error('Error placing order:', err);
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        router.push('/admin/login');
       }
     }
-  } catch (err) {
-    toast.error(err.response?.data?.message || err.message || 'Failed to place order');
-    console.error('Error placing order:', err);
-    if (err.response?.status === 401) {
-      localStorage.removeItem('token');
-      router.push('/admin/login');
-    }
-  }
-};
+  };
 
   useEffect(() => {
     fetchCustomizations();
@@ -196,6 +210,7 @@ const handlePlaceOrder = async (customization) => {
             <div key={customization._id} className="border border-gray-200 rounded-2xl p-6 shadow-sm bg-white">
               <div className="mb-4">
                 <h2 className="text-lg font-medium text-gray-800 mb-2">Customization Request</h2>
+                <p><strong>User ID:</strong> {customization.userId}</p>
                 <p><strong>Name:</strong> {customization.name}</p>
                 <p><strong>Email:</strong> {customization.email}</p>
                 <p><strong>Phone:</strong> {customization.phone}</p>
