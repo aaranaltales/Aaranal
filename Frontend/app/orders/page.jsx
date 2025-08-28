@@ -190,6 +190,7 @@ function OrdersContent() {
   };
 
   return (
+  
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="border-b border-gray-100">
@@ -352,7 +353,7 @@ function OrdersContent() {
                                 • Expected by{" "}
                                 {formatDate(
                                   new Date(order.date).setDate(
-                                    new Date(order.date).getDate() + 9
+                                    new Date(order.date).getDate() + (order.shippingCost === 45 ? 7 : 12)
                                   )
                                 )}
                               </span>

@@ -251,7 +251,7 @@ export default function AddProductPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
             <input
               type="number"
               value={form.price}
