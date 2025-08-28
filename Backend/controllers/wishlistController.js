@@ -25,7 +25,7 @@ const toggleWishlistItem = async (req, res) => {
 
         res.json({
             success: true,
-            message: `Item ${action} from wishlist`,
+            message: `Item ${action} in wishlist`,
             wishList,
         });
 
