@@ -72,6 +72,18 @@ export default function ProductGrid() {
     }
   };
 
+  const handleAddToCart = (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(productId);
+  };
+
+  const handleToggleWishlist = (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(productId);
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -134,8 +146,8 @@ export default function ProductGrid() {
               <ProductCard
                 product={product}
                 wishlist={wishlist}
-                toggleWishlist={toggleWishlist}
-                addToCart={addToCart}
+                toggleWishlist={handleToggleWishlist}
+                addToCart={handleAddToCart}
                 currentImageIndex={currentImageIndex}
                 setCurrentImageIndex={setCurrentImageIndex}
                 scrollRefs={scrollRefs}
@@ -163,15 +175,15 @@ export default function ProductGrid() {
       </div>
 
       {/* Hide scrollbar but keep functionality */}
-      <style jsx>{`
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+  <style jsx>{`
+  :global(.no-scrollbar) {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  :global(.no-scrollbar::-webkit-scrollbar) {
+    display: none;
+  }
+`}</style>
     </section>
   );
 }

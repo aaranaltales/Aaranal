@@ -26,24 +26,13 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
   const handleAddToCart = (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(productId)
-      .then(() => showSuccess("Added to cart successfully!"))
-      .catch(() => showError("Failed to add item to cart. Please try again."));
+    addToCart(productId);
   };
 
   const handleToggleWishlist = (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleWishlist(productId)
-      .then(() => {
-        const isInWishlist = wishlist.includes(productId);
-        if (isInWishlist) {
-          showSuccess("Removed from wishlist!");
-        } else {
-          showSuccess("Added to wishlist!");
-        }
-      })
-      .catch(() => showError("Failed to update wishlist. Please try again."));
+    toggleWishlist(productId);
   };
 
   const parsePrice = (value) => {
