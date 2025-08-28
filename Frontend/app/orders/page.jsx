@@ -1,3 +1,5 @@
+// Updated OrdersContent component - FIXED to show customized orders
+
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import axios from "axios";
@@ -27,7 +29,6 @@ import {
 import { getProductsData } from "@/services/products";
 import { useLoading } from '@/context/LoadingContext';
 
-// Create a component that uses useSearchParams
 function OrdersContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const pathname = usePathname();
@@ -48,10 +49,13 @@ function OrdersContent() {
     };
     fetchProducts();
   }, []);
-  // Fetch user orders
+
+  // Fetch user orders - FIXED: Include customized orders
   useEffect(() => {
     const fetchAndEnrichOrders = async () => {
       try {
+        console.log('Fetching orders for user:', user?._id);
+        
         // 1. Fetch orders
         const response = await axios.post(
           `${dbUri}/api/order/userorders`,
@@ -65,11 +69,28 @@ function OrdersContent() {
 
         if (response.data.success) {
           let fetchedOrders = response.data.orders;
-          fetchedOrders = fetchedOrders.filter((order) => order.payment === true);
+          
+          console.log('Raw orders fetched:', fetchedOrders.length);
+          console.log('Orders with isCustomized:', fetchedOrders.filter(o => o.isCustomized).length);
+          
+          // FIXED: Updated filter logic to include customized orders
+          // Include orders that are either paid OR customized (since customized COD orders have payment: false)
+          fetchedOrders = fetchedOrders.filter((order) => 
+            order.payment === true || order.isCustomized === true
+          );
+          
+          console.log('Orders after payment filter:', fetchedOrders.length);
+          
           fetchedOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
           // 2. Enrich orders (only if products available)
           if (allProducts.length > 0) {
             fetchedOrders = fetchedOrders.map((order) => {
+              // Skip enrichment for customized orders as they don't have productIds
+              if (order.isCustomized) {
+                return order;
+              }
+              
               const alreadyEnriched = order.items.every((item) => item.product);
               if (alreadyEnriched) return order;
 
@@ -85,6 +106,7 @@ function OrdersContent() {
 
           // 3. Update state
           setOrders(fetchedOrders);
+          console.log('Final orders set:', fetchedOrders.length);
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -95,7 +117,6 @@ function OrdersContent() {
       fetchAndEnrichOrders();
     }
   }, [user, token, allProducts]);
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -136,11 +157,25 @@ function OrdersContent() {
     }
   };
 
+  // FIXED: Updated search to include customized orders
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order._id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
+    let matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Also search in custom design description for customized orders
+    if (order.isCustomized && order.designDescription) {
+      matchesSearch = matchesSearch || order.designDescription.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    
+    // Search in product names for regular orders
+    if (!order.isCustomized && order.items) {
+      const hasMatchingItem = order.items.some(item => {
+        const productName = item.product?.name || item.name || '';
+        return productName.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+      matchesSearch = matchesSearch || hasMatchingItem;
+    }
+    
+    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -154,8 +189,8 @@ function OrdersContent() {
     }
   };
 
-
   return (
+  
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="border-b border-gray-100">
@@ -199,7 +234,7 @@ function OrdersContent() {
             </div>
             <input
               type="text"
-              placeholder="Search orders by ID or product name..."
+              placeholder="Search orders by ID, product name, or design..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-700 font-light"
@@ -287,9 +322,16 @@ function OrdersContent() {
                             {getStatusIcon(order.status)}
                             <span className="capitalize">{order.status}</span>
                           </div>
+                          {/* ADDED: Custom order badge */}
+                          {order.isCustomized && (
+                            <div className="flex items-center space-x-1.5 px-3 py-1 border border-purple-200 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">
+                              <Star className="w-3 h-3" />
+                              <span>Custom</span>
+                            </div>
+                          )}
                         </div>
                         <div className="text-2xl font-light text-gray-900">
-                          ₹{order.amount}
+                          ₹{order.customPrice || order.amount}
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600 font-light mb-4">
@@ -311,7 +353,7 @@ function OrdersContent() {
                                 • Expected by{" "}
                                 {formatDate(
                                   new Date(order.date).setDate(
-                                    new Date(order.date).getDate() + 9
+                                    new Date(order.date).getDate() + (order.shippingCost === 45 ? 7 : 12)
                                   )
                                 )}
                               </span>
@@ -323,10 +365,10 @@ function OrdersContent() {
                         </div>
                       </div>
 
-                      {/* Order Items Preview */}
+                      {/* Order Items Preview - ENHANCED for customized orders */}
                       <div className="flex items-center space-x-3 overflow-x-auto pb-2 mb-4">
                         {order.isCustomized ? (
-                          // Customized Order Preview
+                          // Customized Order Preview - ENHANCED
                           <div className="flex-shrink-0 flex items-center space-x-3">
                             <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
                               {order.customImage ? (
@@ -336,8 +378,8 @@ function OrdersContent() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                  <ShoppingBag className="w-6 h-6 text-gray-400" />
+                                <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-300 flex items-center justify-center">
+                                  <Star className="w-6 h-6 text-purple-600" />
                                 </div>
                               )}
                             </div>
@@ -346,8 +388,13 @@ function OrdersContent() {
                                 {order.items[0]?.name || "Custom Tote Bag"}
                               </p>
                               <p className="text-xs text-gray-500 font-light">
-                                ₹{order.customPrice}
+                                Custom Design • ₹{order.customPrice}
                               </p>
+                              {order.designDescription && (
+                                <p className="text-xs text-gray-400 font-light truncate max-w-32">
+                                  {order.designDescription}
+                                </p>
+                              )}
                             </div>
                           </div>
                         ) : (

@@ -2,7 +2,7 @@
 import { useUser } from '@/context/UserContext';
 import { getProductsData } from '@/services/products';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLoading } from '@/context/LoadingContext';
 import { useToast } from "@/components/ToastContext";
 import { motion } from 'framer-motion'; // Import motion from framer-motion
@@ -60,18 +60,18 @@ export default function ProductGrid() {
   const { setLoading } = useLoading();
   const { showSuccess, showError } = useToast();
   const [bestSellers, setBestSellers] = useState([]);
+  // Track current image index per product
+  const [currentImageIndex, setCurrentImageIndex] = useState({});
+  // Refs for scroll containers per product
+  const scrollRefs = useRef({});
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
       const allProducts = await getProductsData(setLoading);
       const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
       setBestSellers(bestSellersOnly);
     } catch (error) {
-      showError("Failed to load products. Please try again.");
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -82,28 +82,32 @@ export default function ProductGrid() {
   const handleAddToCart = async (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      await addToCart(productId);
-      showSuccess("Added to cart successfully!");
-    } catch (error) {
-      showError("Failed to add item to cart. Please try again.");
-    }
+    await addToCart(productId);
   };
 
   const handleToggleWishlist = async (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      await toggleWishlist(productId);
-      const isInWishlist = wishlist.includes(productId);
-      if (isInWishlist) {
-        showSuccess("Removed from wishlist!");
-      } else {
-        showSuccess("Added to wishlist!");
-      }
-    } catch (error) {
-      showError("Failed to update wishlist. Please try again.");
+    await toggleWishlist(productId);
+  };
+
+  // Scroll to image on dot click
+  const scrollToImage = (productId, idx) => {
+    const container = scrollRefs.current[productId];
+    if (container) {
+      const scrollPos = idx * container.offsetWidth;
+      container.scrollTo({ left: scrollPos, behavior: 'smooth' });
     }
+  };
+
+  // Sync dot state on scroll (for both mobile and desktop)
+  const handleGalleryScroll = (e, product) => {
+    const { scrollLeft, offsetWidth } = e.target;
+    const idx = Math.round(scrollLeft / offsetWidth);
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [product._id]: idx,
+    }));
   };
 
   return (
@@ -184,6 +188,7 @@ export default function ProductGrid() {
                       Sale
                     </motion.div>
                   )}
+
                   {/* Wishlist Button */}
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -198,18 +203,54 @@ export default function ProductGrid() {
                         } w-5 h-5`}
                     ></i>
                   </motion.button>
-                  {/* Product Image */}
+
+                  {/* Product Images Container - SCROLLABLE on all devices */}
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.5 }}
-                    className="aspect-[4/5] overflow-hidden rounded-t-3xl"
+                    className="relative aspect-[4/5] overflow-hidden rounded-t-3xl"
                   >
-                    <img
-                      src={product.image[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover object-top transition-transform duration-700"
-                    />
+                    <div
+                      className="flex overflow-x-auto snap-x snap-mandatory h-full no-scrollbar"
+                      ref={el => (scrollRefs.current[product._id] = el)}
+                      onScroll={e => handleGalleryScroll(e, product)}
+                      style={{ scrollBehavior: 'smooth' }}
+                    >
+                      {product.image.map((imgSrc, imgIndex) => (
+                        <div key={imgIndex} className="flex-shrink-0 w-full h-full snap-start">
+                          <img
+                            src={imgSrc}
+                            alt={`${product.name} - View ${imgIndex + 1}`}
+                            className="w-full h-full object-cover object-top transition-transform duration-700"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Image Indicator Dots - click to scroll, show for ALL devices */}
+                    {product.image.length > 1 && (
+                      <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                        {product.image.map((_, imgIndex) => (
+                          <button
+                            key={imgIndex}
+                            type="button"
+                            tabIndex={0}
+                            aria-label={`Go to image ${imgIndex + 1}`}
+                            className={`w-2 h-2 rounded-full transition-all duration-300 outline-none focus:outline-none ${(currentImageIndex[product._id] || 0) === imgIndex
+                              ? 'bg-rose-500 scale-125'
+                              : 'bg-white/80'
+                              }`}
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              scrollToImage(product._id, imgIndex);
+                            }}
+                          ></button>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
+
                   {/* Product Info */}
                   <div className="p-6 flex-grow flex flex-col">
                     <div className="flex items-center justify-between mb-2">
@@ -256,6 +297,17 @@ export default function ProductGrid() {
           </Link>
         </motion.div>
       </div>
-    </motion.section>
+
+      {/* Hide scrollbar while keeping functionality */}
+      <style jsx>{`
+        .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none; /* Chrome, Safari and Opera */
+        }
+      `}</style>
+    </section>
   );
 }

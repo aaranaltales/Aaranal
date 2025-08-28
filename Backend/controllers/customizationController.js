@@ -2,20 +2,10 @@ import customizationModel from '../models/customizationModel.js';
 import orderModel from '../models/orderModel.js';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Submit customization request
+// Submit customization request (REMOVED reference image handling)
 export const submitCustomization = async (req, res) => {
     try {
         const { name, email, phone, type_of_bag, design_description, interest, userId } = req.body;
-
-        // Handle reference image upload if provided
-        let referenceImageUrl = null;
-        if (req.files && req.files.referenceImage) {
-            const result = await cloudinary.uploader.upload(req.files.referenceImage[0].path, {
-                folder: 'customization-references',
-                resource_type: 'image'
-            });
-            referenceImageUrl = result.secure_url;
-        }
 
         const newCustomization = new customizationModel({
             userId,
@@ -25,8 +15,8 @@ export const submitCustomization = async (req, res) => {
             type_of_bag,
             design_description,
             interest,
-            referenceImage: referenceImageUrl,
             status: 'Pending'
+            // Removed referenceImage field
         });
 
         await newCustomization.save();
@@ -60,7 +50,7 @@ export const updateCustomizationStatus = async (req, res) => {
     }
 };
 
-// Convert customization to order
+// Convert customization to order - IMPROVED: Handle files properly with multer
 export const convertToOrder = async (req, res) => {
     try {
         const { customizationId, userId, address, paymentMethod, customPrice } = req.body;
@@ -68,14 +58,24 @@ export const convertToOrder = async (req, res) => {
         // Parse address from JSON string
         const addressObj = typeof address === 'string' ? JSON.parse(address) : address;
 
-        // Handle custom design image upload
+        // Handle custom design image upload using multer (same as product controller)
         let customImageUrl = null;
-        if (req.files && req.files.customImage) {
-            const result = await cloudinary.uploader.upload(req.files.customImage[0].path, {
-                folder: 'custom-tote-designs',
-                resource_type: 'image'
-            });
-            customImageUrl = result.secure_url;
+        
+        if (req.files && req.files.customImage && req.files.customImage[0]) {
+            try {
+                const result = await cloudinary.uploader.upload(req.files.customImage[0].path, {
+                    folder: 'custom-tote-designs',
+                    resource_type: 'image'
+                });
+                customImageUrl = result.secure_url;
+                console.log('Custom image uploaded to:', customImageUrl);
+            } catch (uploadError) {
+                console.error('Cloudinary upload error:', uploadError);
+                return res.status(500).json({ 
+                    success: false, 
+                    message: "Failed to upload custom image" 
+                });
+            }
         }
 
         const customization = await customizationModel.findById(customizationId);
@@ -83,11 +83,18 @@ export const convertToOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "Customization not found" });
         }
 
+        const finalUserId = userId || customization.userId;
+        console.log('Creating order for userId:', finalUserId);
+
         const orderData = {
-            userId: userId || customization.userId,
-            items: [{ name: customization.type_of_bag || "Custom Tote Bag", price: customPrice, quantity: 1 }],
-            amount: customPrice,
-            address: addressObj,  // Now includes name
+            userId: finalUserId,
+            items: [{ 
+                name: customization.type_of_bag || "Custom Tote Bag", 
+                price: parseFloat(customPrice),
+                quantity: 1 
+            }],
+            amount: parseFloat(customPrice),
+            address: addressObj,
             status: "Order Placed",
             paymentMethod,
             payment: paymentMethod === "COD" ? false : true,
@@ -98,8 +105,12 @@ export const convertToOrder = async (req, res) => {
             designDescription: customization.design_description
         };
 
+        console.log('Order data before save:', orderData);
+
         const newOrder = new orderModel(orderData);
         await newOrder.save();
+
+        console.log('Order saved with ID:', newOrder._id);
 
         // Update customization status
         await customizationModel.findByIdAndUpdate(customizationId, {
@@ -107,7 +118,7 @@ export const convertToOrder = async (req, res) => {
             orderId: newOrder._id
         });
 
-        res.json({ success: true, message: "Order placed!", orderId: newOrder._id });
+        res.json({ success: true, message: "Order placed successfully!", orderId: newOrder._id });
     } catch (error) {
         console.error("Error in convertToOrder:", error);
         res.status(500).json({ success: false, message: error.message });

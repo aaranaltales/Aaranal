@@ -158,7 +158,7 @@ export default function TermsOfServicePage() {
               <h3 className="text-xl font-medium text-gray-900">Governing Law</h3>
             </div>
             <p className="text-gray-600 font-light">
-              TThese Terms are governed by the laws of India, and any disputes will be subject to Indian courts.
+              These Terms are governed by the laws of India, and any disputes will be subject to Indian courts.
             </p>
           </div>
           <div className="p-8 bg-gradient-to-r from-rose-50 to-pink-50 rounded-3xl border border-rose-100">

@@ -10,13 +10,15 @@ export default function CustomizationsPage() {
   const [customizations, setCustomizations] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',  // Added name field
-    street: '',
-    city: '',
-    state: '',
-    country: '',
-    zipcode: '',
-    phone: '',
+    name: '',
+    house: '',      // Required by schema
+    area: '',       // Required by schema
+    street: '',     // Optional
+    city: '',       // Required by schema
+    state: '',      // Required by schema
+    country: 'India', // Default value
+    pincode: '',    // Required by schema (renamed from zipcode)
+    phone: '',      // Required by schema
     paymentMethod: 'COD',
     customImage: null,
     customPrice: '',
@@ -40,12 +42,10 @@ export default function CustomizationsPage() {
         router.push('/admin/login');
         return;
       }
-
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/list`,
-  { headers: { token } }
+        { headers: { token } }
       );
-
       if (res.data.success) {
         setCustomizations(res.data.customizations);
       } else {
@@ -67,14 +67,11 @@ export default function CustomizationsPage() {
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-
     if (name === 'customImage' && files && files.length > 0) {
       const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, [name]: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      // Create preview URL instead of base64 to avoid payload size issues
+      const previewUrl = URL.createObjectURL(file);
+      setFormData(prev => ({ ...prev, [name]: previewUrl }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -87,15 +84,16 @@ export default function CustomizationsPage() {
     } else {
       setExpandedId(customizationId);
       // Reset form when opening a new customization
-      // Pre-fill name from customization if available
       const customization = customizations.find(c => c._id === customizationId);
       setFormData({
-        name: customization?.name || '',  // Pre-fill with customer's name
+        name: customization?.name || '',
+        house: '',      // Reset required fields
+        area: '',       // Reset required fields
         street: '',
         city: '',
         state: '',
-        country: '',
-        zipcode: '',
+        country: 'India',
+        pincode: '',    // Reset required fields
         phone: customization?.phone || '',
         paymentMethod: 'COD',
         customImage: null,
@@ -107,7 +105,7 @@ export default function CustomizationsPage() {
     }
   };
 
-  // Place order
+  // Place order - FIXED: Send data as JSON instead of FormData
   const handlePlaceOrder = async (customization) => {
     try {
       const token = localStorage.getItem('token');
@@ -115,49 +113,80 @@ export default function CustomizationsPage() {
         router.push('/admin/login');
         return;
       }
+
+      // Validate required fields
+      const requiredFields = ['name', 'house', 'area', 'city', 'state', 'pincode', 'phone', 'customPrice'];
+      const missingFields = requiredFields.filter(field => !formData[field]);
+      if (missingFields.length > 0) {
+        toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+        return;
+      }
+
+      // Use FormData to work with your existing multer setup
       const submissionData = new FormData();
       submissionData.append('customizationId', customization._id);
       submissionData.append('userId', customization.userId);
-
-      // Append address fields with name
+      
+      // Append address fields with ALL required fields
       submissionData.append('address', JSON.stringify({
-        name: formData.name || customization.name,  // Use form name or fallback to customization name
+        name: formData.name || customization.name,
+        house: formData.house,
+        area: formData.area,
         street: formData.street,
         city: formData.city,
         state: formData.state,
         country: formData.country,
-        zipcode: formData.zipcode,
-        phone: formData.phone || customization.phone,
+        pincode: formData.pincode,
+        number: formData.phone || customization.phone, // Map 'phone' to 'number'
       }));
 
       submissionData.append('paymentMethod', formData.paymentMethod);
       submissionData.append('customPrice', formData.customPrice);
 
-      // Append the image file if it exists
+      // Append the actual file (this will work with your multer setup)
       if (fileInputRef.current?.files[0]) {
         submissionData.append('customImage', fileInputRef.current.files[0]);
       }
 
+      console.log('Submitting order data as FormData');
+
       const res = await axios.post(
-         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
-  submissionData,
-  {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      token
-    }
-  }
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
+        submissionData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            token,
+          },
+        }
       );
 
       if (res.data.success) {
         toast.success('Order placed successfully!');
         setExpandedId(null);
-        fetchCustomizations();
+        fetchCustomizations(); // Refresh customizations list
+        // Reset form
+        setFormData({
+          name: '',
+          house: '',
+          area: '',
+          street: '',
+          city: '',
+          state: '',
+          country: 'India',
+          pincode: '',
+          phone: '',
+          paymentMethod: 'COD',
+          customImage: null,
+          customPrice: '',
+        });
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Failed to place order');
       console.error('Error placing order:', err);
-
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         router.push('/admin/login');
@@ -181,6 +210,7 @@ export default function CustomizationsPage() {
             <div key={customization._id} className="border border-gray-200 rounded-2xl p-6 shadow-sm bg-white">
               <div className="mb-4">
                 <h2 className="text-lg font-medium text-gray-800 mb-2">Customization Request</h2>
+                <p><strong>User ID:</strong> {customization.userId}</p>
                 <p><strong>Name:</strong> {customization.name}</p>
                 <p><strong>Email:</strong> {customization.email}</p>
                 <p><strong>Phone:</strong> {customization.phone}</p>
@@ -216,16 +246,36 @@ export default function CustomizationsPage() {
                         placeholder={customization.name}
                       />
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Street *</label>
-                     <input
+                      <label className="block text-sm font-medium text-gray-700 mb-1">House No. *</label>
+                      <input
+                        type="text"
+                        name="house"
+                        value={formData.house}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Area/Locality *</label>
+                      <input
+                        type="text"
+                        name="area"
+                        value={formData.area}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Street</label>
+                      <input
                         type="text"
                         name="street"
                         value={formData.street}
                         onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
-                        required
                       />
                     </div>
                     <div>
@@ -265,15 +315,15 @@ export default function CustomizationsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
                       <input
                         type="text"
-                        name="zipcode"
-                        value={formData.zipcode}
+                        name="pincode"
+                        value={formData.pincode}
                         onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
                       <input
                         type="text"
                         name="phone"
