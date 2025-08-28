@@ -93,6 +93,7 @@ export const CheckoutProvider = ({ children }) => {
         if (!token) {
             showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
         }
         try {
             setLoading(true);

@@ -66,6 +66,7 @@ export const UserProvider = ({ children }) => {
         if (!token) {
             showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
         }
         try {
             const response = await axios.post(
@@ -93,6 +94,7 @@ export const UserProvider = ({ children }) => {
         if (!token) {
             showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
         }
         try {
             const response = await axios.post(
@@ -117,6 +119,7 @@ export const UserProvider = ({ children }) => {
         if (!token) {
             showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
         }
         let cartData = structuredClone(cartItems);
         cartData[itemId] = (cartData[itemId] || 0) + 1;
@@ -143,6 +146,7 @@ export const UserProvider = ({ children }) => {
         if (!token) {
             showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
         }
         let temp = structuredClone(cartItems);
         temp[itemId] = quantity;
@@ -169,6 +173,7 @@ export const UserProvider = ({ children }) => {
         if (!token) {
             showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
         }
         try {
             const response = await axios.post(
@@ -177,7 +182,7 @@ export const UserProvider = ({ children }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (response.data.success) {
-                showSuccess(response.message)
+                showSuccess(response.data.message)
                 setWishlist(response.data.wishList || []);
                 setWishlistCount(response.data.wishList.length);
             }
