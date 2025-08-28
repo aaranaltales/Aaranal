@@ -230,8 +230,10 @@ export const UserProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        getUserWishlist();
-        getUserCart();
+        if (user) {
+            getUserWishlist();
+            getUserCart();
+        }
     }, [user])
 
     useEffect(() => {
