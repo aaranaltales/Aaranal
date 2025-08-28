@@ -447,7 +447,7 @@ const OrderDetailsPage = () => {
                             ? "Cancelled"
                             : formatDate(
                               new Date(order.date).setDate(
-                                new Date(order.date).getDate() + 7
+                                new Date(order.date).getDate() + ((order.shippingCost === 0) ? 12 : 7)
                               )
                             )}
                       </span>

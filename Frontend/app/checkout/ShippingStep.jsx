@@ -148,7 +148,7 @@ export default function ShippingStep({
                                 <span className="font-medium text-gray-900">Standard Shipping</span>
                                 <span className="text-gray-600">Free</span>
                             </div>
-                            <p className="text-sm text-gray-500">7-9 business days</p>
+                            <p className="text-sm text-gray-500">10-12 business days</p>
                         </div>
                     </label>
                     <label className="flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">
@@ -165,7 +165,7 @@ export default function ShippingStep({
                                 <span className="font-medium text-gray-900">Express Shipping</span>
                                 <span className="text-gray-600">₹45</span>
                             </div>
-                            <p className="text-sm text-gray-500">3-5 business days</p>
+                            <p className="text-sm text-gray-500">5-7 business days</p>
                         </div>
                     </label>
                 </div>
