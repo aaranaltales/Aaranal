@@ -7,6 +7,7 @@ import WishlistSidebar from './WishlistSidebar';
 import { useUser } from '@/context/UserContext';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import { useToast } from './ToastContext';
 
 export default function Header() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function Header() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const { showError, showSuccess } = useToast();
   const { user, setUser, refreshUser, loading, cartCount, setCartData, setCartCount, wishlistCount } = useUser();
 
   useEffect(() => {
@@ -29,15 +31,20 @@ export default function Header() {
   }, [isMenuOpen]);
 
   const handleLogout = () => {
-    Cookies.remove('token');
-    setUser(null);
-    refreshUser()
-    router.refresh()
-    setIsProfileOpen(false);
-    setCartData([]);
-    setCartCount(0);
-    router.refresh();
-    router.push('/');
+    try {
+      Cookies.remove('token');
+      setUser(null);
+      refreshUser()
+      router.refresh()
+      setIsProfileOpen(false);
+      setCartData([]);
+      setCartCount(0);
+      router.refresh();
+      router.push('/');
+      showSuccess("Logout successful");
+    } catch (error) {
+      showError("Error logging out");
+    }
   };
 
   useEffect(() => {
