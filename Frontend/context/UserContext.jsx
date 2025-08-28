@@ -8,12 +8,14 @@ import axios from "axios";
 import { useRouter, usePathname } from "next/navigation";
 import { getProductsData } from "@/services/products";
 import { useLoading } from "./LoadingContext";
+import { useToast } from "@/components/ToastContext"; // Import useToast
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
     const router = useRouter();
     const pathname = usePathname();
+    const { showSuccess, showError } = useToast();
 
     const { setLoading } = useLoading();
 
@@ -50,7 +52,7 @@ export const UserProvider = ({ children }) => {
             }
         } catch (error) {
             setUser(null);
-            console.log(error);
+            // console.log(error);
         }
     };
 
@@ -123,13 +125,14 @@ export const UserProvider = ({ children }) => {
                 { itemId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (response.status == 401) {
-                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
-            }
             if (response.data.success) {
+                console.log(response)
                 toast.success("Item added to cart");
             }
         } catch (error) {
+            if (error.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
             toast.error(error.message);
         }
     };
@@ -154,7 +157,6 @@ export const UserProvider = ({ children }) => {
         } catch (error) {
             toast.error(error.message);
         }
-
     };
 
     const toggleWishlist = async (itemId) => {
@@ -169,15 +171,16 @@ export const UserProvider = ({ children }) => {
                 { itemId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (response.status == 401) {
-                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
-            }
             if (response.data.success) {
+                showSuccess(response.message)
                 setWishlist(response.data.wishList || []);
                 setWishlistCount(response.data.wishList.length);
             }
         } catch (error) {
-            toast.error("Could not update wishlist");
+            if (error.status == 401) {
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
+            showError("Could not update wishlist");
         }
     };
 

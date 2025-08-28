@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -44,10 +44,28 @@ export default function DynamicProductPage() {
   // Find the product by ID
   const product = productsData.find((p) => p._id === productId);
   const similarProducts = productsData.filter(
-    (p) => p.category === product.category && p._id !== product._id
+    (p) => p.category === product?.category && p._id !== product?._id
   );
-  // console.log(product)
+  // --- image scrollable gallery logic only ---
   const [selectedImage, setSelectedImage] = useState(0);
+  const scrollRef = useRef(null);
+  useEffect(() => {
+    setSelectedImage(0);
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+  }, [productId]);
+  const onScroll = (e) => {
+    const { scrollLeft, offsetWidth } = e.target;
+    const idx = Math.round(scrollLeft / offsetWidth);
+    setSelectedImage(idx);
+  };
+  const scrollToImage = (idx) => {
+    const container = scrollRef.current;
+    if (container) {
+      container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
+    }
+  };
+  // ------------------------------
+
   const [selectedSize, setSelectedSize] = useState(
     product?.sizes?.[1] || product?.sizes?.[0] || "Medium"
   );
@@ -85,22 +103,55 @@ export default function DynamicProductPage() {
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Product image */}
           <div className="space-y-4">
-            <div className="aspect-square rounded-3xl overflow-hidden bg-gray-50">
-              <img
-                src={product.image[selectedImage]}
-                alt={product.name}
-                className="w-full h-full object-cover object-center"
-              />
+            <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-50">
+              <div
+                className="flex overflow-x-auto snap-x snap-mandatory h-full no-scrollbar"
+                ref={scrollRef}
+                onScroll={onScroll}
+                style={{ scrollBehavior: 'smooth' }}
+              >
+                {product.image.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="flex-shrink-0 w-full h-full snap-start"
+                  >
+                    <img
+                      src={img}
+                      alt={product.name}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </div>
+                ))}
+              </div>
+              {product.image.length > 1 && (
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                  {product.image.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      aria-label={`Go to image ${idx + 1}`}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 outline-none focus:outline-none ${selectedImage === idx
+                          ? 'bg-rose-500 scale-125'
+                          : 'bg-white/80'
+                        }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        scrollToImage(idx);
+                      }}
+                    ></button>
+                  ))}
+                </div>
+              )}
             </div>
-
             <div className="grid grid-cols-4 gap-4">
               {product.image.map((image, index) => (
                 <button
                   key={index}
-                  onClick={() => setSelectedImage(index)}
+                  onClick={() => scrollToImage(index)}
                   className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImage === index
-                      ? "border-rose-500"
-                      : "border-transparent hover:border-gray-300"
+                    ? "border-rose-500"
+                    : "border-transparent hover:border-gray-300"
                     }`}
                 >
                   <img
@@ -424,6 +475,16 @@ export default function DynamicProductPage() {
           )}
         </div>
       </div>
+      {/* Optional: Hide scrollbars */}
+      <style jsx>{`
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }
