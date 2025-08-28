@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useLoading } from '@/context/LoadingContext';
 import { motion } from 'framer-motion';
+import ProductCard from '@/components/ProductCard'; // ⬅️ use ProductCard
 
 // Animation variants
 const containerVariants = {
@@ -58,9 +59,7 @@ export default function ProductGrid() {
   const { addToCart, wishlist, toggleWishlist } = useUser();
   const { setLoading } = useLoading();
   const [bestSellers, setBestSellers] = useState([]);
-  // Track current image index per product
   const [currentImageIndex, setCurrentImageIndex] = useState({});
-  // Refs for scroll containers per product
   const scrollRefs = useRef({});
 
   const fetchProducts = async () => {
@@ -69,7 +68,7 @@ export default function ProductGrid() {
       const bestSellersOnly = allProducts.filter(product => product.bestseller === true);
       setBestSellers(bestSellersOnly);
     } catch (error) {
-      throw error;
+      console.error('Failed to fetch products:', error);
     }
   };
 
@@ -77,40 +76,11 @@ export default function ProductGrid() {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = async (e, productId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    await addToCart(productId);
-  };
-
-  const handleToggleWishlist = async (e, productId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    await toggleWishlist(productId);
-  };
-
-  // Scroll to image on dot click
-  const scrollToImage = (productId, idx) => {
-    const container = scrollRefs.current[productId];
-    if (container) {
-      const scrollPos = idx * container.offsetWidth;
-      container.scrollTo({ left: scrollPos, behavior: 'smooth' });
-    }
-  };
-
-  // Sync dot state on scroll (for both mobile and desktop)
-  const handleGalleryScroll = (e, product) => {
-    const { scrollLeft, offsetWidth } = e.target;
-    const idx = Math.round(scrollLeft / offsetWidth);
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [product._id]: idx,
-    }));
-  };
-
   return (
     <section className="py-24 bg-gradient-to-b from-white via-rose-50/30 to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        
+        {/* Section Heading */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -147,6 +117,7 @@ export default function ProductGrid() {
           </motion.p>
         </motion.div>
 
+        {/* Product grid */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -160,131 +131,20 @@ export default function ProductGrid() {
               variants={itemVariants}
               custom={index}
             >
-              <Link
-                href={`/product/${product._id}`}
-                className="group cursor-pointer block h-full"
-              >
-                <motion.div
-                  whileHover={{ y: -8 }}
-                  className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden h-full flex flex-col"
-                >
-                  {/* NEW & SALE Badges */}
-                  {product.isNew && (
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.3 + index * 0.1 }}
-                      className="absolute top-4 left-4 z-10 bg-gradient-to-r from-rose-600 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium"
-                    >
-                      New
-                    </motion.div>
-                  )}
-                  {product.originalPrice && (
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.4 + index * 0.1 }}
-                      className="absolute top-4 left-12 z-10 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-medium"
-                    >
-                      Sale
-                    </motion.div>
-                  )}
-
-                  {/* Wishlist Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => handleToggleWishlist(e, product._id)}
-                    className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-all duration-300"
-                  >
-                    <i
-                      className={`${wishlist.includes(product._id)
-                        ? 'ri-heart-fill text-rose-500'
-                        : 'ri-heart-line text-gray-600'
-                        } w-5 h-5`}
-                    ></i>
-                  </motion.button>
-
-                  {/* Product Images Container - SCROLLABLE on all devices */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.5 }}
-                    className="relative aspect-[4/5] overflow-hidden rounded-t-3xl"
-                  >
-                    <div
-                      className="flex overflow-x-auto snap-x snap-mandatory h-full no-scrollbar"
-                      ref={el => (scrollRefs.current[product._id] = el)}
-                      onScroll={e => handleGalleryScroll(e, product)}
-                      style={{ scrollBehavior: 'smooth' }}
-                    >
-                      {product.image.map((imgSrc, imgIndex) => (
-                        <div key={imgIndex} className="flex-shrink-0 w-full h-full snap-start">
-                          <img
-                            src={imgSrc}
-                            alt={`${product.name} - View ${imgIndex + 1}`}
-                            className="w-full h-full object-cover object-top transition-transform duration-700"
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Image Indicator Dots - click to scroll, show for ALL devices */}
-                    {product.image.length > 1 && (
-                      <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                        {product.image.map((_, imgIndex) => (
-                          <button
-                            key={imgIndex}
-                            type="button"
-                            tabIndex={0}
-                            aria-label={`Go to image ${imgIndex + 1}`}
-                            className={`w-2 h-2 rounded-full transition-all duration-300 outline-none focus:outline-none ${(currentImageIndex[product._id] || 0) === imgIndex
-                              ? 'bg-rose-500 scale-125'
-                              : 'bg-white/80'
-                              }`}
-                            onClick={e => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              scrollToImage(product._id, imgIndex);
-                            }}
-                          ></button>
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
-
-                  {/* Product Info */}
-                  <div className="p-6 flex-grow flex flex-col">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-rose-600 font-medium tracking-wide uppercase">
-                        {product.category}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-medium text-gray-900 group-hover:text-rose-600 transition-colors mb-4">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-semibold text-gray-900">₹{product.price}</span>
-                        {product.originalPrice && (
-                          <span className="text-lg text-gray-500 line-through">₹{product.originalPrice}</span>
-                        )}
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => handleAddToCart(e, product._id)}
-                        className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-2.5 rounded-full hover:from-rose-700 hover:to-pink-600 transition-all duration-300 whitespace-nowrap font-medium shadow-lg"
-                      >
-                        Add to Cart
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
+              <ProductCard
+                product={product}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+                addToCart={addToCart}
+                currentImageIndex={currentImageIndex}
+                setCurrentImageIndex={setCurrentImageIndex}
+                scrollRefs={scrollRefs}
+              />
             </motion.div>
           ))}
         </motion.div>
 
+        {/* View All Button */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -302,14 +162,14 @@ export default function ProductGrid() {
         </motion.div>
       </div>
 
-      {/* Hide scrollbar while keeping functionality */}
+      {/* Hide scrollbar but keep functionality */}
       <style jsx>{`
         .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
         .no-scrollbar::-webkit-scrollbar {
-          display: none; /* Chrome, Safari and Opera */
+          display: none;
         }
       `}</style>
     </section>
