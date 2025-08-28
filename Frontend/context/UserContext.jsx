@@ -226,9 +226,13 @@ export const UserProvider = ({ children }) => {
         setLoading(true);
         await fetchUser();
         await fetchProducts();
-        await getUserWishlist();
         setLoading(false);
     };
+
+    useEffect(() => {
+        getUserWishlist();
+        getUserCart();
+    }, [user])
 
     useEffect(() => {
         loadAll();
