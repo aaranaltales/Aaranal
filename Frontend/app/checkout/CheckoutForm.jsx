@@ -27,7 +27,7 @@ export default function CheckoutForm({ assets }) {
     handleSubmit,
   } = useCheckoutContext();
 
-  const { token, getUserCart } = useUser();
+  const { token, getUserCart,cartItems, setCartItems } = useUser();
   const { setLoading } = useLoading();
   const router = useRouter();
   const [method, setMethod] = useState('razorpay');
@@ -50,23 +50,6 @@ export default function CheckoutForm({ assets }) {
     document.body.appendChild(script);
   }, []);
 
-  const [cartItems, setCartItems] = useState({});
-
-  // ✅ Load initial cart
-  useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        setLoading(true);
-        const cart = await getUserCart();
-        setCartItems(cart);
-      } catch (err) {
-        console.error("Failed to fetch user cart:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCart();
-  }, [setLoading]);
 
   // ✅ Exit early if user not loaded yet
   if (!user) return null;
@@ -120,7 +103,6 @@ export default function CheckoutForm({ assets }) {
     try {
       handleSubmit();
       // build order items
-      const cartItems = await getUserCart();
       const orderItems = [];
 
       for (const productId in cartItems) {
