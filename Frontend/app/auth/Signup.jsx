@@ -419,7 +419,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
                 <div className="ml-2 text-xs sm:text-sm">
                   <label htmlFor="terms" className="font-light text-rose-100">
                     I agree to the{" "}
-                    <a href="/terms" className="text-rose-200 hover:text-white underline">
+                    <a href="/terms" className="text-rose-200 hover:text-white">
                       Terms and Conditions
                     </a>
                   </label>
@@ -442,7 +442,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
             <button
               type="button"
               onClick={onAlreadyHaveAccount}
-              className="flex items-center space-x-1.5 underline text-xs sm:text-sm text-rose-100 hover:text-white transition"
+              className="flex items-center space-x-1.5 text-xs sm:text-sm text-rose-100 hover:text-white transition"
             >
               <i className="ri-login-circle-line w-4 h-4 flex items-center justify-center"></i>
               <span>Already have an account?</span>

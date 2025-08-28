@@ -331,9 +331,8 @@ export default function Login({ onCreateAccount }) {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-3 text-sm sm:text-base ${
-                    isLoading ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-3 text-sm sm:text-base ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isLoading ? "Logging in..." : "Login"}
                 </button>
@@ -352,7 +351,7 @@ export default function Login({ onCreateAccount }) {
                       confirmPassword: "",
                     });
                   }}
-                  className="flex items-center space-x-1.5 underline text-xs sm:text-sm hover:text-white transition"
+                  className="flex items-center space-x-1.5 text-xs sm:text-sm hover:text-white transition"
                 >
                   <i className="ri-mail-line w-4 h-4 flex items-center justify-center"></i>
                   <span>Forgot Password?</span>
@@ -360,7 +359,7 @@ export default function Login({ onCreateAccount }) {
                 <button
                   type="button"
                   onClick={onCreateAccount}
-                  className="flex items-center space-x-1.5 underline text-xs sm:text-sm text-rose-100 hover:text-white transition"
+                  className="flex items-center space-x-1.5 text-xs sm:text-sm text-rose-100 hover:text-white transition"
                 >
                   <i className="ri-user-add-line w-4 h-4 flex items-center justify-center"></i>
                   <span>Create Account</span>
@@ -373,28 +372,28 @@ export default function Login({ onCreateAccount }) {
                 {fpStep === 1
                   ? "Forgot Password"
                   : fpStep === 2
-                  ? "Verify OTP"
-                  : fpStep === 3
-                  ? "Set New Password"
-                  : "Success"}
+                    ? "Verify OTP"
+                    : fpStep === 3
+                      ? "Set New Password"
+                      : "Success"}
               </span>
               <h2 className="text-3xl sm:text-3xl font-light text-white mb-2">
                 {fpStep === 1
                   ? "Reset Password"
                   : fpStep === 2
-                  ? "Enter OTP"
-                  : fpStep === 3
-                  ? "New Password"
-                  : "All Set!"}
+                    ? "Enter OTP"
+                    : fpStep === 3
+                      ? "New Password"
+                      : "All Set!"}
               </h2>
               <p className="text-base sm:text-sm text-rose-100 mb-5 sm:mb-4 font-light leading-relaxed">
                 {fpStep === 1
                   ? "Enter your email to receive an OTP"
                   : fpStep === 2
-                  ? "Enter the OTP sent to your email"
-                  : fpStep === 3
-                  ? "Set your new password"
-                  : "Your password has been reset successfully"}
+                    ? "Enter the OTP sent to your email"
+                    : fpStep === 3
+                      ? "Set your new password"
+                      : "Your password has been reset successfully"}
               </p>
 
               {/* Step 1: Email Input */}
@@ -418,9 +417,8 @@ export default function Login({ onCreateAccount }) {
                     type="button"
                     onClick={handleSendOtp}
                     disabled={fpIsLoading}
-                    className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 transition-all duration-300 font-medium shadow-lg text-sm sm:text-base ${
-                      fpIsLoading ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 transition-all duration-300 font-medium shadow-lg text-sm sm:text-base ${fpIsLoading ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                   >
                     {fpIsLoading ? "Sending OTP..." : "Send OTP"}
                   </button>
@@ -449,11 +447,10 @@ export default function Login({ onCreateAccount }) {
                       type="button"
                       onClick={countdown > 0 ? undefined : handleResendOtp}
                       disabled={countdown > 0}
-                      className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs ${
-                        countdown > 0
-                          ? "bg-white text-rose-900 cursor-not-allowed"
-                          : "bg-white/10 text-white hover:bg-white/15"
-                      }`}
+                      className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs ${countdown > 0
+                        ? "bg-white text-rose-900 cursor-not-allowed"
+                        : "bg-white/10 text-white hover:bg-white/15"
+                        }`}
                     >
                       {countdown > 0 ? `${countdown}s` : "Resend"}
                     </button>
@@ -461,7 +458,7 @@ export default function Login({ onCreateAccount }) {
                   <button
                     type="button"
                     onClick={() => setFpStep(1)}
-                    className="text-rose-200 hover:text-white transition underline text-xs sm:text-sm w-full text-left"
+                    className="text-rose-200 hover:text-white transition text-xs sm:text-sm w-full text-left"
                   >
                     Change Email
                   </button>
@@ -469,9 +466,8 @@ export default function Login({ onCreateAccount }) {
                     type="button"
                     onClick={handleVerifyOtp}
                     disabled={fpIsLoading}
-                    className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 transition-all duration-300 font-medium shadow-lg text-sm sm:text-base ${
-                      fpIsLoading ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 transition-all duration-300 font-medium shadow-lg text-sm sm:text-base ${fpIsLoading ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                   >
                     {fpIsLoading ? "Verifying..." : "Verify OTP"}
                   </button>
@@ -508,9 +504,8 @@ export default function Login({ onCreateAccount }) {
                     type="button"
                     onClick={handleResetPassword}
                     disabled={fpIsLoading}
-                    className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 transition-all duration-300 font-medium shadow-lg text-sm sm:text-base ${
-                      fpIsLoading ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 transition-all duration-300 font-medium shadow-lg text-sm sm:text-base ${fpIsLoading ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                   >
                     {fpIsLoading ? "Resetting..." : "Reset Password"}
                   </button>
@@ -559,7 +554,7 @@ export default function Login({ onCreateAccount }) {
                       });
                       setFpError("");
                     }}
-                    className="text-rose-200 hover:text-white transition underline text-xs sm:text-sm"
+                    className="text-rose-200 hover:text-white transition text-xs sm:text-sm"
                   >
                     Back to Login
                   </button>
