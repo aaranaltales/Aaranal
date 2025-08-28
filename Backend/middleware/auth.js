@@ -22,7 +22,7 @@ const authUser = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('JWT verification failed:', error);
+        // console.error('JWT verification failed:', error);
         res.status(401).json({ success: false, message: 'Invalid or expired token' });
     }
 };
@@ -45,7 +45,7 @@ const protect = async (req, res, next) => {
 
             next()
         } catch (error) {
-            console.error(error)
+            // console.error(error)
             return res.status(401).json({ success: false, message: "Not authorized, token failed" })
         }
     }

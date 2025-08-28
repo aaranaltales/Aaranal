@@ -74,10 +74,7 @@ export default function Login({ onCreateAccount }) {
     setError("");
 
     try {
-      console.log("Google token received:", response.credential ? "Yes" : "No");
-
       const result = await googleSignin(response.credential);
-      console.log("Backend response:", result);
 
       if (result.success && result.token) {
         Cookies.set("token", result.token, {

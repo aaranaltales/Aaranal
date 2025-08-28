@@ -43,7 +43,7 @@ const placeOrder = async (req, res) => {
         await userModel.findByIdAndUpdate(user._id, { cartData: {} })
         res.json({ success: true, message: "Order Placed" })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -106,7 +106,7 @@ const placeOrderStripe = async (req, res) => {
         res.json({ success: true, session_url: session.url });
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -127,7 +127,7 @@ const verifyStripe = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 
@@ -185,14 +185,14 @@ const placeOrderRazorpay = async (req, res) => {
 
         razorpayInstance.orders.create(options, (error, order) => {
             if (error) {
-                console.log(error);
+                // console.log(error);
                 return res.json({ success: false, message: error });
             }
             res.json({ success: true, order });
         });
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -224,7 +224,7 @@ const verifyRazorpay = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -232,30 +232,24 @@ const verifyRazorpay = async (req, res) => {
 
 // All Orders data for Admin Panel
 const allOrders = async (req, res) => {
-
     try {
-
         const orders = await orderModel.find({})
         res.json({ success: true, orders })
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
-
 }
 
 // User Order Data For Forntend
 const userOrders = async (req, res) => {
     try {
-
         const { userId } = req.body
-
         const orders = await orderModel.find({ userId })
         res.json({ success: true, orders })
-
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -275,7 +269,7 @@ const orderDetails = async (req, res) => {
         };
         res.status(200).json({ success: true, order: orderWithShippingAddress });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
 }
@@ -294,7 +288,7 @@ const updateStatus = async (req, res) => {
         res.json({ success: true, message: 'Status Updated' })
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }

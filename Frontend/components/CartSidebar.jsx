@@ -17,16 +17,7 @@ export default function CartSidebar({ isOpen, onClose, justAddedItem = false }) 
   }, [isOpen, justAddedItem]);
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
-    try {
-      await updateQuantity(itemId, newQuantity);
-      if (newQuantity === 0) {
-        showSuccess("Item removed from cart!");
-      } else {
-        showSuccess("Cart updated!");
-      }
-    } catch (error) {
-      showError("Failed to update cart. Please try again.");
-    }
+    await updateQuantity(itemId, newQuantity);
   };
 
   return (

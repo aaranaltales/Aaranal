@@ -37,7 +37,7 @@ export const signup = async ({ name, email, password, otp }) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.response?.data?.message || "Signup failed");
     }
 };
@@ -49,7 +49,7 @@ export const googleSignin = async (googleToken) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.response?.data?.message || "Google authentication failed");
     }
 };
@@ -61,7 +61,7 @@ export const sendOtp = async ({ email, method = "signup" }) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.response?.data?.message || "Failed to send OTP");
     }
 };
@@ -74,7 +74,7 @@ export const verifyOtp = async ({ email, otp }) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.response?.data?.message || "OTP verification failed");
     }
 };
@@ -88,7 +88,7 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.response?.data?.message || "Password reset failed");
     }
 };

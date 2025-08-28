@@ -148,8 +148,6 @@ export default function CustomizationsPage() {
         submissionData.append('customImage', fileInputRef.current.files[0]);
       }
 
-      console.log('Submitting order data as FormData');
-
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customization/convert`,
         submissionData,
@@ -186,7 +184,6 @@ export default function CustomizationsPage() {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Failed to place order');
-      console.error('Error placing order:', err);
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         router.push('/admin/login');

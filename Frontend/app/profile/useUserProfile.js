@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
-import { toast } from "react-toastify";
+import { useToast } from "@/components/ToastContext";
 
 export default function useUserProfile() {
+  const { showSuccess, showError } = useToast();
   const [activeSection, setActiveSection] = useState("profile");
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -87,8 +88,7 @@ export default function useUserProfile() {
 
       return response.data.secure_url;
     } catch (error) {
-      console.error('Error uploading to Cloudinary:', error);
-      toast.error('Failed to upload avatar');
+      showError('Failed to upload avatar');
       throw error;
     }
   };
@@ -109,7 +109,7 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           name: response.data.user.name,
@@ -118,7 +118,7 @@ export default function useUserProfile() {
         }));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -147,7 +147,7 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           paymentMethods: response.data.paymentMethods
@@ -155,7 +155,7 @@ export default function useUserProfile() {
       }
       handleSavePayment(paymentMethodId);
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -192,7 +192,7 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           addresses: response.data.addresses
@@ -201,8 +201,8 @@ export default function useUserProfile() {
       handleSaveAddress();
       setEditAddressId(null);
     } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || error.message);
+      // console.log(error);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -218,14 +218,14 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           addresses: response.data.addresses
         }));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -241,15 +241,15 @@ export default function useUserProfile() {
       });
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           addresses: response.data.addresses,
         }));
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || error.message);
+      // console.log(error);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -265,14 +265,14 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           paymentMethods: response.data.paymentMethods
         }));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -288,14 +288,14 @@ export default function useUserProfile() {
       });
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           paymentMethods: response.data.paymentMethods,
         }));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -322,7 +322,7 @@ export default function useUserProfile() {
         }
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           paymentMethods: response.data.paymentMethods
@@ -331,7 +331,7 @@ export default function useUserProfile() {
       setShowAddCardForm(false);
       setNewCard({ type: "", cardNumber: "", holderName: "", expiry: "" });
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 
@@ -348,7 +348,7 @@ export default function useUserProfile() {
 
   const handleSubmitNewAddress = async () => {
     if (!newAddress.house || !newAddress.city || !newAddress.pincode) {
-      toast.error("Please fill in required fields (House, City, Pincode)");
+      showError("Please fill in required fields (House, City, Pincode)");
       return;
     }
 
@@ -369,7 +369,7 @@ export default function useUserProfile() {
       );
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setUser((prevUser) => ({
           ...prevUser,
           addresses: response.data.addresses,
@@ -388,7 +388,7 @@ export default function useUserProfile() {
         landmark: "",
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
+      showError(error.response?.data?.message || error.message);
     }
   };
 

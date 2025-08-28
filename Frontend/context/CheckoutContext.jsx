@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
 import { useLoading } from "@/context/LoadingContext";
+import { useToast } from "@/components/ToastContext"; // Import useToast
 
 const CheckoutContext = createContext(null);
 
@@ -17,6 +18,8 @@ export const CheckoutProvider = ({ children }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [showAddressSelector, setShowAddressSelector] = useState(false);
     const [showCardSelector, setShowCardSelector] = useState(false);
+    const { showSuccess, showError } = useToast();
+
 
     const [formData, setFormData] = useState({
         name: '',
@@ -88,7 +91,7 @@ export const CheckoutProvider = ({ children }) => {
     // ✅ <--- Wrapped with global loading context
     const handleSubmitNewAddress = async (newAddress) => {
         if (!token) {
-            // toast.warning("Please login to continue");
+            showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
         }
         try {
@@ -102,13 +105,14 @@ export const CheckoutProvider = ({ children }) => {
                 router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
             }
             if (response.data.success) {
+                showSuccess(response.data.message)
                 setUser(prev => ({
                     ...prev,
                     addresses: response.data.addresses,
                 }));
             }
         } catch (error) {
-            toast.error(error.message);
+            showError(error.message);
         } finally {
             setLoading(false);
         }

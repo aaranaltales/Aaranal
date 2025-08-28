@@ -84,8 +84,9 @@ export default function ContactForm() {
       }
     } catch (err) {
       console.error(err.response?.data?.message ||
-                 err.message ||
-                 "An error occurred while submitting your request");
+        err.message ||
+        "An error occurred while submitting your request"
+      );
     } finally {
       setIsUploading(false);
     }
@@ -242,9 +243,8 @@ export default function ContactForm() {
                 <button
                   type="submit"
                   disabled={isUploading}
-                  className={`w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-2xl hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg ${
-                    isUploading ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+                  className={`w-full bg-gradient-to-r from-rose-600 to-pink-500 text-white py-4 rounded-2xl hover:from-rose-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg ${isUploading ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
                 >
                   {isUploading ? (
                     <span className="flex items-center justify-center">

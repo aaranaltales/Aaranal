@@ -52,7 +52,7 @@ const addProduct = async (req, res) => {
 
         res.json({ success: true, message: 'Product Added' });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -133,7 +133,7 @@ const updateProduct = async (req, res) => {
 
         res.json({ success: true, message: 'Product Updated Successfully', product: updatedProduct });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -144,7 +144,7 @@ const listProducts = async (req, res) => {
         const products = await productModel.find({});
         res.json({ success: true, products })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -166,14 +166,14 @@ const removeProduct = async (req, res) => {
                     const publicId = imageUrl.split('/').pop().split('.')[0];
                     await cloudinary.uploader.destroy(publicId);
                 } catch (cloudinaryError) {
-                    console.log('Error deleting image from cloudinary:', cloudinaryError);
+                    // console.log('Error deleting image from cloudinary:', cloudinaryError);
                 }
             }
         }
         
         res.json({ success: true, message: "Product Removed" })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -185,7 +185,7 @@ const singleProduct = async (req, res) => {
         const product = await productModel.findById(productId)
         res.json({ success: true, product })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }

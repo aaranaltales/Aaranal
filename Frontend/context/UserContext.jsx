@@ -52,7 +52,6 @@ export const UserProvider = ({ children }) => {
             }
         } catch (error) {
             setUser(null);
-            // console.log(error);
         }
     };
 
@@ -65,7 +64,8 @@ export const UserProvider = ({ children }) => {
 
     const getUserCart = async () => {
         if (!token) {
-            return
+            showError("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
         }
         try {
             const response = await axios.post(
@@ -73,9 +73,6 @@ export const UserProvider = ({ children }) => {
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (response.status == 401) {
-                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
-            }
             if (response.data.success) {
                 const cartData = response.data.cartData;
                 setCartItems(cartData);
@@ -84,14 +81,18 @@ export const UserProvider = ({ children }) => {
                 throw new Error(response.data.message);
             }
         } catch (error) {
-            console.log(error);
-            toast.error(error.message);
+            if (error.status == 401) {
+                showError("Login to continue");
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
+            showError(error.message);
         }
     };
 
     const getUserWishlist = async () => {
         if (!token) {
-            return
+            showError("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
         }
         try {
             const response = await axios.post(
@@ -99,21 +100,22 @@ export const UserProvider = ({ children }) => {
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             )
-            if (response.status == 401) {
-                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
-            }
             if (response.data.success) {
                 setWishlist(response.data.wishlist);
                 setWishlistCount(response.data.wishlist.length);
             } else throw new Error(response.data.message);
         } catch (error) {
-            toast.error("Failed to load wishlist");
+            if (error.status == 401) {
+                showError("Login to continue");
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
+            showError("Failed to load wishlist");
         }
     };
 
     const addToCart = async (itemId) => {
         if (!token) {
-            // toast.warning("Please login to continue");
+            showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
         }
         let cartData = structuredClone(cartItems);
@@ -126,20 +128,20 @@ export const UserProvider = ({ children }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (response.data.success) {
-                console.log(response)
-                toast.success("Item added to cart");
+                showSuccess("Item added to cart");
             }
         } catch (error) {
             if (error.status == 401) {
+                showError("Login to continue");
                 router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
             }
-            toast.error(error.message);
+            showError("Failed to add item to cart. Please try again.");
         }
     };
 
     const updateQuantity = async (itemId, quantity) => {
         if (!token) {
-            // toast.warning("Please login to continue");
+            showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
         }
         let temp = structuredClone(cartItems);
@@ -151,20 +153,23 @@ export const UserProvider = ({ children }) => {
                 { itemId, quantity },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            if (response.status == 401) {
-                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            if (response.data.success) {
+                showSuccess("Item added to cart");
             }
         } catch (error) {
-            toast.error(error.message);
+            if (response.status == 401) {
+                showError("Login to continue");
+                router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            }
+            showError(error.message);
         }
     };
 
     const toggleWishlist = async (itemId) => {
         if (!token) {
-            // toast.warning("Please login to continue");
+            showError("Please login to continue");
             router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
         }
-
         try {
             const response = await axios.post(
                 `${dbUri}/api/wishlist/update`,
@@ -178,9 +183,10 @@ export const UserProvider = ({ children }) => {
             }
         } catch (error) {
             if (error.status == 401) {
+                showError("Login to continue");
                 router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
             }
-            showError("Could not update wishlist");
+            showError("Failed to update wishlist. Please try again.");
         }
     };
 

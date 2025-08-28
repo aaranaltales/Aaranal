@@ -18,7 +18,7 @@ const createToken = (id) => {
 const googleAuth = async (req, res) => {
     try {
         const { token } = req.body;
-        console.log('Received Google token:', token ? 'Yes' : 'No');
+        // console.log('Received Google token:', token ? 'Yes' : 'No');
 
         if (!token) {
             return res.json({ success: false, message: "Google token is required" });
@@ -32,11 +32,11 @@ const googleAuth = async (req, res) => {
         });
 
         const payload = ticket.getPayload();
-        console.log('Google payload:', {
-            email: payload.email,
-            name: payload.name,
-            googleId: payload.sub
-        });
+        // console.log('Google payload:', {
+        //     email: payload.email,
+        //     name: payload.name,
+        //     googleId: payload.sub
+        // });
 
         const { sub: googleId, email, name, picture } = payload;
 
@@ -58,16 +58,14 @@ const googleAuth = async (req, res) => {
                 
                 try {
                     await user.save();
-                    console.log('Successfully updated existing user');
                 } catch (saveError) {
-                    console.error('Error saving existing user:', saveError);
+                    // console.error('Error saving existing user:', saveError);
                     return res.json({ 
                         success: false, 
                         message: "Failed to update user: " + saveError.message 
                     });
                 }
             }
-            console.log('Existing user signed in:', user.email);
         } else {
             // Create new user - explicitly define only the fields we want
             const userData = {
@@ -83,15 +81,11 @@ const googleAuth = async (req, res) => {
                 paymentMethods: [], // Empty array
             };
 
-            console.log('Creating new user with data:', userData);
-
             try {
                 user = new userModel(userData);
                 await user.save();
-                console.log('New user created successfully:', user.email);
             } catch (createError) {
-                console.error('Error creating new user:', createError);
-                console.error('Validation errors:', createError.errors);
+                // console.error('Validation errors:', createError.errors);
                 
                 // More detailed error message
                 let errorMessage = "Failed to create user account";
@@ -108,7 +102,6 @@ const googleAuth = async (req, res) => {
         }
 
         const jwtToken = createToken(user._id);
-        console.log('JWT token created successfully');
 
         res.json({ 
             success: true, 
@@ -123,8 +116,8 @@ const googleAuth = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Google auth error:', error);
-        console.error('Error stack:', error.stack);
+        // console.error('Google auth error:', error);
+        // console.error('Error stack:', error.stack);
         
         if (error.message && error.message.includes('Token used too early')) {
             return res.json({ 
@@ -155,7 +148,7 @@ const userDetails = async (req, res) => {
         if (!user) throw new Error("Cannot find user")
         return res.json({ success: true, message: "User details fetched successfully", user })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.json({ success: false, message: error.message })
     }
 }
@@ -184,7 +177,7 @@ const loginUser = async (req, res) => {
             res.json({ success: false, message: "Invalid credentials" })
         }
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -225,7 +218,7 @@ const registerUser = async (req, res) => {
 
         res.json({ success: true, token })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -242,7 +235,7 @@ const adminLogin = async (req, res) => {
             res.json({ success: false, message: "Invalid credentials" })
         }
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -276,7 +269,7 @@ const updateUser = async (req, res) => {
         user = await user.save()
         res.json({ success: true, message: "User updated successfully", user })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -300,7 +293,7 @@ const addAddress = async (req, res) => {
 
         res.json({ success: true, message: "Address added successfully", addresses: user.addresses })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -325,7 +318,7 @@ const updateAddress = async (req, res) => {
         user = await user.save()
         res.json({ success: true, message: "Address updated successfully", addresses: user.addresses })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -358,7 +351,7 @@ const deleteAddress = async (req, res) => {
 
         res.json({ success: true, message: "Address deleted successfully", addresses: user.addresses })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -380,7 +373,7 @@ const setDefaultAddress = async (req, res) => {
 
         res.json({ success: true, message: "Default address set successfully", addresses: user.addresses })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -404,7 +397,7 @@ const addPaymentMethod = async (req, res) => {
 
         res.json({ success: true, message: "Payment method added successfully", paymentMethods: user.paymentMethods })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -429,7 +422,7 @@ const updatePaymentMethod = async (req, res) => {
 
         res.json({ success: true, message: "Payment method updated successfully", paymentMethods: user.paymentMethods })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -462,7 +455,7 @@ const deletePaymentMethod = async (req, res) => {
 
         res.json({ success: true, message: "Payment method deleted successfully", paymentMethods: user.paymentMethods })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -484,7 +477,7 @@ const setDefaultPaymentMethod = async (req, res) => {
 
         res.json({ success: true, message: "Default payment method set successfully", paymentMethods: user.paymentMethods })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -516,7 +509,7 @@ const resetPassword = async (req, res) => {
 
         res.json({ success: true, message: "Password reset successful" });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: error.message });
     }
 };

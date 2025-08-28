@@ -14,7 +14,6 @@ export const getProductsData = async (setLoading) => {
             toast.error(response.data.message);
         }
     } catch (error) {
-        console.log(error);
         toast.error(error.message);
     } finally {
         if (setLoading) setLoading(false);

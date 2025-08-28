@@ -30,7 +30,7 @@ const toggleWishlistItem = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -49,7 +49,7 @@ const getUserWishlist = async (req, res) => {
         res.json({ success: true, wishlist })
 
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         res.json({ success: false, message: error.message })
     }
 

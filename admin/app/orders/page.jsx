@@ -96,9 +96,8 @@ const fetchOrders = async () => {
         return { ...order, items: enrichedItems };
       }
     });
-
-    setEnrichedOrders(merged);
-    console.log("✅ Enriched Orders:", merged);
+    const paidOrders = merged.filter((o) => o.payment === true);
+    setEnrichedOrders(paidOrders);
   }, [orders, products]);
 
   return (

@@ -4,13 +4,13 @@ import { useUser } from '@/context/UserContext';
 import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useToast } from "@/components/ToastContext"; // Import useToast
+import { useToast } from "@/components/ToastContext";
 
 export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
   const { addToCart, wishlist, toggleWishlist } = useUser();
   const { setLoading } = useLoading();
-  const { showSuccess, showError } = useToast(); // Use the toast hook
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -25,9 +25,8 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
     e.stopPropagation();
     try {
       await addToCart(productId);
-      showSuccess("Added to cart successfully!"); // Show success toast
     } catch (error) {
-      showError("Failed to add item to cart. Please try again."); // Show error toast
+      //leave
     }
   };
 
@@ -38,12 +37,12 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
       await toggleWishlist(productId);
       const isInWishlist = wishlist.includes(productId);
       if (isInWishlist) {
-        showSuccess("Removed from wishlist!"); // Show success toast
+        showSuccess("Removed from wishlist!"); 
       } else {
-        showSuccess("Added to wishlist!"); // Show success toast
+        showSuccess("Added to wishlist!");
       }
     } catch (error) {
-      showError("Failed to update wishlist. Please try again."); // Show error toast
+      // leave
     }
   };
 

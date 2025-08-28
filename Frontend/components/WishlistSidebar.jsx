@@ -1,28 +1,16 @@
 'use client';
 import { useUser } from '@/context/UserContext';
-import { useToast } from "@/components/ToastContext"; // Import useToast
 import Link from 'next/link';
 
 export default function WishlistSidebar({ isOpen, onClose }) {
   const { toggleWishlist, wishlistData, addToCart } = useUser();
-  const { showSuccess, showError } = useToast(); // Use the toast hook
 
   const handleToggleWishlist = async (itemId) => {
-    try {
       await toggleWishlist(itemId);
-      showSuccess("Wishlist updated!"); // Show success toast
-    } catch (error) {
-      showError("Failed to update wishlist. Please try again."); // Show error toast
-    }
   };
 
   const handleAddToCart = async (item) => {
-    try {
       await addToCart(item._id);
-      showSuccess("Added to cart successfully!"); // Show success toast
-    } catch (error) {
-      showError("Failed to add item to cart. Please try again."); // Show error toast
-    }
   };
 
   return (

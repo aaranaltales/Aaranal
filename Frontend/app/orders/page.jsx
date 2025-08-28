@@ -53,9 +53,7 @@ function OrdersContent() {
   // Fetch user orders - FIXED: Include customized orders
   useEffect(() => {
     const fetchAndEnrichOrders = async () => {
-      try {
-        console.log('Fetching orders for user:', user?._id);
-        
+      try {        
         // 1. Fetch orders
         const response = await axios.post(
           `${dbUri}/api/order/userorders`,
@@ -70,17 +68,12 @@ function OrdersContent() {
         if (response.data.success) {
           let fetchedOrders = response.data.orders;
           
-          console.log('Raw orders fetched:', fetchedOrders.length);
-          console.log('Orders with isCustomized:', fetchedOrders.filter(o => o.isCustomized).length);
-          
           // FIXED: Updated filter logic to include customized orders
           // Include orders that are either paid OR customized (since customized COD orders have payment: false)
           fetchedOrders = fetchedOrders.filter((order) => 
             order.payment === true || order.isCustomized === true
           );
-          
-          console.log('Orders after payment filter:', fetchedOrders.length);
-          
+                    
           fetchedOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
           
           // 2. Enrich orders (only if products available)
@@ -106,7 +99,6 @@ function OrdersContent() {
 
           // 3. Update state
           setOrders(fetchedOrders);
-          console.log('Final orders set:', fetchedOrders.length);
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -181,7 +173,6 @@ function OrdersContent() {
 
   const handleBack = () => {
     const placed = searchParams.get('placed')
-    console.log(placed)
     if (placed) {
       router.push("/");
     } else {

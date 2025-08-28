@@ -4,8 +4,7 @@ import { getProductsData } from '@/services/products';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useLoading } from '@/context/LoadingContext';
-import { useToast } from "@/components/ToastContext";
-import { motion } from 'framer-motion'; // Import motion from framer-motion
+import { motion } from 'framer-motion';
 
 // Animation variants
 const containerVariants = {
@@ -58,7 +57,6 @@ const buttonVariants = {
 export default function ProductGrid() {
   const { addToCart, wishlist, toggleWishlist } = useUser();
   const { setLoading } = useLoading();
-  const { showSuccess, showError } = useToast();
   const [bestSellers, setBestSellers] = useState([]);
   // Track current image index per product
   const [currentImageIndex, setCurrentImageIndex] = useState({});
@@ -111,15 +109,15 @@ export default function ProductGrid() {
   };
 
   return (
-    <motion.section
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-50px" }}
-      variants={containerVariants}
-      className="py-24 bg-gradient-to-b from-white via-rose-50/30 to-white"
-    >
+    <section className="py-24 bg-gradient-to-b from-white via-rose-50/30 to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <motion.div variants={textVariants} className="text-center mb-20">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={containerVariants}
+          className="text-center mb-20"
+        >
           <motion.span
             variants={itemVariants}
             className="inline-block px-4 py-2 bg-gradient-to-r from-rose-100 to-pink-100 text-rose-700 text-sm font-medium rounded-full tracking-wide mb-4"
@@ -150,6 +148,9 @@ export default function ProductGrid() {
         </motion.div>
 
         <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
           variants={containerVariants}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
         >
@@ -285,6 +286,9 @@ export default function ProductGrid() {
         </motion.div>
 
         <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
           variants={buttonVariants}
           className="text-center mt-16"
         >

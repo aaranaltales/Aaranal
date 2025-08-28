@@ -5,10 +5,10 @@ import CheckoutStepper from './CheckoutStepper';
 import ShippingStep from './ShippingStep';
 import { useCheckoutContext } from '@/context/CheckoutContext';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { useLoading } from '@/context/LoadingContext';
+import { useToast } from "@/components/ToastContext";
 
 export default function CheckoutForm({ assets }) {
   const {
@@ -26,8 +26,8 @@ export default function CheckoutForm({ assets }) {
     products,
     handleSubmit,
   } = useCheckoutContext();
-
-  const { token, getUserCart,cartItems, setCartItems } = useUser();
+  const { showSuccess, showError } = useToast();
+  const { token, getUserCart, cartItems, setCartItems } = useUser();
   const { setLoading } = useLoading();
   const router = useRouter();
   const [method, setMethod] = useState('razorpay');
@@ -46,7 +46,7 @@ export default function CheckoutForm({ assets }) {
     script.async = true;
     script.onload = () => setIsRzpLoaded(true);
     script.onerror = () =>
-      toast.error('Failed to load Razorpay. Try COD or refresh the page.');
+      showError('Failed to load Razorpay. Try COD or refresh the page.');
     document.body.appendChild(script);
   }, []);
 
@@ -57,7 +57,7 @@ export default function CheckoutForm({ assets }) {
   // ✅ Razorpay popup
   const initPay = (order) => {
     if (!window.Razorpay) {
-      toast.error('Razorpay not ready yet. Please try again.');
+      showError('Razorpay not ready yet. Please try again.');
       return;
     }
     const options = {
@@ -82,11 +82,11 @@ export default function CheckoutForm({ assets }) {
             setCartItems({});
             router.push('/orders?placed=true');
           } else {
-            toast.error('Payment verification failed.');
+            showError('Payment verification failed.');
           }
         } catch (err) {
-          console.error(err);
-          toast.error('Payment verification error.');
+          // console.error(err);
+          showError('Payment verification error.');
         } finally {
           setLoading(false);
         }
@@ -127,13 +127,13 @@ export default function CheckoutForm({ assets }) {
           setCartItems({});
           router.push('/orders');
         } else {
-          toast.error(res.data.message || 'Failed to place COD order.');
+          showError(res.data.message || 'Failed to place COD order.');
         }
       }
 
       if (method === 'razorpay') {
         if (!isRzpLoaded) {
-          toast.info('Preparing Razorpay… please try again.');
+          showError('Preparing Razorpay… please try again.');
           return;
         }
         const res = await axios.post(
@@ -144,12 +144,12 @@ export default function CheckoutForm({ assets }) {
         if (res.data.success) {
           initPay(res.data.order);
         } else {
-          toast.error(res.data.message || 'Failed to start Razorpay payment.');
+          showError(res.data.message || 'Failed to start Razorpay payment.');
         }
       }
     } catch (error) {
-      console.error(error);
-      toast.error(error.message || 'Something went wrong.');
+      // console.error(error);
+      showError(error.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }

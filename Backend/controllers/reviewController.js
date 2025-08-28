@@ -39,7 +39,7 @@ const submitReview = async (req, res) => {
         res.json({ success: true, message: "Review submitted successfully" });
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -57,7 +57,7 @@ const allReviews = async (req, res) => {
 
     res.json({ success: true, reviews });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -88,7 +88,7 @@ const canReview = async (req, res) => {
         res.json({ success: true, canReview: true });
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.json({ success: false, message: error.message });
     }
 };

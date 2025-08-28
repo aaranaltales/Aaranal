@@ -22,7 +22,7 @@ export const submitCustomization = async (req, res) => {
         await newCustomization.save();
         res.json({ success: true, message: "Customization request submitted!" });
     } catch (error) {
-        console.error("Error in submitCustomization:", error);
+        // console.error("Error in submitCustomization:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -33,7 +33,7 @@ export const getAllCustomizations = async (req, res) => {
         const customizations = await customizationModel.find({}).sort({ date: -1 });
         res.json({ success: true, customizations });
     } catch (error) {
-        console.error("Error in getAllCustomizations:", error);
+        // console.error("Error in getAllCustomizations:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -45,7 +45,7 @@ export const updateCustomizationStatus = async (req, res) => {
         await customizationModel.findByIdAndUpdate(id, { status });
         res.json({ success: true, message: "Status updated!" });
     } catch (error) {
-        console.error("Error in updateCustomizationStatus:", error);
+        // console.error("Error in updateCustomizationStatus:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -68,9 +68,9 @@ export const convertToOrder = async (req, res) => {
                     resource_type: 'image'
                 });
                 customImageUrl = result.secure_url;
-                console.log('Custom image uploaded to:', customImageUrl);
+                // console.log('Custom image uploaded to:', customImageUrl);
             } catch (uploadError) {
-                console.error('Cloudinary upload error:', uploadError);
+                // console.error('Cloudinary upload error:', uploadError);
                 return res.status(500).json({ 
                     success: false, 
                     message: "Failed to upload custom image" 
@@ -84,7 +84,7 @@ export const convertToOrder = async (req, res) => {
         }
 
         const finalUserId = userId || customization.userId;
-        console.log('Creating order for userId:', finalUserId);
+        // console.log('Creating order for userId:', finalUserId);
 
         const orderData = {
             userId: finalUserId,
@@ -105,12 +105,8 @@ export const convertToOrder = async (req, res) => {
             designDescription: customization.design_description
         };
 
-        console.log('Order data before save:', orderData);
-
         const newOrder = new orderModel(orderData);
         await newOrder.save();
-
-        console.log('Order saved with ID:', newOrder._id);
 
         // Update customization status
         await customizationModel.findByIdAndUpdate(customizationId, {
@@ -120,7 +116,7 @@ export const convertToOrder = async (req, res) => {
 
         res.json({ success: true, message: "Order placed successfully!", orderId: newOrder._id });
     } catch (error) {
-        console.error("Error in convertToOrder:", error);
+        // console.error("Error in convertToOrder:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

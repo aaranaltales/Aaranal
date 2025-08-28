@@ -4,7 +4,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserProfile from "./useUserProfile";
 import { useUser } from "@/context/UserContext";
-import { useToast } from "@/components/ToastContext";
 import {
   Edit2,
   Save,
@@ -43,7 +42,6 @@ export default function ProfilePage() {
     handleUploadAvatar,
   } = useUserProfile();
 
-  const { showSuccess, showError } = useToast();
   const router = useRouter();
   const [addresses, setAddresses] = useState([]);
   const [allOrders, setAllOrders] = useState([]);
@@ -142,21 +140,10 @@ export default function ProfilePage() {
     let avatarUrl = profileData.avatar;
 
     if (avatarFile) {
-      try {
-        avatarUrl = await handleUploadAvatar(avatarFile);
-      } catch (error) {
-        console.error("Error uploading avatar:", error);
-        showError("Failed to upload avatar. Please try again.");
-        return;
-      }
+      avatarUrl = await handleUploadAvatar(avatarFile);
     }
     setIsEditingProfile(false);
-    try {
-      await handleProfileUpdate(profileData.name, profileData.email, avatarUrl);
-      showSuccess("Profile updated successfully!");
-    } catch (error) {
-      showError("Failed to update profile. Please try again.");
-    }
+    await handleProfileUpdate(profileData.name, profileData.email, avatarUrl);
     setAvatarFile(null);
   };
 
@@ -179,43 +166,23 @@ export default function ProfilePage() {
   };
 
   const handleSaveEditAddress = async () => {
-    try {
-      await handleSubmitEditAddress(currentEditingAddress);
-      showSuccess("Address updated successfully!");
-    } catch (error) {
-      showError("Failed to update address. Please try again.");
-    }
+    await handleSubmitEditAddress(currentEditingAddress);
     setIsEditingAddress(false);
     setCurrentEditingAddress(null);
   };
 
   const handleDeleteAddressLocal = async (addressId) => {
-    try {
-      await handleDeleteAddress(addressId);
-      showSuccess("Address deleted successfully!");
-    } catch (error) {
-      showError("Failed to delete address. Please try again.");
-    }
+    await handleDeleteAddress(addressId);
   };
 
   const handleSetDefaultAddressLocal = async (addressId) => {
-    try {
-      await handleSetDefaultAddress(addressId);
-      showSuccess("Default address updated successfully!");
-    } catch (error) {
-      showError("Failed to update default address. Please try again.");
-    }
+    await handleSetDefaultAddress(addressId);
   };
 
   const handleSubmitNewAddressLocal = async () => {
-    try {
-      await handleSubmitNewAddress();
-      showSuccess("New address added successfully!");
-      setIsAddingNew(false);
-      setShowAddAddressForm(false);
-    } catch (error) {
-      showError("Failed to add new address. Please try again.");
-    }
+    await handleSubmitNewAddress();
+    setIsAddingNew(false);
+    setShowAddAddressForm(false);
   };
 
   const navigateToOrder = (orderId) => {
