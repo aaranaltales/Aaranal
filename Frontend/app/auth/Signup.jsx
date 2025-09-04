@@ -11,6 +11,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
   const { refreshUser } = useUser();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignupLoading, setIsSignupLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -249,7 +250,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
     }
     
     try {
-      setIsLoading(true);
+      setIsSignupLoading(true);
       const response = await signup({
         name: form.name,
         email: form.email,
@@ -272,7 +273,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
     } catch (err) {
       setError(err.message || "An error occurred during signup. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsSignupLoading(false);
     }
   };
 
@@ -349,8 +350,8 @@ export default function Signup({ onAlreadyHaveAccount }) {
                     disabled={(otpSent && countdown > 0) || isLoading}
                     className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs transition-all z-10 ${
                       (otpSent && countdown > 0) || isLoading
-                        ? "bg-white/30 text-rose-900 cursor-not-allowed"
-                        : "bg-white/10 text-white hover:bg-white/15 shadow-sm backdrop-blur-sm border border-white/20"
+                        ? "bg-rose-900/80 text-white hover:bg-rose-900/55 shadow-sm backdrop-blur-sm border border-white/20"
+                        : "bg-rose-900/80 text-white hover:bg-rose-900/55 shadow-sm backdrop-blur-sm border border-white/20"
                     }`}
                   >
                     {isLoading ? "Sending..." : (otpSent ? (countdown > 0 ? `${countdown}s` : "Resend") : "Send OTP")}
@@ -377,7 +378,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
                     className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs transition-all z-10 ${
                       otpVerified
                         ? "bg-green-500/90 text-white cursor-default"
-                        : (isLoading ? "bg-white/30 text-rose-900 cursor-not-allowed" : "bg-white/10 text-white hover:bg-white/15 shadow-sm backdrop-blur-sm border border-white/20")
+                        : (isLoading ? "bg-white/30 text-rose-900 cursor-not-allowed" : "bg-rose-900/80 text-white hover:bg-rose-900/55 shadow-sm backdrop-blur-sm border border-white/20")
                     }`}
                   >
                     {isLoading ? "Verifying..." : (otpVerified ? "Verified ✓" : "Verify")}
@@ -433,7 +434,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
                 isLoading || !otpVerified || !agreeToTerms ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {isLoading ? "Creating Account..." : "Sign Up"}
+              {isSignupLoading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
 

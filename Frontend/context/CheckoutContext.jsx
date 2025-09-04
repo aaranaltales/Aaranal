@@ -2,6 +2,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
@@ -12,6 +13,8 @@ const CheckoutContext = createContext(null);
 
 export const CheckoutProvider = ({ children }) => {
     const { user, setUser, token, cartData } = useUser();
+    const router = useRouter();
+    const pathname = usePathname();
     const { setLoading } = useLoading();
     const dbUri = process.env.NEXT_PUBLIC_BACKEND_URL;
 
