@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from "@/components/ToastContext";
 import ProductCard from '@/components/ProductCard';
+import { motion } from 'framer-motion';
 import Script from "next/script"; // ✅ important for JSON-LD
 
 export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
@@ -64,6 +65,29 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
     }
   });
 
+  // ✅ Framer Motion Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    },
+    hover: {
+      y: -8,
+      scale: 1.03,
+      transition: { duration: 0.3 }
+    }
+  };
+
   // ✅ Build JSON-LD for all products dynamically
   const productSchema = sortedProducts.map(product => ({
     "@context": "https://schema.org/",
@@ -106,21 +130,40 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
       />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 items-stretch">
+        {/* Animated Grid */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 items-stretch"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {sortedProducts.map((product) => (
-            <ProductCard
+            <motion.div
               key={product._id}
-              product={product}
-              wishlist={wishlist}
-              toggleWishlist={handleToggleWishlist}
-              addToCart={handleAddToCart}
-              currentImageIndex={currentImageIndex}
-              setCurrentImageIndex={setCurrentImageIndex}
-              scrollRefs={scrollRefs}
-            />
+              variants={cardVariants}
+              whileHover="hover"
+            >
+              <ProductCard
+                product={product}
+                wishlist={wishlist}
+                toggleWishlist={handleToggleWishlist}
+                addToCart={handleAddToCart}
+                currentImageIndex={currentImageIndex}
+                setCurrentImageIndex={setCurrentImageIndex}
+                scrollRefs={scrollRefs}
+              />
+            </motion.div>
           ))}
-        </div>
-        <div className="text-center mt-16">
+        </motion.div>
+
+        {/* Bottom Section */}
+        <motion.div
+          className="text-center mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <p className="text-gray-600 mb-8">
             Showing {sortedProducts.length} of {allProducts.length} products
           </p>
@@ -131,8 +174,10 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
             Need Custom Design?
             <i className="ri-arrow-right-line w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform"></i>
           </Link>
-        </div>
+        </motion.div>
       </div>
+
+      {/* Hide Scrollbars (for horizontal scroll) */}
       <style jsx>{`
         :global(.no-scrollbar) {
           -ms-overflow-style: none;

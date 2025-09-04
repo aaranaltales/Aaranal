@@ -20,7 +20,7 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.7,
+      duration: 0.5,
       ease: "easeOut"
     }
   }
@@ -32,7 +32,7 @@ const textVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.8,
+      duration: 0.6,
       ease: "easeOut"
     }
   }
@@ -44,7 +44,7 @@ const buttonVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.5,
       ease: "easeOut"
     }
   }
@@ -55,7 +55,7 @@ const backgroundVariants = {
   visible: {
     opacity: 1,
     transition: {
-      duration: 1.5,
+      duration: 0.7,
       ease: "easeOut"
     }
   }

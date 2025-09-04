@@ -10,7 +10,7 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.2,
-      delayChildren: 0.3
+      delayChildren: 0.2
     }
   }
 };
@@ -21,7 +21,7 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.7,
+      duration: 0.5,
       ease: "easeOut"
     }
   }
@@ -33,7 +33,7 @@ const textVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.8,
+      duration: 0.5,
       ease: "easeOut"
     }
   }
@@ -45,7 +45,7 @@ const buttonVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.4,
       ease: "easeOut"
     }
   }

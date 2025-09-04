@@ -42,7 +42,7 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.6,
+      duration: 0.4,
       ease: "easeOut"
     }
   }
@@ -54,7 +54,7 @@ const textVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.7,
+      duration: 0.4,
       ease: "easeOut"
     }
   }
@@ -66,7 +66,7 @@ const featureCardVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.7,
+      duration: 0.4,
       ease: "easeOut"
     }
   }
