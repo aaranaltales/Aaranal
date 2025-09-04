@@ -1,10 +1,15 @@
 'use client';
 import { useUser } from '@/context/UserContext';
+import { useRouter, usePathname } from 'next/navigation';
 import axios from 'axios';
 import { useState } from 'react';
+import { useToast } from "@/components/ToastContext";
 
 export default function ContactForm() {
   const { user, token } = useUser();
+  const { showSuccess, showError } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -41,6 +46,12 @@ export default function ContactForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUploading(true);
+
+    if (!token) {
+            showError("Please login to continue");
+            router.push(`/auth?redirect=${encodeURIComponent(pathname)}`);
+            return
+    }
 
     try {
       const submissionData = {

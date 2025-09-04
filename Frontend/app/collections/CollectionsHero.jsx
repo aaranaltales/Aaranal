@@ -185,29 +185,6 @@ export default function CollectionsHero() {
         >
           Step into Aaranal's collection, where every piece is thoughtfully designed with a perfect blend of style, utility, and comfort to complement your everyday lifestyle.
         </motion.p>
-
-        {/* Optional subtle floating elements */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            transition: { delay: 1 }
-          }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="text-rose-400 text-4xl"
-          >
-            ⌄
-          </motion.div>
-        </motion.div>
       </div>
     </motion.section>
   );

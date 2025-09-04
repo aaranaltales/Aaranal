@@ -63,7 +63,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "https://aaranaltales.shop/assests/og_image.png", // ✅ keep this correct
+        url: "https://aaranaltales.shop/assests/og_image.png",
         width: 1200,
         height: 630,
         alt: "Aaranal Tote Bags Collection",
@@ -75,13 +75,98 @@ export const metadata = {
     title: "Aaranal Tales | Custom & Stylish Collections",
     description:
       "Discover Aaranal’s totebag collection featuring customizable and stylish designs made for every occasion.",
-    images: ["https://aaranaltales.shop/assests/og.png"], // ✅ use your generated icon
+    images: ["https://aaranaltales.shop/assests/og.png"],
+  },
+  verification: {
+    google: "paste-your-GSC-code-here", // ✅ keep this for meta verification
   },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
+      <head>
+        {/* ✅ WebSite structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Aaranal Tales",
+              url: "https://aaranaltales.shop",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://aaranaltales.shop/search?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
+
+        {/* ✅ Breadcrumbs structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Collections",
+                  item: "https://aaranaltales.shop/collections",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Customize",
+                  item: "https://aaranaltales.shop/customize",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: "About",
+                  item: "https://aaranaltales.shop/about",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 4,
+                  name: "Auth",
+                  item: "https://aaranaltales.shop/auth",
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* ✅ Organization structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Aaranal Tales",
+              url: "https://aaranaltales.shop",
+              logo: "https://aaranaltales.shop/logo.png",
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  telephone: "+91-XXXXXXXXXX",
+                  contactType: "customer service",
+                  areaServed: "IN",
+                  availableLanguage: ["English", "Hindi", "Telugu"],
+                },
+              ],
+              sameAs: [
+                "https://www.instagram.com/aaranal.tales",
+              ],
+            }),
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${pacifico.variable} antialiased`}
       >
