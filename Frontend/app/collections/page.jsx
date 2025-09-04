@@ -1,92 +1,43 @@
-'use client';
+import CollectionsContent from "./CollectionsContent";
 
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, Suspense, useRef } from 'react';
-import CollectionsFilter from './CollectionsFilter';
-import CollectionsGrid from './CollectionsGrid';
-import CollectionsHero from './CollectionsHero';
-
-function CollectionsContent() {
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [sortBy, setSortBy] = useState('Featured');
-
-  const filterRef = useRef(null);
-
-  // Debounce search
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, 300);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
-
-  // Category from URL
-  useEffect(() => {
-    const category = searchParams.get('category');
-    if (category && ['Tote Bag', 'Pouch and Purse', 'Crochet', 'Others'].includes(category)) {
-      setActiveCategory(category);
-    }
-  }, [searchParams]);
-
-  // Auto-scroll (on mount + category change)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!filterRef.current) return;
-
-      const targetY = filterRef.current.getBoundingClientRect().top + window.scrollY;
-      const startY = window.scrollY;
-      const duration = 2000; // 2s
-      const startTime = performance.now();
-
-      const easeInOutQuad = (t) =>
-        t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
-      const step = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = easeInOutQuad(progress);
-
-        window.scrollTo(0, startY + (targetY - startY) * ease);
-
-        if (progress < 1) requestAnimationFrame(step);
-      };
-
-      requestAnimationFrame(step);
-    }, 600); // slightly longer delay for first load
-
-    return () => clearTimeout(timer);
-  }, [activeCategory]); // 👈 runs on first mount + category changes
-
-  return (
-    <div className="min-h-screen">
-      <CollectionsHero />
-
-      <div ref={filterRef} id="collections-grid" className="relative z-10">
-        <CollectionsFilter
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
-        <CollectionsGrid
-          activeCategory={activeCategory}
-          sortBy={sortBy}
-          searchQuery={debouncedSearch}
-        />
-      </div>
-    </div>
-  );
-}
+// ✅ Page-level SEO metadata
+export const metadata = {
+  title: "Collections | Aaranal Tales",
+  description:
+    "Browse Aaranal Tales collections — tote bags, pouches, crochets, and more. Stylish, customizable, and eco-friendly designs for every occasion.",
+  keywords: [
+    "tote bags",
+    "pouches",
+    "purses",
+    "crochet bags",
+    "handmade collections",
+    "eco-friendly fashion",
+    "Aaranal collections",
+    "customizable bags",
+  ],
+  openGraph: {
+    title: "Collections | Aaranal Tales",
+    description:
+      "Explore Aaranal’s exclusive collections: Tote Bags, Pouches, Crochets, and more — customizable and eco-friendly.",
+    url: "https://aaranaltales.shop/collections",
+    images: [
+      {
+        url: "https://aaranaltales.shop/assests/og_image.png",
+        width: 1200,
+        height: 630,
+        alt: "Aaranal Collections",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Collections | Aaranal Tales",
+    description:
+      "Discover Aaranal collections featuring handmade and customizable tote bags, pouches, crochets, and more.",
+    images: ["https://aaranaltales.shop/assests/og.png"],
+  },
+};
 
 export default function CollectionsPage() {
-  return (
-    <Suspense fallback={<div>Loading collections...</div>}>
-      <CollectionsContent />
-    </Suspense>
-  );
+  return <CollectionsContent />;
 }

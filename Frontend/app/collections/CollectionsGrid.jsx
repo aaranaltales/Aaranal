@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from "@/components/ToastContext";
 import ProductCard from '@/components/ProductCard';
+import Script from "next/script"; // ✅ important for JSON-LD
 
 export default function CollectionsGrid({ activeCategory, sortBy, searchQuery }) {
   const [allProducts, setAllProducts] = useState([]);
@@ -63,8 +64,47 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
     }
   });
 
+  // ✅ Build JSON-LD for all products dynamically
+  const productSchema = sortedProducts.map(product => ({
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.name,
+    image: [product.images?.[0] || ""],
+    description: product.description || "Handmade product by Aaranal Tales",
+    sku: product._id,
+    brand: {
+      "@type": "Brand",
+      name: "Aaranal Tales"
+    },
+    offers: {
+      "@type": "Offer",
+      url: `https://aaranaltales.shop/collections/${product._id}`,
+      priceCurrency: "INR",
+      price: parsePrice(product.price),
+      availability: product.stock > 0 
+        ? "https://schema.org/InStock" 
+        : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition"
+    },
+    aggregateRating: product.rating
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: product.rating,
+          reviewCount: product.reviewsCount || 1
+        }
+      : undefined
+  }));
+
   return (
     <section className="py-16 bg-gradient-to-b from-white via-rose-50/20 to-white">
+      {/* ✅ Inject Product Schema */}
+      <Script
+        id="product-schema"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 items-stretch">
           {sortedProducts.map((product) => (
@@ -93,15 +133,15 @@ export default function CollectionsGrid({ activeCategory, sortBy, searchQuery })
           </Link>
         </div>
       </div>
-       <style jsx>{`
-  :global(.no-scrollbar) {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  :global(.no-scrollbar::-webkit-scrollbar) {
-    display: none;
-  }
-`}</style>
+      <style jsx>{`
+        :global(.no-scrollbar) {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        :global(.no-scrollbar::-webkit-scrollbar) {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 }

@@ -1,46 +1,41 @@
-'use client';
-import { useEffect, useRef } from 'react';
-import ContactForm from './ContactForm';
-import ContactHero from './ContactHero';
+import CustomizeContent from "./CustomizeContent";
 
-export default function ContactPage() {
-  const formRef = useRef(null);
+// ✅ Page-level SEO metadata
+export const metadata = {
+  title: "Customize | Aaranal Tales",
+  description:
+    "Personalize your tote bags, pouches, and crochets with Aaranal Tales. Add names, quotes, or designs to create your unique fashion statement.",
+  keywords: [
+    "custom tote bags",
+    "personalized tote bags",
+    "custom pouches",
+    "custom crochets",
+    "eco-friendly custom bags",
+    "Aaranal customize",
+  ],
+  openGraph: {
+    title: "Customize | Aaranal Tales",
+    description:
+      "Design your own Aaranal products with custom names, quotes, and patterns. Perfect for gifts or personal style.",
+    url: "https://aaranaltales.shop/customize",
+    images: [
+      {
+        url: "https://aaranaltales.shop/assests/og_image.png",
+        width: 1200,
+        height: 630,
+        alt: "Customize Aaranal Tote Bags",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Customize | Aaranal Tales",
+    description:
+      "Create your personalized tote bags, crochets, and pouches with Aaranal Tales.",
+    images: ["https://aaranaltales.shop/assests/og.png"],
+  },
+};
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!formRef.current) return;
-
-      const targetY = formRef.current.getBoundingClientRect().top + window.scrollY;
-      const startY = window.scrollY;
-      const duration = 1600; // 1.2s for a smooth but not too slow scroll
-      const startTime = performance.now();
-
-      // Easing function for smooth start and end
-      const easeInOutQuad = (t) =>
-        t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
-      const step = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = easeInOutQuad(progress);
-        window.scrollTo(0, startY + (targetY - startY) * ease);
-        if (progress < 1) requestAnimationFrame(step);
-      };
-
-      requestAnimationFrame(step);
-    }, 600); // Slight delay for the hero to be visible
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <ContactHero />
-      {/* Form Section */}
-      <div ref={formRef} id="contact-form" className="relative z-10">
-        <ContactForm />
-      </div>
-    </div>
-  );
+export default function CustomizePage() {
+  return <CustomizeContent />;
 }
