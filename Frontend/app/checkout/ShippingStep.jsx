@@ -1,6 +1,9 @@
 'use client';
 
+import { useCheckoutContext } from '@/context/CheckoutContext';
 import AddressSelector from './AddressSelector';
+
+
 
 export default function ShippingStep({
     addresses,
@@ -11,6 +14,7 @@ export default function ShippingStep({
     selectAddress,
     handleChange,
 }) {
+    const { shipping } = useCheckoutContext();
 
     return (
         <div className="space-y-6">
@@ -146,9 +150,13 @@ export default function ShippingStep({
                         <div className="ml-3 flex-1">
                             <div className="flex justify-between items-center">
                                 <span className="font-medium text-gray-900">Standard Shipping</span>
-                                <span className="text-gray-600">Free</span>
+                                <span className="text-gray-600">{((shipping > 0) && (shipping < 45))? '₹'+shipping: 'Free'}</span>
                             </div>
-                            <p className="text-sm text-gray-500">10-12 business days</p>
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-gray-500">10-12 business days</p>
+                                <span className="text-gray-600 text-xs">{((shipping > 0) && (shipping < 45))? 'Orders below ₹300 are are not eligible for free delivery' : ''}</span>
+                            </div>
+                            
                         </div>
                     </label>
                     <label className="flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">

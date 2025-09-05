@@ -55,8 +55,8 @@ export default function OrderSummary() {
           <div className="flex items-center space-x-3">
             <i className="ri-truck-line w-5 h-5 flex items-center justify-center text-rose-600"></i>
             <div>
-              <p className="font-medium text-gray-900 text-sm">Right on Time</p>
-              <p className="text-xs text-gray-600">Fast & Reliable Delivery</p>
+              <p className="font-medium text-gray-900 text-sm">Free Delivery</p>
+              <p className="text-xs text-gray-600">*applicable on orders above ₹300 only</p>
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function OrderSummary() {
             <i className="ri-award-line w-5 h-5 flex items-center justify-center text-rose-600"></i>
             <div>
               <p className="font-medium text-gray-900 text-sm">Flawless Quality</p>
-              <p className="text-xs text-gray-600">Crafted to Perfection</p>
+              <p className="text-xs text-gray-600">crafted to Perfection</p>
             </div>
           </div>
         </div>
