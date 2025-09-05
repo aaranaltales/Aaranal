@@ -131,7 +131,7 @@ export const UserProvider = ({ children }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (response.data.success) {
-                showSuccess("Item added to cart");
+                showSuccess(response.data.message);
             }
         } catch (error) {
             if (error.status == 401) {
@@ -158,7 +158,7 @@ export const UserProvider = ({ children }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             if (response.data.success) {
-                showSuccess("Item added to cart");
+                showSuccess(response.data.message);
             }
         } catch (error) {
             if (response.status == 401) {
