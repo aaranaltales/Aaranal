@@ -145,7 +145,15 @@ export const CheckoutProvider = ({ children }) => {
         return cartData?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
     }, [cartData]);
 
-    const shipping = formData.shippingMethod === "express" ? 45 : 0;
+    const shipppincalc = () => {if(formData.shippingMethod === 'express'){
+        return 45
+    }else if(subtotal < 300){
+        return 40
+    }else{
+        return 0;
+    } };
+
+    const shipping = shipppincalc();
     const total = subtotal + shipping;
 
     const value = {
