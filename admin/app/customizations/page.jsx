@@ -19,7 +19,7 @@ export default function CustomizationsPage() {
     country: 'India', // Default value
     pincode: '',    // Required by schema (renamed from zipcode)
     phone: '',      // Required by schema
-    paymentMethod: 'COD',
+    paymentMethod: 'Razorpay',
     customImage: null,
     customPrice: '',
   });
@@ -95,7 +95,7 @@ export default function CustomizationsPage() {
         country: 'India',
         pincode: '',    // Reset required fields
         phone: customization?.phone || '',
-        paymentMethod: 'COD',
+        paymentMethod: 'Razorpay',
         customImage: null,
         customPrice: '',
       });
@@ -174,7 +174,7 @@ export default function CustomizationsPage() {
           country: 'India',
           pincode: '',
           phone: '',
-          paymentMethod: 'COD',
+          paymentMethod: 'Razorpay',
           customImage: null,
           customPrice: '',
         });
