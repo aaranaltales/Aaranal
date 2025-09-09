@@ -349,8 +349,6 @@ export default function CustomizationsPage() {
                         onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-400"
                       >
-                        <option value="COD">Cash on Delivery</option>
-                        <option value="Stripe">Stripe</option>
                         <option value="Razorpay">Razorpay</option>
                       </select>
                     </div>
