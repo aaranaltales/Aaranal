@@ -1,6 +1,6 @@
 import customizationModel from '../models/customizationModel.js';
 import orderModel from '../models/orderModel.js';
-import { v2 as cloudinary } from 'cloudinary';
+import { uploadToS3 } from '../config/aws.js';
 
 // Submit customization request (REMOVED reference image handling)
 export const submitCustomization = async (req, res) => {
@@ -22,7 +22,7 @@ export const submitCustomization = async (req, res) => {
         await newCustomization.save();
         res.json({ success: true, message: "Customization request submitted!" });
     } catch (error) {
-        // console.error("Error in submitCustomization:", error);
+        console.error("Error in submitCustomization:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -33,7 +33,7 @@ export const getAllCustomizations = async (req, res) => {
         const customizations = await customizationModel.find({}).sort({ date: -1 });
         res.json({ success: true, customizations });
     } catch (error) {
-        // console.error("Error in getAllCustomizations:", error);
+        console.error("Error in getAllCustomizations:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -45,12 +45,12 @@ export const updateCustomizationStatus = async (req, res) => {
         await customizationModel.findByIdAndUpdate(id, { status });
         res.json({ success: true, message: "Status updated!" });
     } catch (error) {
-        // console.error("Error in updateCustomizationStatus:", error);
+        console.error("Error in updateCustomizationStatus:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// Convert customization to order - IMPROVED: Handle files properly with multer
+// Convert customization to order - Using S3 for image uploads
 export const convertToOrder = async (req, res) => {
     try {
         const { customizationId, userId, address, paymentMethod, customPrice } = req.body;
@@ -58,19 +58,14 @@ export const convertToOrder = async (req, res) => {
         // Parse address from JSON string
         const addressObj = typeof address === 'string' ? JSON.parse(address) : address;
 
-        // Handle custom design image upload using multer (same as product controller)
+        // Handle custom design image upload using S3
         let customImageUrl = null;
         
         if (req.files && req.files.customImage && req.files.customImage[0]) {
             try {
-                const result = await cloudinary.uploader.upload(req.files.customImage[0].path, {
-                    folder: 'custom-tote-designs',
-                    resource_type: 'image'
-                });
-                customImageUrl = result.secure_url;
-                // console.log('Custom image uploaded to:', customImageUrl);
+                customImageUrl = await uploadToS3(req.files.customImage[0].path, 'custom-tote-designs');
             } catch (uploadError) {
-                // console.error('Cloudinary upload error:', uploadError);
+                console.error('S3 upload error:', uploadError);
                 return res.status(500).json({ 
                     success: false, 
                     message: "Failed to upload custom image" 
@@ -84,7 +79,6 @@ export const convertToOrder = async (req, res) => {
         }
 
         const finalUserId = userId || customization.userId;
-        // console.log('Creating order for userId:', finalUserId);
 
         const orderData = {
             userId: finalUserId,
@@ -116,7 +110,7 @@ export const convertToOrder = async (req, res) => {
 
         res.json({ success: true, message: "Order placed successfully!", orderId: newOrder._id });
     } catch (error) {
-        // console.error("Error in convertToOrder:", error);
+        console.error("Error in convertToOrder:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary"
+import { uploadToS3, deleteFromS3 } from "../config/aws.js";
 import productModel from "../models/productModel.js"
 
 // function for add product
@@ -22,13 +22,11 @@ const addProduct = async (req, res) => {
 
         const images = [image1, image2, image3, image4].filter(Boolean);
 
-        // Upload to Cloudinary and get URLs
+        // Upload to S3 and get URLs
         const imagesUrl = await Promise.all(
             images.map(async (item) => {
-                const result = await cloudinary.uploader.upload(item.path, {
-                    resource_type: 'image',
-                });
-                return result.secure_url;
+                const url = await uploadToS3(item.path, 'products');
+                return url;
             })
         );
 
@@ -52,7 +50,7 @@ const addProduct = async (req, res) => {
 
         res.json({ success: true, message: 'Product Added' });
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -95,11 +93,9 @@ const updateProduct = async (req, res) => {
 
         for (let i = 0; i < 4; i++) {
             if (newImages[i]) {
-                // Upload new image to Cloudinary
-                const result = await cloudinary.uploader.upload(newImages[i].path, {
-                    resource_type: 'image',
-                });
-                finalImages.push(result.secure_url);
+                // Upload new image to S3
+                const url = await uploadToS3(newImages[i].path, 'products');
+                finalImages.push(url);
             } else if (existingImages[i] && existingImages[i] !== 'undefined') {
                 // Keep existing image
                 finalImages.push(existingImages[i]);
@@ -133,7 +129,7 @@ const updateProduct = async (req, res) => {
 
         res.json({ success: true, message: 'Product Updated Successfully', product: updatedProduct });
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -144,7 +140,7 @@ const listProducts = async (req, res) => {
         const products = await productModel.find({});
         res.json({ success: true, products })
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -152,28 +148,26 @@ const listProducts = async (req, res) => {
 // function for removing product
 const removeProduct = async (req, res) => {
     try {
-        // Get the product to delete images from cloudinary (optional)
+        // Get the product to delete images from S3
         const product = await productModel.findById(req.body.id);
         
         // Delete the product from database
         await productModel.findByIdAndDelete(req.body.id);
         
-        // Optionally delete images from cloudinary
+        // Delete images from S3
         if (product && product.image) {
             for (const imageUrl of product.image) {
                 try {
-                    // Extract public_id from cloudinary URL
-                    const publicId = imageUrl.split('/').pop().split('.')[0];
-                    await cloudinary.uploader.destroy(publicId);
-                } catch (cloudinaryError) {
-                    // console.log('Error deleting image from cloudinary:', cloudinaryError);
+                    await deleteFromS3(imageUrl);
+                } catch (s3Error) {
+                    console.log('Error deleting image from S3:', s3Error);
                 }
             }
         }
         
         res.json({ success: true, message: "Product Removed" })
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
@@ -185,7 +179,7 @@ const singleProduct = async (req, res) => {
         const product = await productModel.findById(productId)
         res.json({ success: true, product })
     } catch (error) {
-        // console.log(error)
+        console.log(error)
         res.json({ success: false, message: error.message })
     }
 }
