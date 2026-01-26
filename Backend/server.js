@@ -9,6 +9,13 @@ const app = express()
 const port = process.env.PORT || 5000
 connectDB()
 
+// ✅ FIX FOR GOOGLE LOGIN POPUP
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none")
+  next()
+})
+
 // middlewares
 app.use(express.json())
 app.use(cors())
@@ -17,7 +24,7 @@ app.use(cors())
 app.use('/api', router)
 
 app.get('/', (req, res) => {
-    res.send("API Working")
+  res.send("API Working")
 })
 
 app.listen(port, () => console.log('Server started on PORT ' + port))

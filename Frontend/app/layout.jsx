@@ -2,7 +2,6 @@ import { Geist, Geist_Mono, Pacifico } from "next/font/google";
 import Script from "next/script";
 import LayoutWrapper from "./LayoutWrapper";
 import "./globals.css";
-import Poster from "@/components/Poster";
 
 // Fonts
 const pacifico = Pacifico({
@@ -177,7 +176,6 @@ export default function RootLayout({ children }) {
         />
         <LayoutWrapper>
           {children}
-          <Poster />
         </LayoutWrapper>
       </body>
     </html>
