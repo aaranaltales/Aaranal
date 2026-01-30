@@ -71,18 +71,19 @@ export default function Signup({ onAlreadyHaveAccount }) {
   const initializeGoogleSignIn = async () => {
     try {
       await loadGoogleScript();
-      
+
       if (window.google && googleButtonContainerRef.current) {
         // Clear any existing button
         googleButtonContainerRef.current.innerHTML = '';
-        
+
         window.google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
           callback: handleGoogleCallback,
           auto_select: false,
           cancel_on_tap_outside: true,
+          use_fedcm_for_prompt: true,
         });
-        
+
         // Render the Google button
         window.google.accounts.id.renderButton(
           googleButtonContainerRef.current,
@@ -93,7 +94,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
             text: "signup_with",
           }
         );
-        
+
         googleInitialized.current = true;
       }
     } catch (err) {
@@ -109,9 +110,9 @@ export default function Signup({ onAlreadyHaveAccount }) {
       await new Promise(resolve => setTimeout(resolve, 100));
       await initializeGoogleSignIn();
     };
-    
+
     initGoogle();
-    
+
     return () => {
       if (window.google && window.google.accounts) {
         window.google.accounts.id.cancel();
@@ -143,14 +144,14 @@ export default function Signup({ onAlreadyHaveAccount }) {
       setError("Email is required");
       return;
     }
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
       setError("Please enter a valid email address");
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const response = await sendOtp({ email: form.email });
@@ -174,14 +175,14 @@ export default function Signup({ onAlreadyHaveAccount }) {
       setError("Please enter the OTP");
       return;
     }
-    
+
     // Basic OTP validation (6 digits)
     const otpRegex = /^\d{6}$/;
     if (!otpRegex.test(form.otp)) {
       setError("OTP must be 6 digits");
       return;
     }
-    
+
     try {
       setIsLoading(true);
       const response = await verifyOtp({
@@ -222,33 +223,33 @@ export default function Signup({ onAlreadyHaveAccount }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     // Validation
     if (!form.name) {
       setError("Name is required");
       return;
     }
-    
+
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters");
       return;
     }
-    
+
     if (form.password !== form.cPassword) {
       setError("Passwords do not match");
       return;
     }
-    
+
     if (!agreeToTerms) {
       setError("You must agree to the terms and conditions");
       return;
     }
-    
+
     if (!otpVerified) {
       setError("Please verify your email with OTP first");
       return;
     }
-    
+
     try {
       setIsSignupLoading(true);
       const response = await signup({
@@ -257,7 +258,7 @@ export default function Signup({ onAlreadyHaveAccount }) {
         password: form.password,
         otp: form.otp,
       });
-      
+
       if (response.success && response.token) {
         Cookies.set("token", response.token, {
           expires: 3,
@@ -348,11 +349,10 @@ export default function Signup({ onAlreadyHaveAccount }) {
                     type="button"
                     onClick={otpSent && countdown === 0 ? handleResendOtp : handleSendOtp}
                     disabled={(otpSent && countdown > 0) || isLoading}
-                    className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs transition-all z-10 ${
-                      (otpSent && countdown > 0) || isLoading
+                    className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs transition-all z-10 ${(otpSent && countdown > 0) || isLoading
                         ? "bg-rose-900/80 text-white hover:bg-rose-900/55 shadow-sm backdrop-blur-sm border border-white/20"
                         : "bg-rose-900/80 text-white hover:bg-rose-900/55 shadow-sm backdrop-blur-sm border border-white/20"
-                    }`}
+                      }`}
                   >
                     {isLoading ? "Sending..." : (otpSent ? (countdown > 0 ? `${countdown}s` : "Resend") : "Send OTP")}
                   </button>
@@ -375,11 +375,10 @@ export default function Signup({ onAlreadyHaveAccount }) {
                     type="button"
                     onClick={handleVerifyOtp}
                     disabled={otpVerified || isLoading}
-                    className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs transition-all z-10 ${
-                      otpVerified
+                    className={`absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-full text-xs transition-all z-10 ${otpVerified
                         ? "bg-green-500/90 text-white cursor-default"
                         : (isLoading ? "bg-white/30 text-rose-900 cursor-not-allowed" : "bg-rose-900/80 text-white hover:bg-rose-900/55 shadow-sm backdrop-blur-sm border border-white/20")
-                    }`}
+                      }`}
                   >
                     {isLoading ? "Verifying..." : (otpVerified ? "Verified ✓" : "Verify")}
                   </button>
@@ -430,9 +429,8 @@ export default function Signup({ onAlreadyHaveAccount }) {
             <button
               type="submit"
               disabled={isLoading || !otpVerified || !agreeToTerms}
-              className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-3 text-sm sm:text-base ${
-                isLoading || !otpVerified || !agreeToTerms ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`w-full bg-white text-rose-700 px-6 py-2 sm:px-7 sm:py-2.5 rounded-full hover:bg-rose-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap cursor-pointer font-medium shadow-lg mt-3 text-sm sm:text-base ${isLoading || !otpVerified || !agreeToTerms ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               {isSignupLoading ? "Creating Account..." : "Sign Up"}
             </button>

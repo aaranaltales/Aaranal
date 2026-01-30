@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Heart,
   ShoppingBag,
   ChevronRight,
+  ArrowLeft,
   Shield,
   Truck,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import { useLoading } from "@/context/LoadingContext";
 
 export default function DynamicProductPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.id;
   const { addToCart, toggleWishlist, wishlist } = useUser();
   const [productsData, setAllProducts] = useState([]);
@@ -101,7 +103,16 @@ export default function DynamicProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      {/* Floating Back Button */}
+      <button
+        onClick={() => router.back()}
+        className="fixed top-24 left-4 md:left-10 lg:left-16 z-50 p-3 bg-white/95 backdrop-blur-md border-2 border-rose-100 rounded-full shadow-lg text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300 group"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="w-6 h-6" />
+      </button>
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
         {/* Product image and info sections */}
         <div className="grid lg:grid-cols-2 gap-16">
@@ -135,8 +146,8 @@ export default function DynamicProductPage() {
                       type="button"
                       aria-label={`Go to image ${idx + 1}`}
                       className={`w-2 h-2 rounded-full transition-all duration-300 outline-none focus:outline-none ${selectedImage === idx
-                          ? 'bg-rose-500 scale-125'
-                          : 'bg-white/80'
+                        ? 'bg-rose-500 scale-125'
+                        : 'bg-white/80'
                         }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -214,8 +225,8 @@ export default function DynamicProductPage() {
                   setIsWishlisted(!isWishlisted);
                 }}
                 className={`w-full py-3 rounded-full border-2 transition-all flex items-center justify-center space-x-2 ${isWishlisted
-                    ? "border-rose-500 text-rose-700 bg-rose-50"
-                    : "border-gray-300 hover:border-gray-400"
+                  ? "border-rose-500 text-rose-700 bg-rose-50"
+                  : "border-gray-300 hover:border-gray-400"
                   }`}
               >
                 <Heart
@@ -335,7 +346,7 @@ export default function DynamicProductPage() {
         </div>
       </div>
 
- <style jsx>{`
+      <style jsx>{`
   :global(.no-scrollbar) {
     -ms-overflow-style: none;
     scrollbar-width: none;

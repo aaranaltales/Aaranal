@@ -50,6 +50,7 @@ export default function Login({ onCreateAccount }) {
           callback: handleGoogleCallback,
           auto_select: false,
           cancel_on_tap_outside: true,
+          use_fedcm_for_prompt: true,
         });
 
         // Render the Google button
