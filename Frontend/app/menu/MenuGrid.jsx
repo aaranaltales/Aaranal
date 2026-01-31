@@ -120,8 +120,8 @@ export default function MenuGrid() {
                     <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         className={`w-full flex items-center justify-between px-5 py-3 bg-white border-2 rounded-full text-left font-medium shadow-sm transition-all duration-200 ${isDropdownOpen
-                                ? "border-rose-300 ring-4 ring-rose-50 text-rose-600"
-                                : "border-rose-100 text-gray-700 hover:border-rose-200"
+                            ? "border-rose-300 ring-4 ring-rose-50 text-rose-600"
+                            : "border-rose-100 text-gray-700 hover:border-rose-200"
                             }`}
                     >
                         <span className="truncate mr-2">{activeCategory}</span>
@@ -143,8 +143,8 @@ export default function MenuGrid() {
                                             key={category}
                                             onClick={() => handleCategorySelect(category)}
                                             className={`w-full text-left px-4 py-3 rounded-xl transition-colors duration-200 flex items-center justify-between ${activeCategory === category
-                                                    ? "bg-rose-50 text-rose-700 font-semibold"
-                                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                                ? "bg-rose-50 text-rose-700 font-semibold"
+                                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                                 }`}
                                         >
                                             {category}
@@ -169,7 +169,7 @@ export default function MenuGrid() {
                     pages.map((pageProducts, pageIndex) => (
                         <div
                             key={pageIndex}
-                            className="w-full flex-shrink-0 snap-center px-1" // Each page takes full width
+                            className="w-full flex-shrink-0 snap-center snap-always px-1" // Each page takes full width
                         >
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
                                 {pageProducts.map((product) => (
@@ -228,8 +228,8 @@ export default function MenuGrid() {
                         onClick={scrollPrev}
                         disabled={currentPage === 1}
                         className={`p-4 rounded-full flex items-center justify-center transition-all ${currentPage === 1
-                                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                                : "bg-white text-rose-600 shadow-md hover:bg-rose-50 border border-rose-100"
+                            ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                            : "bg-white text-rose-600 shadow-md hover:bg-rose-50 border border-rose-100"
                             }`}
                     >
                         <ChevronLeft size={24} />
@@ -243,8 +243,8 @@ export default function MenuGrid() {
                         onClick={scrollNext}
                         disabled={currentPage === totalPages}
                         className={`p-4 rounded-full flex items-center justify-center transition-all ${currentPage === totalPages
-                                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                                : "bg-white text-rose-600 shadow-md hover:bg-rose-50 border border-rose-100"
+                            ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                            : "bg-white text-rose-600 shadow-md hover:bg-rose-50 border border-rose-100"
                             }`}
                     >
                         <ChevronRight size={24} />
